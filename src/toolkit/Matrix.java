@@ -85,6 +85,7 @@ public class Matrix {
 	}
 
 	// Loads from an ARFF file
+	@SuppressWarnings("resource")
 	public void loadArff(String filename) throws Exception, FileNotFoundException {
 		m_data = new ArrayList<double[]>();
 		m_attr_name = new ArrayList<String>();
@@ -98,12 +99,14 @@ public class Matrix {
 				if (!READDATA) {
 
 					Scanner t = new Scanner(line);
+
 					String firstToken = t.next().toUpperCase();
 
 					if (firstToken.equals("@RELATION")) {
+						@SuppressWarnings("unused")
 						String datasetName = t.nextLine();
 					}
-
+					t.close();
 					if (firstToken.equals("@ATTRIBUTE")) {
 						TreeMap<String, Integer> ste = new TreeMap<String, Integer>();
 						m_str_to_enum.add(ste);
@@ -121,6 +124,7 @@ public class Matrix {
 
 						int vals = 0;
 						String type = u.next().trim().toUpperCase();
+						u.close();
 						if (type.equals("REAL") || type.equals("CONTINUOUS") || type.equals("INTEGER")) {
 						} else {
 							try {
@@ -135,6 +139,7 @@ public class Matrix {
 										vals++;
 									}
 								}
+								v.close();
 							} catch (Exception e) {
 								throw new Exception("Error parsing line: " + line + "\n" + e.toString());
 							}
@@ -184,13 +189,17 @@ public class Matrix {
 								curPos++;
 							}
 						}
+						t.close();
 					} catch (Exception e) {
 						throw new Exception("Error parsing line: " + line + "\n" + e.toString());
 					}
 					m_data.add(newrow);
+
 				}
+
 			}
 		}
+		s.close();
 	}
 
 	// Returns the number of rows in the matrix
