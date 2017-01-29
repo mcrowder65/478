@@ -103,7 +103,6 @@ public class Matrix {
 					String firstToken = t.next().toUpperCase();
 
 					if (firstToken.equals("@RELATION")) {
-						@SuppressWarnings("unused")
 						String datasetName = t.nextLine();
 					}
 					t.close();
