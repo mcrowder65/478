@@ -202,22 +202,22 @@ public class Matrix {
 	}
 
 	// Returns the number of rows in the matrix
-	int rows() {
+	public int rows() {
 		return m_data.size();
 	}
 
 	// Returns the number of columns (or attributes) in the matrix
-	int cols() {
+	public int cols() {
 		return m_attr_name.size();
 	}
 
 	// Returns the specified row
-	double[] row(int r) {
+	public double[] row(int r) {
 		return m_data.get(r);
 	}
 
 	// Returns the element at the specified row and column
-	double get(int r, int c) {
+	public double get(int r, int c) {
 		return m_data.get(r)[c];
 	}
 
