@@ -85,7 +85,7 @@ public class Matrix {
 	}
 
 	// Loads from an ARFF file
-	@SuppressWarnings("resource")
+	@SuppressWarnings({ "resource", "unused" })
 	public void loadArff(String filename) throws Exception, FileNotFoundException {
 		m_data = new ArrayList<double[]>();
 		m_attr_name = new ArrayList<String>();

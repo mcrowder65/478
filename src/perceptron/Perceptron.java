@@ -121,6 +121,7 @@ public class Perceptron extends SupervisedLearner {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void outputStuff(double[] pattern, double net, double z, double[] changeInWeights, double target) {
 		Utilities.outputArray(pattern, false);
 		System.out.print(" " + BIAS);
