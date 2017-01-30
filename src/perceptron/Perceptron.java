@@ -66,7 +66,7 @@ public class Perceptron extends SupervisedLearner {
 			double z = net > 0 ? 1 : 0;
 			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z);
 			myWeights = combineArrays(myWeights, changeInWeights);
-
+			// this.outputStuff(pattern, net, z, changeInWeights, target);
 		}
 	}
 
@@ -85,6 +85,7 @@ public class Perceptron extends SupervisedLearner {
 		double maxAccuracy = 0;
 		int iterations = 0;
 		while (iterations != MAX_ITERATIONS) {
+
 			epoch(features, labels);
 			++epochs;
 			double accuracy = this.measureAccuracy(features, labels, null);
@@ -94,6 +95,7 @@ public class Perceptron extends SupervisedLearner {
 			} else if (accuracy <= maxAccuracy) {
 				++iterations;
 			}
+			features.shuffle(rand, labels);
 
 		}
 		System.out.println("epochs: " + epochs);
