@@ -98,6 +98,8 @@ public class Perceptron extends SupervisedLearner {
 			features.shuffle(rand, labels);
 
 		}
+
+		// TODO take heaviest weight and that is most important
 		System.out.println("epochs: " + epochs);
 	}
 
