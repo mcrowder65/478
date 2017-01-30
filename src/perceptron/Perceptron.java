@@ -13,6 +13,7 @@ public class Perceptron extends SupervisedLearner {
 	private final static double THRESHOLD = 0;
 
 	private double[] myWeights;
+	private final static int MAX_ITERATIONS = 5;
 
 	public Perceptron(Random rand) {
 		this.rand = rand;
@@ -80,25 +81,20 @@ public class Perceptron extends SupervisedLearner {
 		myWeights = new double[features.cols() + 1];
 		initializeWeights();
 		Utilities.outputArray("weights:", myWeights, true);
-		// System.out.println(
-		// " Pattern Bias Target Weight Vector Net Output Change in Weight");
 		int epochs = 0;
-		double previousAccuracy = 0;
-		int iterations = 1;
-		while (true) {
+		double maxAccuracy = 0;
+		int iterations = 0;
+		while (iterations != MAX_ITERATIONS) {
 			epoch(features, labels);
 			++epochs;
 			double accuracy = this.measureAccuracy(features, labels, null);
-			if (previousAccuracy <= accuracy) {
+			if (accuracy > maxAccuracy) {
+				maxAccuracy = accuracy;
+				iterations = 0;
+			} else if (accuracy <= maxAccuracy) {
 				++iterations;
-			} else {
-				iterations = 1;
 			}
-			previousAccuracy = accuracy;
-			// System.out.println("Accuracy: " + accuracy);
-			if (iterations == 5) {
-				break;
-			}
+
 		}
 		System.out.println("epochs: " + epochs);
 	}
