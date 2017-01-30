@@ -69,17 +69,6 @@ public class Perceptron extends SupervisedLearner {
 		}
 	}
 
-	private void outputStuff(double[] pattern, double net, double z, double[] changeInWeights, double target) {
-		Utilities.outputArray(pattern, false);
-		System.out.print(" " + BIAS);
-		System.out.print(" " + target + " ");
-		Utilities.outputArray(myWeights, false);
-		System.out.print(" " + net);
-		System.out.print(" " + z + " ");
-		Utilities.outputArray(changeInWeights, false);
-		System.out.println();
-	}
-
 	private void initializeWeights() {
 		for (int i = 0; i < myWeights.length; i++) {
 			myWeights[i] = Utilities.randomDouble(rand, -0.5, 0.5);
@@ -97,8 +86,6 @@ public class Perceptron extends SupervisedLearner {
 		double previousAccuracy = 0;
 		int iterations = 1;
 		while (true) {
-			// TODO check for oscillations in case of it not being linearly
-			// separable
 			epoch(features, labels);
 			++epochs;
 			double accuracy = this.measureAccuracy(features, labels, null);
@@ -132,6 +119,17 @@ public class Perceptron extends SupervisedLearner {
 		} else {
 			labels[0] = 0;
 		}
+	}
+
+	private void outputStuff(double[] pattern, double net, double z, double[] changeInWeights, double target) {
+		Utilities.outputArray(pattern, false);
+		System.out.print(" " + BIAS);
+		System.out.print(" " + target + " ");
+		Utilities.outputArray(myWeights, false);
+		System.out.print(" " + net);
+		System.out.print(" " + z + " ");
+		Utilities.outputArray(changeInWeights, false);
+		System.out.println();
 	}
 
 }
