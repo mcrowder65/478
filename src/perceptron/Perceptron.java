@@ -95,7 +95,7 @@ public class Perceptron extends SupervisedLearner {
 				iterations = 1;
 			}
 			previousAccuracy = accuracy;
-			System.out.println("Accuracy: " + accuracy);
+			// System.out.println("Accuracy: " + accuracy);
 			if (iterations == 5) {
 				break;
 			}
