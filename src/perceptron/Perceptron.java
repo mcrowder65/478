@@ -8,8 +8,6 @@ import utilities.Utilities;
 
 public class Perceptron extends SupervisedLearner {
 	private Random rand;
-	// private double[] netValues = { 0, 0.11, 0.12, 0.11, 0.08, -0.08, 0.00,
-	// -0.17 };
 	private final static int BIAS = 1;
 
 	private final static double THRESHOLD = 0;
@@ -62,20 +60,24 @@ public class Perceptron extends SupervisedLearner {
 		for (int i = 0; i < features.rows(); i++) {
 			final double[] pattern = features.row(i);
 			final double target = labels.row(i)[0];
-			// Utilities.outputArray(pattern, false);
-			// System.out.print(" " + BIAS);
-			// System.out.print(" " + target + " ");
-			// Utilities.outputArray(myWeights, false);
+
 			double net = evaluateNet(pattern);
 			double z = net > 0 ? 1 : 0;
 			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z);
 			myWeights = combineArrays(myWeights, changeInWeights);
 
-			// System.out.print(" " + net);
-			// System.out.print(" " + z + " ");
-			// Utilities.outputArray(changeInWeights, false);
-			// System.out.println();
 		}
+	}
+
+	private void outputStuff(double[] pattern, double net, double z, double[] changeInWeights, double target) {
+		Utilities.outputArray(pattern, false);
+		System.out.print(" " + BIAS);
+		System.out.print(" " + target + " ");
+		Utilities.outputArray(myWeights, false);
+		System.out.print(" " + net);
+		System.out.print(" " + z + " ");
+		Utilities.outputArray(changeInWeights, false);
+		System.out.println();
 	}
 
 	private void initializeWeights() {
