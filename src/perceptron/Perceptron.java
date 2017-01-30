@@ -55,8 +55,6 @@ public class Perceptron extends SupervisedLearner {
 
 	private double[] epoch(Matrix features, Matrix labels, double[] weights) {
 
-		System.out.println(
-				"   Pattern       Bias    Target         Weight Vector         Net       Output                  Change in Weight");
 		for (int i = 0; i < features.rows(); i++) {
 			final double[] pattern = features.row(i);
 			final double target = labels.row(i)[0];
@@ -80,11 +78,20 @@ public class Perceptron extends SupervisedLearner {
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		double[] weights = new double[features.cols() + 1];
+		System.out.println(
+				"   Pattern       Bias    Target         Weight Vector         Net       Output                  Change in Weight");
 		int epochs = 0;
-		do {
+		while (true) {
 			weights = epoch(features, labels, weights);
 			++epochs;
-		} while (true);
+			if (stopTraining(weights)) {
+				break;
+			}
+		}
+	}
+
+	private boolean stopTraining(double[] weights) {
+		return true;
 	}
 
 	private double[] combineArrays(double[] one, double[] two) {
@@ -98,7 +105,7 @@ public class Perceptron extends SupervisedLearner {
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		// TODO Auto-generated method stub
-		// Utilities.outputArray("features", features);
+		Utilities.outputArray("features", features, true);
 	}
 
 }
