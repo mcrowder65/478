@@ -88,8 +88,9 @@ public class Perceptron extends SupervisedLearner {
 	public void train(Matrix features, Matrix labels) throws Exception {
 		myWeights = new double[features.cols() + 1];
 		initializeWeights();
-		System.out.println(
-				"   Pattern       Bias    Target         Weight Vector         Net       Output                  Change in Weight");
+		Utilities.outputArray("weights:", myWeights, true);
+		// System.out.println(
+		// " Pattern Bias Target Weight Vector Net Output Change in Weight");
 		int epochs = 0;
 		double previousAccuracy = 0;
 		int iterations = 1;
@@ -97,10 +98,9 @@ public class Perceptron extends SupervisedLearner {
 			// TODO check for oscillations in case of it not being linearly
 			// separable
 			epoch(features, labels);
-			Utilities.outputArray("weights:", myWeights, true);
 			++epochs;
 			double accuracy = this.measureAccuracy(features, labels, null);
-			if (previousAccuracy == accuracy) {
+			if (previousAccuracy <= accuracy) {
 				++iterations;
 			} else {
 				iterations = 1;
