@@ -12,6 +12,10 @@ public class Perceptron extends SupervisedLearner {
 	// -0.17 };
 	private final static int BIAS = 1;
 
+	private final static double THRESHOLD = 0;
+
+	private double[] myWeights;
+
 	public Perceptron(Random rand) {
 		this.rand = rand;
 	}
@@ -45,53 +49,69 @@ public class Perceptron extends SupervisedLearner {
 		return output;
 	}
 
-	private double calculateNet(double[] pattern) {
+	private double evaluateNet(double[] pattern) {
 		double net = 0;
-		for (int i = 0; i < pattern.length; i++) {
-			net += pattern[i] * Utilities.randomDouble(rand, -1, 1);
+		for (int i = 0; i < pattern.length + 1; i++) {
+			net += (i == pattern.length ? BIAS * myWeights[i] : pattern[i] * myWeights[i]);
 		}
 		return Utilities.round(net);
 	}
 
-	private double[] epoch(Matrix features, Matrix labels, double[] weights) {
-
+	private void epoch(Matrix features, Matrix labels) {
+		final double learningRate = 0.1;
 		for (int i = 0; i < features.rows(); i++) {
 			final double[] pattern = features.row(i);
 			final double target = labels.row(i)[0];
-			Utilities.outputArray(pattern, false);
-			System.out.print("      " + BIAS);
-			System.out.print("       " + target + "      ");
-			Utilities.outputArray(weights, false);
-			double net = calculateNet(pattern);
-			double z = net >= 0 ? 1 : 0;
-			final double[] changeInWeights = perceptronAlgorithm(pattern, .1, target, net, z);
-			weights = combineArrays(weights, changeInWeights);
+			// Utilities.outputArray(pattern, false);
+			// System.out.print(" " + BIAS);
+			// System.out.print(" " + target + " ");
+			// Utilities.outputArray(myWeights, false);
+			double net = evaluateNet(pattern);
+			double z = net > 0 ? 1 : 0;
+			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z);
+			myWeights = combineArrays(myWeights, changeInWeights);
 
-			System.out.print("       " + net);
-			System.out.print("         " + z + "                 ");
-			Utilities.outputArray(changeInWeights, false);
-			System.out.println();
+			// System.out.print(" " + net);
+			// System.out.print(" " + z + " ");
+			// Utilities.outputArray(changeInWeights, false);
+			// System.out.println();
 		}
-		return weights;
+	}
+
+	private void initializeWeights() {
+		for (int i = 0; i < myWeights.length; i++) {
+			myWeights[i] = Utilities.randomDouble(rand, -0.5, 0.5);
+		}
 	}
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-		double[] weights = new double[features.cols() + 1];
+		myWeights = new double[features.cols() + 1];
+		initializeWeights();
 		System.out.println(
 				"   Pattern       Bias    Target         Weight Vector         Net       Output                  Change in Weight");
 		int epochs = 0;
+		double previousAccuracy = 0;
+		int iterations = 1;
 		while (true) {
-			weights = epoch(features, labels, weights);
+			// TODO check for oscillations in case of it not being linearly
+			// separable
+			epoch(features, labels);
+			Utilities.outputArray("weights:", myWeights, true);
 			++epochs;
-			if (stopTraining(weights)) {
+			double accuracy = this.measureAccuracy(features, labels, null);
+			if (previousAccuracy == accuracy) {
+				++iterations;
+			} else {
+				iterations = 1;
+			}
+			previousAccuracy = accuracy;
+			System.out.println("Accuracy: " + accuracy);
+			if (iterations == 5) {
 				break;
 			}
 		}
-	}
-
-	private boolean stopTraining(double[] weights) {
-		return true;
+		System.out.println("epochs: " + epochs);
 	}
 
 	private double[] combineArrays(double[] one, double[] two) {
@@ -104,8 +124,12 @@ public class Perceptron extends SupervisedLearner {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		// TODO Auto-generated method stub
-		Utilities.outputArray("features", features, true);
+		double net = evaluateNet(features);
+		if (net > THRESHOLD) {
+			labels[0] = 1;
+		} else {
+			labels[0] = 0;
+		}
 	}
 
 }
