@@ -42,7 +42,7 @@ public class SinglePerceptron extends Perceptron {
 				++iterations;
 			}
 			// TODO only do for voting
-			features.shuffle(rand, labels);
+			// features.shuffle(rand, labels);
 
 		}
 		System.out.println("epochs: " + epochs);
