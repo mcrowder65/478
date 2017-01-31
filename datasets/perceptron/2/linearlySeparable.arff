@@ -1,0 +1,13 @@
+@relation linearlySeparable
+@attribute a1 real
+@attribute a2 real
+@attribute class {first,second}
+@data
+-0.9, 0.3, first
+-0.2, -0.4, first
+-0.7, 0.45, first
+-0.05, 0.05, first
+0.15, -0.51, second
+1.0, -0.95, second
+0.37, 0.22, second
+0.59, -0.43, second
