@@ -3,7 +3,6 @@ package toolkit;
 
 import java.util.Random;
 
-import perceptron.MultiplePerceptron;
 import perceptron.SinglePerceptron;
 
 public class MLSystemManager {
@@ -17,8 +16,8 @@ public class MLSystemManager {
 			return new BaselineLearner();
 		else if (model.equals("singleperceptron"))
 			return new SinglePerceptron(rand);
-		else if (model.equals("multipleperceptron"))
-			return new MultiplePerceptron(rand);
+		// else if (model.equals("multipleperceptron"))
+		// return new MultiplePerceptron(rand);
 		// else if (model.equals("neuralnet")) return new NeuralNet(rand);
 		// else if (model.equals("decisiontree")) return new DecisionTree();
 		// else if (model.equals("knn")) return new InstanceBasedLearner();
