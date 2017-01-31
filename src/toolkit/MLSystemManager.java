@@ -4,7 +4,7 @@ package toolkit;
 import java.util.Random;
 
 import perceptron.MultiplePerceptron;
-import perceptron.Perceptron;
+import perceptron.SinglePerceptron;
 
 public class MLSystemManager {
 
@@ -15,8 +15,8 @@ public class MLSystemManager {
 	public SupervisedLearner getLearner(String model, Random rand) throws Exception {
 		if (model.equals("baseline"))
 			return new BaselineLearner();
-		else if (model.equals("perceptron"))
-			return new Perceptron(rand);
+		else if (model.equals("singleperceptron"))
+			return new SinglePerceptron(rand);
 		else if (model.equals("multipleperceptron"))
 			return new MultiplePerceptron(rand);
 		// else if (model.equals("neuralnet")) return new NeuralNet(rand);

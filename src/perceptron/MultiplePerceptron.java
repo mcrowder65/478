@@ -3,9 +3,8 @@ package perceptron;
 import java.util.Random;
 
 import toolkit.Matrix;
-import toolkit.SupervisedLearner;
 
-public class MultiplePerceptron extends SupervisedLearner {
+public class MultiplePerceptron extends Perceptron {
 	private Random rand;
 	private final static int BIAS = 1;
 
@@ -23,14 +22,14 @@ public class MultiplePerceptron extends SupervisedLearner {
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		// TODO Auto-generated method stub
-		System.out.println("train!");
+		System.out.println("multiple perceptron train!");
 
 	}
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		// TODO Auto-generated method stub
-		System.out.println("predict!");
+		System.out.println("multiple perceptron predict!");
 
 	}
 
