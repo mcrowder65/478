@@ -31,9 +31,10 @@ public class SinglePerceptron extends Perceptron {
 		double maxAccuracy = 0;
 		int iterations = 0;
 		while (iterations != MAX_ITERATIONS) {
-			this.myWeights = this.epoch(features, labels, LEARNING_RATE, this.myWeights, BIAS);
+			myWeights = epoch(features, labels, LEARNING_RATE, myWeights, BIAS);
 			++epochs;
-			double accuracy = this.measureAccuracy(features, labels, null);
+			double accuracy = measureAccuracy(features, labels, null);
+
 			if (accuracy > maxAccuracy) {
 				maxAccuracy = accuracy;
 				iterations = 0;
@@ -44,10 +45,10 @@ public class SinglePerceptron extends Perceptron {
 
 		}
 
-		Utilities.outputArray("final weights:", this.myWeights, true);
-		System.out.println("most important weight index: " + this.mostImportantWeightIndex(this.myWeights));
+		Utilities.outputArray("final weights:", myWeights, true);
+		System.out.println("most important weight index: " + this.mostImportantWeightIndex(myWeights));
 		System.out.println(
-				"most important feature: " + features.m_attr_name.get(this.mostImportantWeightIndex(this.myWeights)));
+				"most important feature: " + features.m_attr_name.get(this.mostImportantWeightIndex(myWeights)));
 		System.out.println("epochs: " + epochs);
 	}
 
@@ -59,6 +60,33 @@ public class SinglePerceptron extends Perceptron {
 		} else {
 			labels[0] = 0;
 		}
+	}
+
+	/**
+	 * 
+	 * @param features
+	 *            Matrix
+	 * @param labels
+	 *            Matrix
+	 * @param learningRate
+	 *            double
+	 * @param weights
+	 *            double[]
+	 * @param bias
+	 *            double
+	 * @return double[]
+	 */
+	private double[] epoch(Matrix features, Matrix labels, double learningRate, double[] weights, double bias) {
+		for (int i = 0; i < features.rows(); i++) {
+			final double[] pattern = features.row(i);
+			final double target = labels.row(i)[0];
+
+			final double net = evaluateNet(pattern, weights, bias);
+			final double z = net > 0 ? 1 : 0;
+			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z, bias);
+			weights = combineArrays(weights, changeInWeights);
+		}
+		return weights;
 	}
 
 }
