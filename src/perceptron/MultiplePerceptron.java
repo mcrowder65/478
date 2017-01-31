@@ -99,7 +99,7 @@ public class MultiplePerceptron extends Perceptron {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		System.out.println("labels[0]: " + labels[0]);
+		// if outputting 1, then output 0, 1, or 2
 		double net = this.evaluateNet(features, this.weights.get(this.currentIndex), this.currentBias);
 		if (net > THRESHOLD) {
 			labels[0] = 1;
