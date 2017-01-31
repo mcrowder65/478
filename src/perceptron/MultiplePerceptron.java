@@ -57,14 +57,17 @@ public class MultiplePerceptron extends Perceptron {
 			tempWeights = this.initializeWeights(tempWeights, this.rand);
 
 			this.weights.add(tempWeights);
-			int epochs = 0;
 			currentIndex = i;
+			Utilities.outputArray("initial weights:", this.weights.get(currentIndex), true);
+			int epochs = 0;
+
 			double maxAccuracy = 0;
 			int iterations = 0;
 			while (iterations != MAX_ITERATIONS) {
 				double[] temp = epoch(features, labels, LEARNING_RATE, weights.get(this.currentIndex),
 						set * this.currentIndex, set * this.currentIndex + set - 1);
 				this.weights.set(this.currentIndex, temp);
+				Utilities.outputArray("weights:", this.weights.get(currentIndex), true);
 				++epochs;
 				// System.out.println("epoch #: " + epochs);
 				double accuracy = measureAccuracy(features, labels, null);
