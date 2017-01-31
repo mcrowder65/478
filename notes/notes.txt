@@ -1,0 +1,1 @@
+-L perceptron -A datasets/voting.arff -E random .7
