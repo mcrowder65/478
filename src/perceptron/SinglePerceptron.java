@@ -32,10 +32,13 @@ public class SinglePerceptron extends Perceptron {
 		while (iterations != MAX_ITERATIONS) {
 			myWeights = epoch(features, labels, LEARNING_RATE, myWeights);
 			++epochs;
+
 			double accuracy = Utilities.round(measureAccuracy(features, labels, null));
-			System.out.println("accuracy: " + accuracy + " maxAccuracy: " + maxAccuracy);
+			// System.out.println("accuracy: " + accuracy + " maxAccuracy: " +
+			// maxAccuracy);
+			System.out.print(epochs + ", ");
+			System.out.print(accuracy + "\n");
 			if (accuracy > maxAccuracy) {
-				System.out.println("accuracy > maxAccuracy");
 				maxAccuracy = accuracy;
 				iterations = 0;
 			} else if (accuracy <= maxAccuracy) {
@@ -45,6 +48,8 @@ public class SinglePerceptron extends Perceptron {
 			// features.shuffle(rand, labels);
 
 		}
+		System.out.println();
+		System.out.println("accuracy: " + maxAccuracy);
 		System.out.println("epochs: " + epochs);
 	}
 

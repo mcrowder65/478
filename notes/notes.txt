@@ -1,1 +1,5 @@
 -L perceptron -A datasets/voting.arff -E random .7
+
+2 - graph x/y points and the line
+
+5 - do accuracy / epochs 
