@@ -40,14 +40,16 @@ public class SinglePerceptron extends Perceptron {
 			} else if (accuracy <= maxAccuracy) {
 				++iterations;
 			}
-			features.shuffle(rand, labels);
+			// features.shuffle(rand, labels);
 
 		}
 
-		Utilities.outputArray("final weights:", myWeights, true);
-		System.out.println("most important weight index: " + this.mostImportantWeightIndex(myWeights));
-		System.out.println(
-				"most important feature: " + features.m_attr_name.get(this.mostImportantWeightIndex(myWeights)));
+		// Utilities.outputArray("final weights:", myWeights, true);
+		// System.out.println("most important weight index: " +
+		// this.mostImportantWeightIndex(myWeights));
+		// System.out.println(
+		// "most important feature: " +
+		// features.m_attr_name.get(this.mostImportantWeightIndex(myWeights)));
 		System.out.println("epochs: " + epochs);
 	}
 
