@@ -20,17 +20,9 @@ public class Perceptron extends SupervisedLearner {
 		this.rand = rand;
 	}
 
-	private void irisTrainingSet(Matrix features, Matrix labels) {
-
-	}
-
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 
-		if (labels.m_enum_to_str.get(0).size() == 3) {
-			irisTrainingSet(features, labels);
-			return;
-		}
 		this.myWeights = new double[features.cols() + 1];
 		this.myWeights = this.initializeWeights(this.myWeights, this.rand);
 		Utilities.outputArray("weights:", this.myWeights, true);
