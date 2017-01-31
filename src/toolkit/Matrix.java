@@ -20,8 +20,8 @@ public class Matrix {
 
 	// Meta-data
 	public ArrayList<String> m_attr_name;
-	ArrayList<TreeMap<String, Integer>> m_str_to_enum;
-	ArrayList<TreeMap<Integer, String>> m_enum_to_str;
+	public ArrayList<TreeMap<String, Integer>> m_str_to_enum;
+	public ArrayList<TreeMap<Integer, String>> m_enum_to_str;
 
 	static double MISSING = Double.MAX_VALUE; // representation of missing
 												// values in the dataset
