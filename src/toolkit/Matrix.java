@@ -19,7 +19,7 @@ public class Matrix {
 	ArrayList<double[]> m_data;
 
 	// Meta-data
-	ArrayList<String> m_attr_name;
+	public ArrayList<String> m_attr_name;
 	ArrayList<TreeMap<String, Integer>> m_str_to_enum;
 	ArrayList<TreeMap<Integer, String>> m_enum_to_str;
 

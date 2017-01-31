@@ -72,13 +72,15 @@ public class Perceptron extends SupervisedLearner {
 
 	private void initializeWeights() {
 		for (int i = 0; i < myWeights.length; i++) {
-			myWeights[i] = Utilities.randomDouble(rand, -0.5, 0.5);
+			myWeights[i] = Utilities.randomDouble(rand, -0.05, 0.05);
 		}
 	}
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		myWeights = new double[features.cols() + 1];
+		// el salvador aid
+		// education spending
 		initializeWeights();
 		Utilities.outputArray("weights:", myWeights, true);
 		int epochs = 0;
@@ -99,8 +101,23 @@ public class Perceptron extends SupervisedLearner {
 
 		}
 
-		// TODO take heaviest weight and that is most important
+		Utilities.outputArray("final weights:", myWeights, true);
+		System.out.println("most important weight index: " + mostImportantWeightIndex());
+		System.out.println("most important feature: " + features.m_attr_name.get(mostImportantWeightIndex()));
 		System.out.println("epochs: " + epochs);
+	}
+
+	private int mostImportantWeightIndex() {
+		double max = Double.MIN_VALUE;
+		int chosenIndex = -1;
+		for (int i = 0; i < myWeights.length - 1; i++) {
+			double weight = Math.abs(myWeights[i]);
+			if (weight > max) {
+				max = weight;
+				chosenIndex = i;
+			}
+		}
+		return chosenIndex;
 	}
 
 	private double[] combineArrays(double[] one, double[] two) {
