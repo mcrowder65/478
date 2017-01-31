@@ -10,7 +10,7 @@ public class SinglePerceptron extends Perceptron {
 	private final static double THRESHOLD = 0;
 
 	private double[] myWeights;
-	private final static int MAX_ITERATIONS = 5;
+	private final static int MAX_ITERATIONS = 1000;
 
 	private final static double LEARNING_RATE = 0.1;
 
@@ -32,9 +32,10 @@ public class SinglePerceptron extends Perceptron {
 		while (iterations != MAX_ITERATIONS) {
 			myWeights = epoch(features, labels, LEARNING_RATE, myWeights);
 			++epochs;
-			double accuracy = measureAccuracy(features, labels, null);
-
+			double accuracy = Utilities.round(measureAccuracy(features, labels, null));
+			System.out.println("accuracy: " + accuracy + " maxAccuracy: " + maxAccuracy);
 			if (accuracy > maxAccuracy) {
+				System.out.println("accuracy > maxAccuracy");
 				maxAccuracy = accuracy;
 				iterations = 0;
 			} else if (accuracy <= maxAccuracy) {
@@ -43,13 +44,6 @@ public class SinglePerceptron extends Perceptron {
 			// features.shuffle(rand, labels);
 
 		}
-
-		// Utilities.outputArray("final weights:", myWeights, true);
-		// System.out.println("most important weight index: " +
-		// this.mostImportantWeightIndex(myWeights));
-		// System.out.println(
-		// "most important feature: " +
-		// features.m_attr_name.get(this.mostImportantWeightIndex(myWeights)));
 		System.out.println("epochs: " + epochs);
 	}
 
