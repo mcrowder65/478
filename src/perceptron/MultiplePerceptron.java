@@ -11,10 +11,8 @@ import utilities.Utilities;
 
 public class MultiplePerceptron extends Perceptron {
 	private Random rand;
-
-	private final static double THRESHOLD = 0;
-
-	private final static int MAX_ITERATIONS = 5;
+	private final static int THRESHOLD = 0;
+	private final static int MAX_ITERATIONS = 10;
 
 	private final static double LEARNING_RATE = 0.1;
 	private List<Matrix> labelsArray;
@@ -61,11 +59,13 @@ public class MultiplePerceptron extends Perceptron {
 			double maxAccuracy = 0;
 			int iterations = 0;
 			while (iterations != MAX_ITERATIONS) {
-				double[] temp = epoch(features, labels, LEARNING_RATE, this.weights.get(this.currentIndex));
+				// Utilities.outputArrayList(this.labelsArray.get(this.currentIndex).m_str_to_enum);
+				double[] temp = epoch(features, labelsArray.get(this.currentIndex), LEARNING_RATE,
+						this.weights.get(this.currentIndex));
 				this.weights.set(this.currentIndex, temp);
 				Utilities.outputArray("weights:", this.weights.get(currentIndex), true);
 				++epochs;
-				double accuracy = measureAccuracy(features, labels, null);
+				double accuracy = measureAccuracy(features, this.labelsArray.get(this.currentIndex), null);
 
 				if (accuracy > maxAccuracy) {
 					maxAccuracy = accuracy;
@@ -76,11 +76,14 @@ public class MultiplePerceptron extends Perceptron {
 
 			}
 
-			Utilities.outputArray("final weights:", this.weights.get(this.currentIndex), true);
-			System.out.println("most important weight index: "
-					+ this.mostImportantWeightIndex(this.weights.get(this.currentIndex)));
-			System.out.println("most important feature: "
-					+ features.m_attr_name.get(this.mostImportantWeightIndex(this.weights.get(this.currentIndex))));
+			// Utilities.outputArray("final weights:",
+			// this.weights.get(this.currentIndex), true);
+			// System.out.println("most important weight index: "
+			// +
+			// this.mostImportantWeightIndex(this.weights.get(this.currentIndex)));
+			// System.out.println("most important feature: "
+			// +
+			// features.m_attr_name.get(this.mostImportantWeightIndex(this.weights.get(this.currentIndex))));
 			System.out.println("epochs: " + epochs);
 		}
 
@@ -89,7 +92,19 @@ public class MultiplePerceptron extends Perceptron {
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		// TODO: if outputting 1, then output 0, 1, or 2
-
+		double net = this.evaluateNet(features, this.weights.get(this.currentIndex));
+		// System.out.println(net);
+		if (this.currentIndex > 0) {
+			System.out.println("breakpoint");
+		}
+		if (net > THRESHOLD) {
+			labels[0] = this.currentIndex;
+		} else {
+			labels[0] = 0;
+		}
+		// Utilities.outputArray(labels, true);
+		// System.out.println("labels[0]: " + labels[0]);
+		// labels[0] = this.currentIndex;
 	}
 
 }
