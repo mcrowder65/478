@@ -26,9 +26,13 @@ public class MultiplePerceptron extends Perceptron {
 
 	private int currentIndex = -1;
 
-	private void initializeLabels(Matrix labels) {
-		for (int i = 0; i < 3; i++) {
-			Matrix temp = new Matrix(labels);
+	private void initializeLabels(Matrix labels, int size) {
+		// Utilities.outputArrayList(labels.m_str_to_enum);
+		// Utilities.outputArrayList(labels.m_enum_to_str);
+		for (int i = 0; i < size; i++) {
+			Matrix temp = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
+			Utilities.outputArrayList(temp.m_str_to_enum);
+			Utilities.outputArrayList(temp.m_enum_to_str);
 		}
 
 	}
@@ -40,6 +44,7 @@ public class MultiplePerceptron extends Perceptron {
 		System.out.println("multiple perceptron train!");
 		// should always be 3 for our purposes.
 		int size = labels.m_enum_to_str.get(0).size();
+		initializeLabels(labels, size);
 		// split into sets of 50s
 		int set = features.rows() / size;
 		for (int i = 0; i < size; i++) {

@@ -1,6 +1,8 @@
 package utilities;
 
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.TreeMap;
 
 public class Utilities {
 	static public void outputArray(double[] arr, boolean outputNewLine) {
@@ -13,6 +15,23 @@ public class Utilities {
 			System.out.println();
 		}
 
+	}
+
+	@SuppressWarnings("rawtypes")
+	static public void outputArrayList(ArrayList list) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i) instanceof TreeMap) {
+				outputMap((TreeMap) list.get(i));
+			}
+
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	static private void outputMap(TreeMap map) {
+		for (Object i : map.keySet()) {
+			System.out.println(i + ": " + map.get(i));
+		}
 	}
 
 	static public void outputArray(String[] arr, boolean outputNewLine) {
