@@ -15,6 +15,8 @@ public class Perceptron extends SupervisedLearner {
 	private double[] myWeights;
 	private final static int MAX_ITERATIONS = 5;
 
+	private final static double LEARNING_RATE = 0.1;
+
 	public Perceptron(Random rand) {
 		this.rand = rand;
 	}
@@ -57,16 +59,14 @@ public class Perceptron extends SupervisedLearner {
 	}
 
 	private void epoch(Matrix features, Matrix labels) {
-		final double learningRate = 0.1;
 		for (int i = 0; i < features.rows(); i++) {
 			final double[] pattern = features.row(i);
 			final double target = labels.row(i)[0];
 
-			double net = evaluateNet(pattern);
-			double z = net > 0 ? 1 : 0;
-			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z);
+			final double net = evaluateNet(pattern);
+			final double z = net > 0 ? 1 : 0;
+			final double[] changeInWeights = perceptronAlgorithm(pattern, LEARNING_RATE, target, net, z);
 			myWeights = combineArrays(myWeights, changeInWeights);
-			// this.outputStuff(pattern, net, z, changeInWeights, target);
 		}
 	}
 
