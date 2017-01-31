@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import toolkit.Matrix;
+import utilities.Utilities;
 
 public class MultiplePerceptron extends Perceptron {
 	private Random rand;
@@ -47,6 +48,10 @@ public class MultiplePerceptron extends Perceptron {
 
 	}
 
+	private int currentIndex = -1;
+	private int currentBias = -1;
+
+	// TODO change enum to str to 1, 0, 0; 0, 1, 0; 0, 0, 1
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		// TODO Auto-generated method stub
@@ -56,15 +61,51 @@ public class MultiplePerceptron extends Perceptron {
 		// split into sets of 50s
 		int set = features.rows() / size;
 		for (int i = 0; i < size; i++) {
+			double[] tempWeights = new double[features.cols() + 1];
+			tempWeights = this.initializeWeights(tempWeights, this.rand);
 
+			this.weights.add(tempWeights);
+			int epochs = 0;
+			currentIndex = i;
+			double maxAccuracy = 0;
+			int iterations = 0;
+			while (iterations != MAX_ITERATIONS) {
+				double[] temp = epoch(features, labels, LEARNING_RATE, weights.get(this.currentIndex),
+						set * this.currentIndex, set * this.currentIndex + set - 1);
+				this.weights.set(this.currentIndex, temp);
+				++epochs;
+				// System.out.println("epoch #: " + epochs);
+				double accuracy = measureAccuracy(features, labels, null);
+
+				if (accuracy > maxAccuracy) {
+					maxAccuracy = accuracy;
+					iterations = 0;
+				} else if (accuracy <= maxAccuracy) {
+					++iterations;
+				}
+				features.shuffle(rand, labels);
+
+			}
+
+			Utilities.outputArray("final weights:", this.weights.get(this.currentIndex), true);
+			System.out.println("most important weight index: "
+					+ this.mostImportantWeightIndex(this.weights.get(this.currentIndex)));
+			System.out.println("most important feature: "
+					+ features.m_attr_name.get(this.mostImportantWeightIndex(this.weights.get(this.currentIndex))));
+			System.out.println("epochs: " + epochs);
 		}
 
 	}
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		// TODO Auto-generated method stub
-		System.out.println("multiple perceptron predict!");
+		System.out.println("labels[0]: " + labels[0]);
+		double net = this.evaluateNet(features, this.weights.get(this.currentIndex), this.currentBias);
+		if (net > THRESHOLD) {
+			labels[0] = 1;
+		} else {
+			labels[0] = 0;
+		}
 
 	}
 
@@ -80,19 +121,34 @@ public class MultiplePerceptron extends Perceptron {
 	 *            double[]
 	 * @param bias
 	 *            double
-	 * @param activeIndex
-	 *            int indicating which index should set the bias to 1
+	 * @param min
+	 *            int representing the first 1 in the set
+	 * @param max
+	 *            int representing the last 1 in the set
 	 * @return double[]
 	 */
-	private double[] epoch(Matrix features, Matrix labels, double learningRate, double[] weights, double bias,
-			int activeBias) {
-		for (int i = 0; i < features.rows(); i++) {
-			final double[] pattern = features.row(i);
-			final double target = labels.row(i)[0];
+	// currentIndex = 0
+	// min = 0
+	// max = 49
 
-			final double net = evaluateNet(pattern, weights, bias);
-			final double z = net > 0 ? 1 : 0;
-			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z, bias);
+	// currentIndex = 1
+	// min = 50
+	// max = 99
+
+	// currentIndex = 2
+	// min = 100
+	// max = 149
+	private double[] epoch(Matrix features, Matrix labels, double learningRate, double[] weights, int min, int max) {
+		for (int i = 0; i < features.rows(); i++) {
+			this.currentBias = 1;// min <= i && i <= max ? 1 : 0;
+			// System.out.println("min: " + min + " max: " + max + "
+			// this.currentBias: " + this.currentBias + " i: " + i);
+			double[] pattern = features.row(i);
+			double target = labels.row(i)[0];
+
+			double net = evaluateNet(pattern, weights, this.currentBias);
+			double z = net > 0 ? 1 : 0;
+			double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z, this.currentBias);
 			weights = combineArrays(weights, changeInWeights);
 		}
 		return weights;
