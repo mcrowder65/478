@@ -44,7 +44,6 @@ public class MultiplePerceptron extends Perceptron {
 		}
 	}
 
-	// TODO change enum to str to 1, 0, 0; 0, 1, 0; 0, 0, 1
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		// should always be 3 for our purposes.
@@ -66,7 +65,6 @@ public class MultiplePerceptron extends Perceptron {
 				this.weights.set(this.currentIndex, temp);
 				Utilities.outputArray("weights:", this.weights.get(currentIndex), true);
 				++epochs;
-				// System.out.println("epoch #: " + epochs);
 				double accuracy = measureAccuracy(features, labels, null);
 
 				if (accuracy > maxAccuracy) {
@@ -75,7 +73,6 @@ public class MultiplePerceptron extends Perceptron {
 				} else if (accuracy <= maxAccuracy) {
 					++iterations;
 				}
-				features.shuffle(rand, labels);
 
 			}
 
