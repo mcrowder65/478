@@ -135,4 +135,29 @@ public abstract class Perceptron extends SupervisedLearner {
 		return weights;
 	}
 
+	/**
+	 * 
+	 * @param features
+	 *            Matrix
+	 * @param labels
+	 *            Matrix
+	 * @param learningRate
+	 *            double
+	 * @param weights
+	 *            double[]
+	 * @return double[]
+	 */
+	protected double[] epoch(Matrix features, Matrix labels, double learningRate, double[] weights) {
+		for (int i = 0; i < features.rows(); i++) {
+			double[] pattern = features.row(i);
+			double target = labels.row(i)[0];
+
+			double net = evaluateNet(pattern, weights);
+			double z = net > 0 ? 1 : 0;
+			double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z);
+			weights = combineArrays(weights, changeInWeights);
+		}
+		return weights;
+	}
+
 }

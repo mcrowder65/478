@@ -61,29 +61,4 @@ public class SinglePerceptron extends Perceptron {
 		}
 	}
 
-	/**
-	 * 
-	 * @param features
-	 *            Matrix
-	 * @param labels
-	 *            Matrix
-	 * @param learningRate
-	 *            double
-	 * @param weights
-	 *            double[]
-	 * @return double[]
-	 */
-	private double[] epoch(Matrix features, Matrix labels, double learningRate, double[] weights) {
-		for (int i = 0; i < features.rows(); i++) {
-			final double[] pattern = features.row(i);
-			final double target = labels.row(i)[0];
-
-			final double net = evaluateNet(pattern, weights);
-			final double z = net > 0 ? 1 : 0;
-			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z);
-			weights = combineArrays(weights, changeInWeights);
-		}
-		return weights;
-	}
-
 }
