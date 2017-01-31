@@ -41,7 +41,8 @@ public class SinglePerceptron extends Perceptron {
 			} else if (accuracy <= maxAccuracy) {
 				++iterations;
 			}
-			// features.shuffle(rand, labels);
+			// TODO only do for voting
+			features.shuffle(rand, labels);
 
 		}
 		System.out.println("epochs: " + epochs);
