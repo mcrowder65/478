@@ -11,6 +11,8 @@ public abstract class Perceptron extends SupervisedLearner {
 
 	public abstract void predict(double[] features, double[] labels) throws Exception;
 
+	static final protected int BIAS = 1;
+
 	/**
 	 * 
 	 * @param pattern
@@ -23,19 +25,17 @@ public abstract class Perceptron extends SupervisedLearner {
 	 *            double
 	 * @param z
 	 *            double
-	 * @param bias
-	 *            double
 	 * @return double[]
 	 */
 	protected double[] perceptronAlgorithm(final double[] pattern, final double learningRate, final double target,
-			final double netValue, final double z, final double bias) {
+			final double netValue, final double z) {
 		// c(t - z)x
 
 		// add 1 to account for bias!
 		double[] output = new double[pattern.length + 1];
 		for (int i = 0; i < pattern.length + 1; i++) {
 
-			double a = learningRate * (target - z) * (i == pattern.length ? bias : pattern[i]);
+			double a = learningRate * (target - z) * (i == pattern.length ? BIAS : pattern[i]);
 			output[i] = Utilities.round(a);
 		}
 
@@ -67,14 +67,12 @@ public abstract class Perceptron extends SupervisedLearner {
 	 *            double[]
 	 * @param weights
 	 *            double[]
-	 * @param bias
-	 *            double
 	 * @return double
 	 */
-	protected double evaluateNet(double[] pattern, double[] weights, double bias) {
+	protected double evaluateNet(double[] pattern, double[] weights) {
 		double net = 0;
 		for (int i = 0; i < pattern.length + 1; i++) {
-			net += (i == pattern.length ? bias * weights[i] : pattern[i] * weights[i]);
+			net += (i == pattern.length ? BIAS * weights[i] : pattern[i] * weights[i]);
 		}
 		return Utilities.round(net);
 	}
@@ -107,15 +105,13 @@ public abstract class Perceptron extends SupervisedLearner {
 	 *            double[]
 	 * @param target
 	 *            double
-	 * @param bias
-	 *            double
 	 * @param weights
 	 *            double[]
 	 */
 	protected void outputStuff(double[] pattern, double net, double z, double[] changeInWeights, double target,
-			double bias, double[] weights) {
+			double[] weights) {
 		Utilities.outputArray(pattern, false);
-		System.out.print(" " + bias);
+		System.out.print(" " + BIAS);
 		System.out.print(" " + target + " ");
 		Utilities.outputArray(weights, false);
 		System.out.print(" " + net);

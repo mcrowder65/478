@@ -7,7 +7,6 @@ import utilities.Utilities;
 
 public class SinglePerceptron extends Perceptron {
 	private Random rand;
-	private final static double BIAS = 1;
 	private final static double THRESHOLD = 0;
 
 	private double[] myWeights;
@@ -31,7 +30,7 @@ public class SinglePerceptron extends Perceptron {
 		double maxAccuracy = 0;
 		int iterations = 0;
 		while (iterations != MAX_ITERATIONS) {
-			myWeights = epoch(features, labels, LEARNING_RATE, myWeights, BIAS);
+			myWeights = epoch(features, labels, LEARNING_RATE, myWeights);
 			++epochs;
 			double accuracy = measureAccuracy(features, labels, null);
 
@@ -54,7 +53,7 @@ public class SinglePerceptron extends Perceptron {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		double net = this.evaluateNet(features, this.myWeights, BIAS);
+		double net = this.evaluateNet(features, this.myWeights);
 		if (net > THRESHOLD) {
 			labels[0] = 1;
 		} else {
@@ -72,18 +71,16 @@ public class SinglePerceptron extends Perceptron {
 	 *            double
 	 * @param weights
 	 *            double[]
-	 * @param bias
-	 *            double
 	 * @return double[]
 	 */
-	private double[] epoch(Matrix features, Matrix labels, double learningRate, double[] weights, double bias) {
+	private double[] epoch(Matrix features, Matrix labels, double learningRate, double[] weights) {
 		for (int i = 0; i < features.rows(); i++) {
 			final double[] pattern = features.row(i);
 			final double target = labels.row(i)[0];
 
-			final double net = evaluateNet(pattern, weights, bias);
+			final double net = evaluateNet(pattern, weights);
 			final double z = net > 0 ? 1 : 0;
-			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z, bias);
+			final double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z);
 			weights = combineArrays(weights, changeInWeights);
 		}
 		return weights;

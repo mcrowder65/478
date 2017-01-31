@@ -15,41 +15,23 @@ public class MultiplePerceptron extends Perceptron {
 	private final static int MAX_ITERATIONS = 5;
 
 	private final static double LEARNING_RATE = 0.1;
-	private List<Matrix> featuresArray;
 	private List<Matrix> labelsArray;
 	private List<double[]> weights;
 
 	public MultiplePerceptron(Random rand) {
 		this.rand = rand;
-		featuresArray = new ArrayList<>();
 		labelsArray = new ArrayList<>();
 		weights = new ArrayList<>();
 	}
 
-	private int getBias(int i, int set, int size) {
-		// if i == 0
-		// 000 - 049 -> 1
-		// 050 - 099 -> 0
-		// 100 - 149 -> 0
-		int iSet = i * set;
-		switch (iSet) {
-		case 0: {
-			return 1;
-		}
-		case 50: {
-			return 0;
-		}
-		case 100: {
-			return 0;
-		}
-		default:
-			return -1;
+	private int currentIndex = -1;
+
+	private void initializeLabels(Matrix labels) {
+		for (int i = 0; i < 3; i++) {
+			Matrix temp = new Matrix(labels);
 		}
 
 	}
-
-	private int currentIndex = -1;
-	private int currentBias = -1;
 
 	// TODO change enum to str to 1, 0, 0; 0, 1, 0; 0, 0, 1
 	@Override
@@ -99,13 +81,7 @@ public class MultiplePerceptron extends Perceptron {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		// if outputting 1, then output 0, 1, or 2
-		double net = this.evaluateNet(features, this.weights.get(this.currentIndex), this.currentBias);
-		if (net > THRESHOLD) {
-			labels[0] = 1;
-		} else {
-			labels[0] = 0;
-		}
+		// TODO: if outputting 1, then output 0, 1, or 2
 
 	}
 
@@ -140,15 +116,14 @@ public class MultiplePerceptron extends Perceptron {
 	// max = 149
 	private double[] epoch(Matrix features, Matrix labels, double learningRate, double[] weights, int min, int max) {
 		for (int i = 0; i < features.rows(); i++) {
-			this.currentBias = 1;// min <= i && i <= max ? 1 : 0;
 			// System.out.println("min: " + min + " max: " + max + "
 			// this.currentBias: " + this.currentBias + " i: " + i);
 			double[] pattern = features.row(i);
 			double target = labels.row(i)[0];
 
-			double net = evaluateNet(pattern, weights, this.currentBias);
+			double net = evaluateNet(pattern, weights);
 			double z = net > 0 ? 1 : 0;
-			double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z, this.currentBias);
+			double[] changeInWeights = perceptronAlgorithm(pattern, learningRate, target, net, z);
 			weights = combineArrays(weights, changeInWeights);
 		}
 		return weights;
