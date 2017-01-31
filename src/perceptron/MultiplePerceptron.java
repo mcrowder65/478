@@ -2,7 +2,9 @@ package perceptron;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import toolkit.Matrix;
 import utilities.Utilities;
@@ -27,21 +29,24 @@ public class MultiplePerceptron extends Perceptron {
 	private int currentIndex = -1;
 
 	private void initializeLabels(Matrix labels, int size) {
-		// Utilities.outputArrayList(labels.m_str_to_enum);
-		// Utilities.outputArrayList(labels.m_enum_to_str);
 		for (int i = 0; i < size; i++) {
 			Matrix temp = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
-			Utilities.outputArrayList(temp.m_str_to_enum);
-			Utilities.outputArrayList(temp.m_enum_to_str);
-		}
+			TreeMap<String, Integer> map = temp.m_str_to_enum.get(0);
+			Map<String, Integer> newMap = new TreeMap<>();
+			for (String key : map.keySet()) {
+				newMap.put(key, i == map.get(key) ? 1 : 0);
+			}
+			List<TreeMap<String, Integer>> newList = new ArrayList<>();
+			newList.add((TreeMap<String, Integer>) newMap);
+			temp.m_str_to_enum = (ArrayList<TreeMap<String, Integer>>) newList;
+			this.labelsArray.add(temp);
 
+		}
 	}
 
 	// TODO change enum to str to 1, 0, 0; 0, 1, 0; 0, 0, 1
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-		// TODO Auto-generated method stub
-		System.out.println("multiple perceptron train!");
 		// should always be 3 for our purposes.
 		int size = labels.m_enum_to_str.get(0).size();
 		initializeLabels(labels, size);
