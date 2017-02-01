@@ -49,6 +49,7 @@ public class SinglePerceptron extends Perceptron {
 
 		}
 		System.out.println();
+		Utilities.outputArray("final weights:", this.myWeights, true);
 		System.out.println("accuracy: " + maxAccuracy);
 		System.out.println("epochs: " + epochs);
 	}
