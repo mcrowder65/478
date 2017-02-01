@@ -10,7 +10,7 @@ public class SinglePerceptron extends Perceptron {
 	private final static double THRESHOLD = 0;
 
 	private double[] myWeights;
-	private final static int MAX_ITERATIONS = 1000;
+	private final static int MAX_ITERATIONS = 10;
 
 	private final static double LEARNING_RATE = 0.1;
 
