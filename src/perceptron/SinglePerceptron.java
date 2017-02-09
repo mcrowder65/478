@@ -22,7 +22,7 @@ public class SinglePerceptron extends Perceptron {
 	public void train(Matrix features, Matrix labels) throws Exception {
 
 		this.myWeights = new double[features.cols() + 1];
-		this.myWeights = this.initializeWeights(this.myWeights, this.rand);
+		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.05, 0.05);
 		Utilities.outputArray("weights:", this.myWeights, true);
 		// el salvador aid
 		// education spending
@@ -44,7 +44,6 @@ public class SinglePerceptron extends Perceptron {
 			} else if (accuracy <= maxAccuracy) {
 				++iterations;
 			}
-			// TODO only do for voting
 			// features.shuffle(rand, labels);
 
 		}

@@ -67,4 +67,19 @@ public class Utilities {
 	static public double round(double dub) {
 		return Math.round(dub * 100.0) / 100.0;
 	}
+
+	/**
+	 * 
+	 * @param weights
+	 *            double[]
+	 * @param rand
+	 *            Random
+	 * @return double[]
+	 */
+	static public double[] initializeWeights(double[] weights, Random rand, double min, double max) {
+		for (int i = 0; i < weights.length; i++) {
+			weights[i] = Utilities.randomDouble(rand, min, max);
+		}
+		return weights;
+	}
 }

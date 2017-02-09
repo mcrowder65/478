@@ -1,7 +1,5 @@
 package perceptron;
 
-import java.util.Random;
-
 import toolkit.Matrix;
 import toolkit.SupervisedLearner;
 import utilities.Utilities;
@@ -118,21 +116,6 @@ public abstract class Perceptron extends SupervisedLearner {
 		System.out.print(" " + z + " ");
 		Utilities.outputArray(changeInWeights, false);
 		System.out.println();
-	}
-
-	/**
-	 * 
-	 * @param weights
-	 *            double[]
-	 * @param rand
-	 *            Random
-	 * @return double[]
-	 */
-	protected double[] initializeWeights(double[] weights, Random rand) {
-		for (int i = 0; i < weights.length; i++) {
-			weights[i] = Utilities.randomDouble(rand, -0.05, 0.05);
-		}
-		return weights;
 	}
 
 	/**
