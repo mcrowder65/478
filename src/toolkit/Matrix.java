@@ -16,7 +16,7 @@ import java.util.TreeMap;
 
 public class Matrix {
 	// Data
-	ArrayList<double[]> m_data;
+	public ArrayList<double[]> m_data;
 
 	// Meta-data
 	public ArrayList<String> m_attr_name;

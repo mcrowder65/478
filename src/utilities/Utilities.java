@@ -18,10 +18,14 @@ public class Utilities {
 	}
 
 	@SuppressWarnings("rawtypes")
-	static public void outputArrayList(ArrayList list) {
+	static public void outputArrayList(ArrayList list) throws Exception {
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i) instanceof TreeMap) {
 				outputMap((TreeMap) list.get(i));
+			} else if (list.get(i) instanceof double[]) {
+				outputArray((double[]) list.get(i), true);
+			} else {
+				throw new Exception("This type is not supported");
 			}
 
 		}
