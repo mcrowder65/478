@@ -9,7 +9,7 @@ import utilities.Utilities;
 public class Backprop extends SupervisedLearner {
 	private Random rand;
 	private double[] myWeights;
-
+	final private static int LEARNING_RATE = 1;
 	final private static int BIAS = 1;
 
 	public Backprop(Random rand) {
@@ -40,13 +40,31 @@ public class Backprop extends SupervisedLearner {
 		return result;
 	}
 
-	private double calculateHiddenNodeDelta(double target, double output) {
-		return -1;
+	// TODO figure out parameters
+	/**
+	 * 
+	 * @param output
+	 *            double
+	 * @param upstreamDelta
+	 *            double
+	 * @param w
+	 *            double
+	 * @return double
+	 */
+	private double calculateHiddenNodeDelta(double output, double upstreamDelta, double w) {
+		// output ( 1 - output) * upstreamDelta * w
+		output = Utilities.round(output, 1000);
+		double result = output * (1 - output) * upstreamDelta * w;
+		result = Utilities.round(result, 100000);
+		return result;
 	}
 
-	// TODO figure out parameters
-	private double calculateDeltaW() {
-		return -1;
+	private double calculateDeltaW(double output, double delta) {
+		// delta = Utilities.round(delta, 1000000);
+		output = Utilities.round(output, 1000);
+		double result = LEARNING_RATE * delta * output;
+		result = Utilities.round(result, 100000);
+		return result;
 	}
 
 	@Override
@@ -73,14 +91,20 @@ public class Backprop extends SupervisedLearner {
 			outputArray[i] = calculateOutput(netArray[i]);
 		}
 		netArray[0] = calculateNet(outputArray, 0);
+
 		outputArray[0] = calculateOutput(netArray[0]);
 		double[] deltaArray = new double[numHiddenNodes + 1];
 		// // TODO calculate delta array
-		for (int i = 0; i < outputArray.length - 1; i++) {
-			deltaArray[i] = calculateExteriorDelta(target, outputArray[i]);
+		deltaArray[0] = calculateExteriorDelta(target, outputArray[0]);
+
+		for (int i = 1; i < deltaArray.length; i++) {
+			deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
 		}
-		// deltaArray[iteration] = calculateDelta(target,
-		// outputArray[iteration]);
+		// for (int i = 1; i < outputArray.length + 1; i++) {
+		// myWeights[i - 1] = calculateDeltaW(i < outputArray.length ?
+		// outputArray[i] : BIAS, deltaArray[0]);
+		// }
+
 	}
 
 	@Override
