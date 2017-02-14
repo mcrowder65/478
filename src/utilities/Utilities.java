@@ -8,7 +8,8 @@ public class Utilities {
 	static public void outputArray(double[] arr, boolean outputNewLine) {
 		System.out.print("[ ");
 		for (int i = 0; i < arr.length; i++) {
-			System.out.print(i != arr.length - 1 ? Utilities.round(arr[i]) + ", " : Utilities.round(arr[i]));
+			System.out.print(
+					i != arr.length - 1 ? Utilities.round(arr[i], 100.0) + ", " : Utilities.round(arr[i], 100.0));
 		}
 		System.out.print(" ]");
 		if (outputNewLine) {
@@ -64,8 +65,8 @@ public class Utilities {
 		return start + (random * (end - start));
 	}
 
-	static public double round(double dub) {
-		return Math.round(dub * 100.0) / 100.0;
+	static public double round(double dub, double place) {
+		return Math.round(dub * place) / place;
 	}
 
 	/**

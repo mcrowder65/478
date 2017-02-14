@@ -26,16 +26,27 @@ public class Backprop extends SupervisedLearner {
 		return net;
 	}
 
-	// TODO figure out parameters
 	private double calculateOutput(double net) {
 		double output = 1 / (1 + Math.exp(-net));
 		return output;
 	}
 
-	// TODO figure out parameters
-	private double calculateDelta(double target, double output) {
+	private double calculateExteriorDelta(double target, double output) {
 		// (t1 - o1) o1 (1 - o1)
-		return (target - output) * output * (1 - output);
+		target = Utilities.round(target, 1000);
+		output = Utilities.round(output, 1000);
+		double result = (target - output) * output * (1 - output);
+		result = Utilities.round(result, 100000);
+		return result;
+	}
+
+	private double calculateHiddenNodeDelta(double target, double output) {
+		return -1;
+	}
+
+	// TODO figure out parameters
+	private double calculateDeltaW() {
+		return -1;
 	}
 
 	@Override
@@ -54,22 +65,22 @@ public class Backprop extends SupervisedLearner {
 		this.myWeights = new double[weightLength];
 		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, 1, 1);
 		double[] netArray = new double[numHiddenNodes + 1];
-		int iteration = 0;
-		for (int i = 0; i < netArray.length - 1; i++) {
-			netArray[i] = calculateNet(inputs, iteration++);
+		for (int i = 1; i < netArray.length; i++) {
+			netArray[i] = calculateNet(inputs, i);
 		}
 		double[] outputArray = new double[numHiddenNodes + 1];
-		for (int i = 0; i < outputArray.length - 1; i++) {
+		for (int i = 1; i < outputArray.length; i++) {
 			outputArray[i] = calculateOutput(netArray[i]);
 		}
-		netArray[iteration] = calculateNet(outputArray, iteration);
-		outputArray[iteration] = calculateOutput(netArray[iteration]);
+		netArray[0] = calculateNet(outputArray, 0);
+		outputArray[0] = calculateOutput(netArray[0]);
 		double[] deltaArray = new double[numHiddenNodes + 1];
-		// TODO calculate delta array
+		// // TODO calculate delta array
 		for (int i = 0; i < outputArray.length - 1; i++) {
-			deltaArray[i] = calculateDelta(target, outputArray[i]);
+			deltaArray[i] = calculateExteriorDelta(target, outputArray[i]);
 		}
-		deltaArray[iteration] = calculateDelta(target, outputArray[iteration]);
+		// deltaArray[iteration] = calculateDelta(target,
+		// outputArray[iteration]);
 	}
 
 	@Override

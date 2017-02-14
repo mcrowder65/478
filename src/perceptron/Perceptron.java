@@ -34,7 +34,7 @@ public abstract class Perceptron extends SupervisedLearner {
 		for (int i = 0; i < pattern.length + 1; i++) {
 
 			double a = learningRate * (target - z) * (i == pattern.length ? BIAS : pattern[i]);
-			output[i] = Utilities.round(a);
+			output[i] = Utilities.round(a, 100.0);
 		}
 
 		return output;
@@ -72,7 +72,7 @@ public abstract class Perceptron extends SupervisedLearner {
 		for (int i = 0; i < pattern.length + 1; i++) {
 			net += (i == pattern.length ? BIAS * weights[i] : pattern[i] * weights[i]);
 		}
-		return Utilities.round(net);
+		return Utilities.round(net, 100.0);
 	}
 
 	/**

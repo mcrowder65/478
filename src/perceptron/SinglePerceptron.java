@@ -33,7 +33,7 @@ public class SinglePerceptron extends Perceptron {
 			myWeights = epoch(features, labels, LEARNING_RATE, myWeights);
 			++epochs;
 
-			double accuracy = Utilities.round(measureAccuracy(features, labels, null));
+			double accuracy = Utilities.round(measureAccuracy(features, labels, null), 100.0);
 			// System.out.println("accuracy: " + accuracy + " maxAccuracy: " +
 			// maxAccuracy);
 			System.out.print(epochs + ", ");
