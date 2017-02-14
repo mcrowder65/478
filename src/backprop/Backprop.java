@@ -33,8 +33,9 @@ public class Backprop extends SupervisedLearner {
 	}
 
 	// TODO figure out parameters
-	private double calculateDelta() {
-		return -1;
+	private double calculateDelta(double target, double output) {
+		// (t1 - o1) o1 (1 - o1)
+		return (target - output) * output * (1 - output);
 	}
 
 	@Override
@@ -44,7 +45,8 @@ public class Backprop extends SupervisedLearner {
 		double[] inputs = new double[2];
 		inputs[0] = 0;
 		inputs[1] = 0;
-
+		// TODO how do we get target?
+		final double target = 1;
 		// TODO this is supposed to be twice the inputs
 		int numHiddenNodes = 2;
 
@@ -62,8 +64,12 @@ public class Backprop extends SupervisedLearner {
 		}
 		netArray[iteration] = calculateNet(outputArray, iteration);
 		outputArray[iteration] = calculateOutput(netArray[iteration]);
+		double[] deltaArray = new double[numHiddenNodes + 1];
 		// TODO calculate delta array
-		int x = 0;
+		for (int i = 0; i < outputArray.length - 1; i++) {
+			deltaArray[i] = calculateDelta(target, outputArray[i]);
+		}
+		deltaArray[iteration] = calculateDelta(target, outputArray[iteration]);
 	}
 
 	@Override
