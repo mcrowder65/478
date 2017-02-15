@@ -17,12 +17,13 @@ public class Backprop extends SupervisedLearner {
 		this.rand = rand;
 	}
 
-	private double calculateNet(double[] input, int iteration) {
+	private double calculateNet(double[] input) {
 		// Sigma WiXi
 		// + 1 to account for bias.
 		double net = 0;
 		for (int i = 0; i < input.length + 1; i++) {
-			net += (this.myWeights[i + iteration] * (i < input.length ? input[i] : BIAS));
+			double num = myWeights[i] * (i < input.length ? input[i] : BIAS);
+			net += num;
 		}
 		return net;
 	}
@@ -77,23 +78,22 @@ public class Backprop extends SupervisedLearner {
 	}
 
 	private void epoch(Matrix features, Matrix labels) {
+		final int numHiddenNodes = features.row(0).length * 2;
+		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1);
 		for (int x = 0; x < features.rows(); x++) {
 			final double[] inputs = features.row(x);
 			final double target = labels.row(x)[0];
-			final int numHiddenNodes = inputs.length * 2;
-			int weightLength = (inputs.length + 1) * (numHiddenNodes + 1);
-			this.myWeights = new double[weightLength];
-			this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, 1, 1);
+
 			double[] changeInWeights = new double[weightLength];
 			double[] netArray = new double[numHiddenNodes + 1];
 			for (int i = 1; i < netArray.length; i++) {
-				netArray[i] = calculateNet(inputs, i);
+				netArray[i] = calculateNet(inputs);
 			}
 			double[] outputArray = new double[numHiddenNodes + 1];
 			for (int i = 1; i < outputArray.length; i++) {
 				outputArray[i] = calculateOutput(netArray[i]);
 			}
-			netArray[0] = calculateNet(outputArray, 0);
+			netArray[0] = calculateNet(outputArray);
 
 			outputArray[0] = calculateOutput(netArray[0]);
 			double[] deltaArray = new double[numHiddenNodes + 1];
@@ -121,6 +121,7 @@ public class Backprop extends SupervisedLearner {
 				}
 				double output = inputCounter == inputs.length ? BIAS : inputs[inputCounter];
 				double weight = deltaArray[deltaCounter];
+				System.out.println("output: " + output + " weight: " + weight);
 				changeInWeights[i] = calculateDeltaW(output, weight);
 			}
 			calculateNewWeights(changeInWeights);
@@ -134,6 +135,10 @@ public class Backprop extends SupervisedLearner {
 		int epochs = 0;
 		double maxAccuracy = 0;
 		int iterations = 0;
+		final int numHiddenNodes = features.row(0).length * 2;
+		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1);
+		this.myWeights = new double[weightLength];
+		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.05, 0.05);
 		while (iterations != MAX_ITERATIONS) {
 			epoch(features, labels);
 			++epochs;
