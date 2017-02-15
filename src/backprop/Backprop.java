@@ -74,6 +74,7 @@ public class Backprop extends SupervisedLearner {
 		double[] inputs = new double[2];
 		inputs[0] = 0;
 		inputs[1] = 0;
+		// TODO need to epochize this
 		// TODO how do we get target?
 		final double target = 1;
 		// TODO this is supposed to be twice the inputs
@@ -95,13 +96,11 @@ public class Backprop extends SupervisedLearner {
 
 		outputArray[0] = calculateOutput(netArray[0]);
 		double[] deltaArray = new double[numHiddenNodes + 1];
-		// // TODO calculate delta array
 		deltaArray[0] = calculateExteriorDelta(target, outputArray[0]);
 
 		for (int i = 1; i < deltaArray.length; i++) {
 			deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
 		}
-		int iterations = 3;
 		// num hidden nodes to output node
 		for (int i = 0; i < numHiddenNodes + 1; i++) {
 			double output = i < numHiddenNodes ? outputArray[i] : BIAS;
