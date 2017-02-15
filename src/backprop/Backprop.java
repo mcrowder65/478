@@ -102,15 +102,24 @@ public class Backprop extends SupervisedLearner {
 			deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
 		}
 		int iterations = 3;
-		for (int i = 1; i < changeInWeights.length + 1; i++) {
-			if (iterations == i) {
-				iterations *= 2;
-			}
-			double output = i < outputArray.length ? outputArray[i] : inputs[(i - 1) / iterations];
+		// num hidden nodes to output node
+		for (int i = 0; i < numHiddenNodes + 1; i++) {
+			double output = i < numHiddenNodes ? outputArray[i] : BIAS;
+			changeInWeights[i] = calculateDeltaW(output, deltaArray[0]);
+		}
+		int inputCounter = -1;
+		int deltaCounter = 1;
+		for (int i = numHiddenNodes + 1; i < changeInWeights.length; i++) {
 
-			double delta = deltaArray[(i - 1) / 3];
-			double result = calculateDeltaW(output, delta);
-			changeInWeights[i - 1] = result;
+			if (inputCounter < inputs.length) {
+				inputCounter++;
+			} else if (inputCounter == inputs.length) {
+				inputCounter = 0;
+				deltaCounter++;
+			}
+			double output = inputCounter == inputs.length ? BIAS : inputs[inputCounter];
+			double weight = deltaArray[deltaCounter];
+			changeInWeights[i] = calculateDeltaW(output, weight);
 		}
 		Utilities.outputArray(changeInWeights, true);
 
