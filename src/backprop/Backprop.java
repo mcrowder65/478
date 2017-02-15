@@ -41,7 +41,6 @@ public class Backprop extends SupervisedLearner {
 		return result;
 	}
 
-	// TODO figure out parameters
 	/**
 	 * 
 	 * @param output
@@ -68,58 +67,65 @@ public class Backprop extends SupervisedLearner {
 		return result;
 	}
 
+	private void calculateNewWeights(double[] changeInWeights) {
+		if (changeInWeights.length != myWeights.length) {
+			throw new Error("Why aren't changeInWeights and myWeights equal length?");
+		}
+		for (int i = 0; i < changeInWeights.length; i++) {
+			myWeights[i] += changeInWeights[i];
+		}
+	}
+
 	private void epoch(Matrix features, Matrix labels) {
-		// TODO calculate weight size based on hidden nodes
-		// FIXME temp
-		double[] inputs = new double[2];
-		inputs[0] = 0;
-		inputs[1] = 0;
-		// TODO need to epochize this
-		// TODO how do we get target?
-		final double target = 1;
-		// TODO this is supposed to be twice the inputs
-		int numHiddenNodes = 2;
-
-		int weightLength = (inputs.length + 1) * (numHiddenNodes + 1);
-		this.myWeights = new double[weightLength];
-		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, 1, 1);
-		double[] changeInWeights = new double[weightLength];
-		double[] netArray = new double[numHiddenNodes + 1];
-		for (int i = 1; i < netArray.length; i++) {
-			netArray[i] = calculateNet(inputs, i);
-		}
-		double[] outputArray = new double[numHiddenNodes + 1];
-		for (int i = 1; i < outputArray.length; i++) {
-			outputArray[i] = calculateOutput(netArray[i]);
-		}
-		netArray[0] = calculateNet(outputArray, 0);
-
-		outputArray[0] = calculateOutput(netArray[0]);
-		double[] deltaArray = new double[numHiddenNodes + 1];
-		deltaArray[0] = calculateExteriorDelta(target, outputArray[0]);
-
-		for (int i = 1; i < deltaArray.length; i++) {
-			deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
-		}
-		// num hidden nodes to output node
-		for (int i = 0; i < numHiddenNodes + 1; i++) {
-			double output = i < numHiddenNodes ? outputArray[i] : BIAS;
-			changeInWeights[i] = calculateDeltaW(output, deltaArray[0]);
-		}
-		int inputCounter = -1;
-		int deltaCounter = 1;
-		for (int i = numHiddenNodes + 1; i < changeInWeights.length; i++) {
-
-			if (inputCounter < inputs.length) {
-				inputCounter++;
-			} else if (inputCounter == inputs.length) {
-				inputCounter = 0;
-				deltaCounter++;
+		for (int x = 0; x < features.rows(); x++) {
+			final double[] inputs = features.row(x);
+			final double target = labels.row(x)[0];
+			final int numHiddenNodes = inputs.length * 2;
+			int weightLength = (inputs.length + 1) * (numHiddenNodes + 1);
+			this.myWeights = new double[weightLength];
+			this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, 1, 1);
+			double[] changeInWeights = new double[weightLength];
+			double[] netArray = new double[numHiddenNodes + 1];
+			for (int i = 1; i < netArray.length; i++) {
+				netArray[i] = calculateNet(inputs, i);
 			}
-			double output = inputCounter == inputs.length ? BIAS : inputs[inputCounter];
-			double weight = deltaArray[deltaCounter];
-			changeInWeights[i] = calculateDeltaW(output, weight);
+			double[] outputArray = new double[numHiddenNodes + 1];
+			for (int i = 1; i < outputArray.length; i++) {
+				outputArray[i] = calculateOutput(netArray[i]);
+			}
+			netArray[0] = calculateNet(outputArray, 0);
+
+			outputArray[0] = calculateOutput(netArray[0]);
+			double[] deltaArray = new double[numHiddenNodes + 1];
+			deltaArray[0] = calculateExteriorDelta(target, outputArray[0]);
+
+			for (int i = 1; i < deltaArray.length; i++) {
+				deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
+			}
+			// num hidden nodes to output node
+			for (int i = 0; i < numHiddenNodes + 1; i++) {
+				double output = i < numHiddenNodes ? outputArray[i] : BIAS;
+				changeInWeights[i] = calculateDeltaW(output, deltaArray[0]);
+			}
+			int inputCounter = -1;
+			int deltaCounter = 1;
+			// TODO this is a little different cuz of the amount of hidden
+			// nodes.
+			for (int i = numHiddenNodes + 1; i < changeInWeights.length; i++) {
+
+				if (inputCounter < inputs.length) {
+					inputCounter++;
+				} else if (inputCounter == inputs.length) {
+					inputCounter = 0;
+					deltaCounter++;
+				}
+				double output = inputCounter == inputs.length ? BIAS : inputs[inputCounter];
+				double weight = deltaArray[deltaCounter];
+				changeInWeights[i] = calculateDeltaW(output, weight);
+			}
+			calculateNewWeights(changeInWeights);
 		}
+
 	}
 
 	@Override
