@@ -11,6 +11,7 @@ public class Backprop extends SupervisedLearner {
 	private double[] myWeights;
 	final private static int LEARNING_RATE = 1;
 	final private static int BIAS = 1;
+	final private static int MAX_ITERATIONS = 10;
 
 	public Backprop(Random rand) {
 		this.rand = rand;
@@ -67,8 +68,7 @@ public class Backprop extends SupervisedLearner {
 		return result;
 	}
 
-	@Override
-	public void train(Matrix features, Matrix labels) throws Exception {
+	private void epoch(Matrix features, Matrix labels) {
 		// TODO calculate weight size based on hidden nodes
 		// FIXME temp
 		double[] inputs = new double[2];
@@ -120,8 +120,36 @@ public class Backprop extends SupervisedLearner {
 			double weight = deltaArray[deltaCounter];
 			changeInWeights[i] = calculateDeltaW(output, weight);
 		}
-		Utilities.outputArray(changeInWeights, true);
+	}
 
+	@Override
+	public void train(Matrix features, Matrix labels) throws Exception {
+
+		int epochs = 0;
+		double maxAccuracy = 0;
+		int iterations = 0;
+		while (iterations != MAX_ITERATIONS) {
+			epoch(features, labels);
+			++epochs;
+
+			double accuracy = measureAccuracy(features, labels, null);
+			// System.out.println("accuracy: " + accuracy + " maxAccuracy: " +
+			// maxAccuracy);
+			// System.out.print(epochs + ", ");
+			// System.out.print(accuracy + "\n");
+			if (accuracy > maxAccuracy) {
+				maxAccuracy = accuracy;
+				iterations = 0;
+			} else if (accuracy <= maxAccuracy) {
+				++iterations;
+			}
+			// features.shuffle(rand, labels);
+
+		}
+		System.out.println();
+		Utilities.outputArray("final weights:", this.myWeights, true);
+		System.out.println("accuracy: " + maxAccuracy);
+		System.out.println("epochs: " + epochs);
 	}
 
 	@Override
