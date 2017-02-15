@@ -5,6 +5,10 @@ import java.util.Random;
 import java.util.TreeMap;
 
 public class Utilities {
+	static public void outputArray(double[] arr) {
+		outputArray(arr, true);
+	}
+
 	static public void outputArray(double[] arr, boolean outputNewLine) {
 		System.out.print("[ ");
 		for (int i = 0; i < arr.length; i++) {
