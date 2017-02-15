@@ -82,6 +82,7 @@ public class Backprop extends SupervisedLearner {
 		int weightLength = (inputs.length + 1) * (numHiddenNodes + 1);
 		this.myWeights = new double[weightLength];
 		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, 1, 1);
+		double[] changeInWeights = new double[weightLength];
 		double[] netArray = new double[numHiddenNodes + 1];
 		for (int i = 1; i < netArray.length; i++) {
 			netArray[i] = calculateNet(inputs, i);
@@ -100,10 +101,18 @@ public class Backprop extends SupervisedLearner {
 		for (int i = 1; i < deltaArray.length; i++) {
 			deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
 		}
-		// for (int i = 1; i < outputArray.length + 1; i++) {
-		// myWeights[i - 1] = calculateDeltaW(i < outputArray.length ?
-		// outputArray[i] : BIAS, deltaArray[0]);
-		// }
+		int iterations = 3;
+		for (int i = 1; i < changeInWeights.length + 1; i++) {
+			if (iterations == i) {
+				iterations *= 2;
+			}
+			double output = i < outputArray.length ? outputArray[i] : inputs[(i - 1) / iterations];
+
+			double delta = deltaArray[(i - 1) / 3];
+			double result = calculateDeltaW(output, delta);
+			changeInWeights[i - 1] = result;
+		}
+		Utilities.outputArray(changeInWeights, true);
 
 	}
 
