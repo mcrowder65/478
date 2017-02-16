@@ -118,12 +118,12 @@ public class Backprop extends SupervisedLearner {
 				} else if (inputCounter == inputs.length) {
 					inputCounter = 0;
 					deltaCounter++;
-					System.out.println("*****************");
+					// System.out.println("*****************");
 				}
 				double output = inputCounter == inputs.length ? BIAS : inputs[inputCounter];
 				double weight = deltaArray[deltaCounter];
-				System.out.println("output: " + output);// + " weight: "
-														// +weight);
+				// System.out.println("output: " + output);// + " weight: "
+				// +weight);
 				changeInWeights[i] = calculateDeltaW(output, weight);
 			}
 			calculateNewWeights(changeInWeights);
