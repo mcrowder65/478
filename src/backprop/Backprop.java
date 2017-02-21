@@ -49,7 +49,6 @@ public class Backprop extends SupervisedLearner {
 	private double calculateExteriorDelta(double target, double output) {
 		// (t1 - o1) o1 (1 - o1)
 		double result = (target - output) * output * (1 - output);
-		// TODO should momentum be here?
 
 		return result;
 	}
@@ -86,9 +85,6 @@ public class Backprop extends SupervisedLearner {
 	}
 
 	private void epoch(Matrix features, Matrix labels, int numHiddenNodes) {
-		// TODO fix this
-		// int weightLength = (features.row(0).length + 1) * (numHiddenNodes +
-		// 1);
 
 		for (int x = 0; x < features.rows(); x++) {
 			final double[] inputs = features.row(x);
@@ -142,21 +138,11 @@ public class Backprop extends SupervisedLearner {
 		int epochs = 0;
 		double maxAccuracy = 0;
 		int iterations = 0;
-		final int numHiddenNodes = 6;// features.row(0).length * 2;
+		final int numHiddenNodes = features.row(0).length * 2;
 		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1) + 1;
-		System.out.println("features.row(0).length + 1: " + (features.row(0).length));
-		System.out.println("numHiddenNodes + 1: " + (numHiddenNodes + 1));
-		// (numHiddenNodes + 1) * (numHiddenNodes + 1) + 1;
 		this.myWeights = new double[weightLength];
 		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.05, 0.05);
-		// FIXME temp
-		// w_0=0.02, w_1=-0.01, w_2=0.03, w_3=0.02, w_4=-0.01, w_5=-0.03,
-		// w_6=0.03, w_7=0.01, w_8=0.04, w_9=-0.02, w_10=-0.02, w_11=0.03,
-		// w_12=0.02
 
-		// this.myWeights = new double[] { 0.02, -0.01, 0.03, 0.02, -0.01,
-		// -0.03, 0.03, 0.01, 0.04, -0.02, -0.02, 0.03,
-		// 0.02 };
 		changeInWeights = new double[weightLength];
 		if (myWeights.length != changeInWeights.length) {
 
@@ -168,25 +154,24 @@ public class Backprop extends SupervisedLearner {
 		for (int i = 0; i < myWeights.length; i++) {
 			changeInWeights[i] = 0;
 		}
-		// while (iterations != MAX_ITERATIONS) {
-		for (int i = 0; i < 3; i++)
+		while (iterations != MAX_ITERATIONS) {
 			epoch(features, labels, numHiddenNodes);
-		++epochs;
+			++epochs;
 
-		double accuracy = measureAccuracy(features, labels, null);
-		// System.out.println("accuracy: " + accuracy + " maxAccuracy: " +
-		// maxAccuracy);
-		// System.out.print(epochs + ", ");
-		// System.out.print(accuracy + "\n");
-		if (accuracy > maxAccuracy) {
-			maxAccuracy = accuracy;
-			iterations = 0;
-		} else if (accuracy <= maxAccuracy) {
-			++iterations;
+			double accuracy = measureAccuracy(features, labels, null);
+			// System.out.println("accuracy: " + accuracy + " maxAccuracy: " +
+			// maxAccuracy);
+			// System.out.print(epochs + ", ");
+			// System.out.print(accuracy + "\n");
+			if (accuracy > maxAccuracy) {
+				maxAccuracy = accuracy;
+				iterations = 0;
+			} else if (accuracy <= maxAccuracy) {
+				++iterations;
+			}
+			// features.shuffle(rand, labels);
+
 		}
-		// features.shuffle(rand, labels);
-
-		// }
 		System.out.println();
 		Utilities.outputArray("final weights:", this.myWeights, true);
 		System.out.println("accuracy: " + maxAccuracy);
