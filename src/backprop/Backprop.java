@@ -10,7 +10,7 @@ public class Backprop extends SupervisedLearner {
 	private Random rand;
 	private double[] myWeights;
 	private double[] changeInWeights;
-	final private static double MOMENTUM = 0;
+	final private static double MOMENTUM = 0.9;
 	final private static double LEARNING_RATE = 0.175;
 	final private static int BIAS = 1;
 	final private static int MAX_ITERATIONS = 10;
@@ -28,7 +28,6 @@ public class Backprop extends SupervisedLearner {
 			double num = weight * (i == startingPoint ? BIAS : input[i - startingPoint - 1]);
 			net += num;
 		}
-		System.out.println();
 		return net;
 	}
 
@@ -47,12 +46,11 @@ public class Backprop extends SupervisedLearner {
 		return output;
 	}
 
-	private double calculateExteriorDelta(double target, double output, double momentum) {
+	private double calculateExteriorDelta(double target, double output) {
 		// (t1 - o1) o1 (1 - o1)
 		double result = (target - output) * output * (1 - output);
 		// TODO should momentum be here?
 
-		result += momentum;
 		return result;
 	}
 
@@ -66,16 +64,15 @@ public class Backprop extends SupervisedLearner {
 	 *            double
 	 * @return double
 	 */
-	private double calculateHiddenNodeDelta(double output, double upstreamDelta, double w, double momentum) {
+	private double calculateHiddenNodeDelta(double output, double upstreamDelta, double w) {
 		// output ( 1 - output) * upstreamDelta * w
 		double result = output * (1 - output) * upstreamDelta * w;
-		result += momentum;
 		return result;
 	}
 
 	private double calculateDeltaW(double output, double delta, double momentum) {
 		double result = LEARNING_RATE * delta * output;
-		result += MOMENTUM;
+		result += momentum;
 		return result;
 	}
 
@@ -84,7 +81,7 @@ public class Backprop extends SupervisedLearner {
 			throw new Error("Why aren't changeInWeights and myWeights equal length?");
 		}
 		for (int i = 0; i < changeInWeights.length; i++) {
-			myWeights[i] = Utilities.round(myWeights[i] + changeInWeights[i], 1000000);
+			myWeights[i] = myWeights[i] + changeInWeights[i];
 		}
 	}
 
@@ -94,12 +91,10 @@ public class Backprop extends SupervisedLearner {
 		// int weightLength = (features.row(0).length + 1) * (numHiddenNodes +
 		// 1);
 
-		int weightLength = this.myWeights.length;
 		for (int x = 0; x < features.rows(); x++) {
 			final double[] inputs = features.row(x);
 			final double target = labels.row(x)[0];
 
-			double[] changeInWeights = new double[weightLength];
 			double[] netArray = new double[numHiddenNodes + 1];
 			for (int i = 1; i < netArray.length; i++) {
 				netArray[i] = calculateNet(inputs, i * (inputs.length + 1) + 1);
@@ -112,30 +107,18 @@ public class Backprop extends SupervisedLearner {
 
 			outputArray[0] = calculateOutput(netArray[0]);
 			double[] deltaArray = new double[numHiddenNodes + 1];
-			deltaArray[0] = calculateExteriorDelta(target, outputArray[0], MOMENTUM);
+			deltaArray[0] = calculateExteriorDelta(target, outputArray[0]);
 
 			for (int i = 1; i < deltaArray.length; i++) {
-				deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i], MOMENTUM);
+				deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
 			}
 			// num hidden nodes to output node
 			for (int i = 0; i < numHiddenNodes + 1; i++) {
 				double output = i == 0 ? BIAS : outputArray[i];
-				changeInWeights[i] = calculateDeltaW(output, deltaArray[0], MOMENTUM);
+				changeInWeights[i] = calculateDeltaW(output, deltaArray[0], MOMENTUM * changeInWeights[i]);
 			}
 			int inputCounter = -1;
 			int deltaCounter = 1;
-			// TODO this is a little different cuz of the amount of hidden
-			// nodes.
-			// for (int j = 1; j < numHiddenNodes + 1; j++) {
-			// for (int k = (j * numHiddenNodes) + 1; k < (j * numHiddenNodes) +
-			// numHiddenNodes + 1; k++) {
-			// int index = myWeights.length / k + 1;
-			// double weight = deltaArray[index];
-			//
-			// double output = k == (j * numHiddenNodes + 1) ? BIAS : inputs[k];
-			// System.out.println("weight: " + weight + " output: " + output);
-			// }
-			// }
 			for (int i = numHiddenNodes + 1; i < changeInWeights.length; i++) {
 				if (inputCounter < inputs.length) {
 					inputCounter++;
@@ -145,12 +128,12 @@ public class Backprop extends SupervisedLearner {
 				}
 				double output = inputCounter == 0 ? BIAS : inputs[inputCounter - 1];
 				double weight = deltaArray[deltaCounter];
-				changeInWeights[i] = calculateDeltaW(output, weight, MOMENTUM);
+				changeInWeights[i] = calculateDeltaW(output, weight, MOMENTUM * changeInWeights[i]);
 			}
 			calculateNewWeights(changeInWeights);
 			Utilities.outputArray(myWeights);
-			System.out.println("done");
 		}
+		System.out.println("epoch complete");
 
 	}
 
@@ -175,10 +158,11 @@ public class Backprop extends SupervisedLearner {
 				0.02 };
 		changeInWeights = new double[myWeights.length];
 		for (int i = 0; i < myWeights.length; i++) {
-
+			changeInWeights[i] = 0;
 		}
 		// while (iterations != MAX_ITERATIONS) {
-		epoch(features, labels);
+		for (int i = 0; i < 3; i++)
+			epoch(features, labels);
 		++epochs;
 
 		double accuracy = measureAccuracy(features, labels, null);
