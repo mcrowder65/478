@@ -85,8 +85,7 @@ public class Backprop extends SupervisedLearner {
 		}
 	}
 
-	private void epoch(Matrix features, Matrix labels) {
-		final int numHiddenNodes = 3;// features.row(0).length * 2;
+	private void epoch(Matrix features, Matrix labels, int numHiddenNodes) {
 		// TODO fix this
 		// int weightLength = (features.row(0).length + 1) * (numHiddenNodes +
 		// 1);
@@ -143,26 +142,35 @@ public class Backprop extends SupervisedLearner {
 		int epochs = 0;
 		double maxAccuracy = 0;
 		int iterations = 0;
-		// final int numHiddenNodes = features.row(0).length * 2;
-		// int weightLength = (features.row(0).length + 1) * (numHiddenNodes +
-		// 1);
-		// this.myWeights = new double[weightLength];
-		// this.myWeights = Utilities.initializeWeights(this.myWeights,
-		// this.rand, -0.05, 0.05);
+		final int numHiddenNodes = 6;// features.row(0).length * 2;
+		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1) + 1;
+		System.out.println("features.row(0).length + 1: " + (features.row(0).length));
+		System.out.println("numHiddenNodes + 1: " + (numHiddenNodes + 1));
+		// (numHiddenNodes + 1) * (numHiddenNodes + 1) + 1;
+		this.myWeights = new double[weightLength];
+		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.05, 0.05);
 		// FIXME temp
 		// w_0=0.02, w_1=-0.01, w_2=0.03, w_3=0.02, w_4=-0.01, w_5=-0.03,
 		// w_6=0.03, w_7=0.01, w_8=0.04, w_9=-0.02, w_10=-0.02, w_11=0.03,
 		// w_12=0.02
 
-		this.myWeights = new double[] { 0.02, -0.01, 0.03, 0.02, -0.01, -0.03, 0.03, 0.01, 0.04, -0.02, -0.02, 0.03,
-				0.02 };
-		changeInWeights = new double[myWeights.length];
+		// this.myWeights = new double[] { 0.02, -0.01, 0.03, 0.02, -0.01,
+		// -0.03, 0.03, 0.01, 0.04, -0.02, -0.02, 0.03,
+		// 0.02 };
+		changeInWeights = new double[weightLength];
+		if (myWeights.length != changeInWeights.length) {
+
+			System.err.println("why aren't changeInWeights length and myWeights length the same");
+			System.out.println(
+					"changeInWeights.length: " + changeInWeights.length + " myWeights.length: " + myWeights.length);
+			return;
+		}
 		for (int i = 0; i < myWeights.length; i++) {
 			changeInWeights[i] = 0;
 		}
 		// while (iterations != MAX_ITERATIONS) {
 		for (int i = 0; i < 3; i++)
-			epoch(features, labels);
+			epoch(features, labels, numHiddenNodes);
 		++epochs;
 
 		double accuracy = measureAccuracy(features, labels, null);
