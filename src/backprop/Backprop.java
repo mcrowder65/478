@@ -9,7 +9,9 @@ import utilities.Utilities;
 public class Backprop extends SupervisedLearner {
 	private Random rand;
 	private double[] myWeights;
-	final private static int LEARNING_RATE = 1;
+	private double[] changeInWeights;
+	final private static double MOMENTUM = 0;
+	final private static double LEARNING_RATE = 0.175;
 	final private static int BIAS = 1;
 	final private static int MAX_ITERATIONS = 10;
 
@@ -17,12 +19,24 @@ public class Backprop extends SupervisedLearner {
 		this.rand = rand;
 	}
 
-	private double calculateNet(double[] input) {
+	private double calculateNet(double[] input, int startingPoint) {
 		// Sigma WiXi
 		// + 1 to account for bias.
 		double net = 0;
-		for (int i = 0; i < input.length + 1; i++) {
-			double num = myWeights[i] * (i < input.length ? input[i] : BIAS);
+		for (int i = startingPoint; i < startingPoint + input.length + 1; i++) {
+			double weight = myWeights[i];
+			double num = weight * (i == startingPoint ? BIAS : input[i - startingPoint - 1]);
+			net += num;
+		}
+		System.out.println();
+		return net;
+	}
+
+	private double calculateLastNet(double[] input) {
+		double net = 0;
+		for (int i = 0; i < input.length; i++) {
+			double weight = myWeights[i];
+			double num = weight * (i == 0 ? BIAS : input[i]);
 			net += num;
 		}
 		return net;
@@ -33,12 +47,12 @@ public class Backprop extends SupervisedLearner {
 		return output;
 	}
 
-	private double calculateExteriorDelta(double target, double output) {
+	private double calculateExteriorDelta(double target, double output, double momentum) {
 		// (t1 - o1) o1 (1 - o1)
-		target = Utilities.round(target, 1000);
-		output = Utilities.round(output, 1000);
 		double result = (target - output) * output * (1 - output);
-		result = Utilities.round(result, 100000);
+		// TODO should momentum be here?
+
+		result += momentum;
 		return result;
 	}
 
@@ -52,19 +66,16 @@ public class Backprop extends SupervisedLearner {
 	 *            double
 	 * @return double
 	 */
-	private double calculateHiddenNodeDelta(double output, double upstreamDelta, double w) {
+	private double calculateHiddenNodeDelta(double output, double upstreamDelta, double w, double momentum) {
 		// output ( 1 - output) * upstreamDelta * w
-		output = Utilities.round(output, 1000);
 		double result = output * (1 - output) * upstreamDelta * w;
-		result = Utilities.round(result, 100000);
+		result += momentum;
 		return result;
 	}
 
-	private double calculateDeltaW(double output, double delta) {
-		// delta = Utilities.round(delta, 1000000);
-		output = Utilities.round(output, 1000);
+	private double calculateDeltaW(double output, double delta, double momentum) {
 		double result = LEARNING_RATE * delta * output;
-		result = Utilities.round(result, 100000);
+		result += MOMENTUM;
 		return result;
 	}
 
@@ -73,13 +84,17 @@ public class Backprop extends SupervisedLearner {
 			throw new Error("Why aren't changeInWeights and myWeights equal length?");
 		}
 		for (int i = 0; i < changeInWeights.length; i++) {
-			myWeights[i] += changeInWeights[i];
+			myWeights[i] = Utilities.round(myWeights[i] + changeInWeights[i], 1000000);
 		}
 	}
 
 	private void epoch(Matrix features, Matrix labels) {
-		final int numHiddenNodes = features.row(0).length * 2;
-		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1);
+		final int numHiddenNodes = 3;// features.row(0).length * 2;
+		// TODO fix this
+		// int weightLength = (features.row(0).length + 1) * (numHiddenNodes +
+		// 1);
+
+		int weightLength = this.myWeights.length;
 		for (int x = 0; x < features.rows(); x++) {
 			final double[] inputs = features.row(x);
 			final double target = labels.row(x)[0];
@@ -87,46 +102,54 @@ public class Backprop extends SupervisedLearner {
 			double[] changeInWeights = new double[weightLength];
 			double[] netArray = new double[numHiddenNodes + 1];
 			for (int i = 1; i < netArray.length; i++) {
-				netArray[i] = calculateNet(inputs);
+				netArray[i] = calculateNet(inputs, i * (inputs.length + 1) + 1);
 			}
 			double[] outputArray = new double[numHiddenNodes + 1];
 			for (int i = 1; i < outputArray.length; i++) {
 				outputArray[i] = calculateOutput(netArray[i]);
 			}
-			netArray[0] = calculateNet(outputArray);
+			netArray[0] = calculateLastNet(outputArray);
 
 			outputArray[0] = calculateOutput(netArray[0]);
 			double[] deltaArray = new double[numHiddenNodes + 1];
-			deltaArray[0] = calculateExteriorDelta(target, outputArray[0]);
+			deltaArray[0] = calculateExteriorDelta(target, outputArray[0], MOMENTUM);
 
 			for (int i = 1; i < deltaArray.length; i++) {
-				deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
+				deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i], MOMENTUM);
 			}
 			// num hidden nodes to output node
 			for (int i = 0; i < numHiddenNodes + 1; i++) {
-				double output = i < numHiddenNodes ? outputArray[i] : BIAS;
-				changeInWeights[i] = calculateDeltaW(output, deltaArray[0]);
+				double output = i == 0 ? BIAS : outputArray[i];
+				changeInWeights[i] = calculateDeltaW(output, deltaArray[0], MOMENTUM);
 			}
 			int inputCounter = -1;
 			int deltaCounter = 1;
 			// TODO this is a little different cuz of the amount of hidden
 			// nodes.
+			// for (int j = 1; j < numHiddenNodes + 1; j++) {
+			// for (int k = (j * numHiddenNodes) + 1; k < (j * numHiddenNodes) +
+			// numHiddenNodes + 1; k++) {
+			// int index = myWeights.length / k + 1;
+			// double weight = deltaArray[index];
+			//
+			// double output = k == (j * numHiddenNodes + 1) ? BIAS : inputs[k];
+			// System.out.println("weight: " + weight + " output: " + output);
+			// }
+			// }
 			for (int i = numHiddenNodes + 1; i < changeInWeights.length; i++) {
-
 				if (inputCounter < inputs.length) {
 					inputCounter++;
 				} else if (inputCounter == inputs.length) {
 					inputCounter = 0;
 					deltaCounter++;
-					// System.out.println("*****************");
 				}
-				double output = inputCounter == inputs.length ? BIAS : inputs[inputCounter];
+				double output = inputCounter == 0 ? BIAS : inputs[inputCounter - 1];
 				double weight = deltaArray[deltaCounter];
-				// System.out.println("output: " + output);// + " weight: "
-				// +weight);
-				changeInWeights[i] = calculateDeltaW(output, weight);
+				changeInWeights[i] = calculateDeltaW(output, weight, MOMENTUM);
 			}
 			calculateNewWeights(changeInWeights);
+			Utilities.outputArray(myWeights);
+			System.out.println("done");
 		}
 
 	}
@@ -137,28 +160,41 @@ public class Backprop extends SupervisedLearner {
 		int epochs = 0;
 		double maxAccuracy = 0;
 		int iterations = 0;
-		final int numHiddenNodes = features.row(0).length * 2;
-		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1);
-		this.myWeights = new double[weightLength];
-		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.05, 0.05);
-		while (iterations != MAX_ITERATIONS) {
-			epoch(features, labels);
-			++epochs;
+		// final int numHiddenNodes = features.row(0).length * 2;
+		// int weightLength = (features.row(0).length + 1) * (numHiddenNodes +
+		// 1);
+		// this.myWeights = new double[weightLength];
+		// this.myWeights = Utilities.initializeWeights(this.myWeights,
+		// this.rand, -0.05, 0.05);
+		// FIXME temp
+		// w_0=0.02, w_1=-0.01, w_2=0.03, w_3=0.02, w_4=-0.01, w_5=-0.03,
+		// w_6=0.03, w_7=0.01, w_8=0.04, w_9=-0.02, w_10=-0.02, w_11=0.03,
+		// w_12=0.02
 
-			double accuracy = measureAccuracy(features, labels, null);
-			// System.out.println("accuracy: " + accuracy + " maxAccuracy: " +
-			// maxAccuracy);
-			// System.out.print(epochs + ", ");
-			// System.out.print(accuracy + "\n");
-			if (accuracy > maxAccuracy) {
-				maxAccuracy = accuracy;
-				iterations = 0;
-			} else if (accuracy <= maxAccuracy) {
-				++iterations;
-			}
-			// features.shuffle(rand, labels);
+		this.myWeights = new double[] { 0.02, -0.01, 0.03, 0.02, -0.01, -0.03, 0.03, 0.01, 0.04, -0.02, -0.02, 0.03,
+				0.02 };
+		changeInWeights = new double[myWeights.length];
+		for (int i = 0; i < myWeights.length; i++) {
 
 		}
+		// while (iterations != MAX_ITERATIONS) {
+		epoch(features, labels);
+		++epochs;
+
+		double accuracy = measureAccuracy(features, labels, null);
+		// System.out.println("accuracy: " + accuracy + " maxAccuracy: " +
+		// maxAccuracy);
+		// System.out.print(epochs + ", ");
+		// System.out.print(accuracy + "\n");
+		if (accuracy > maxAccuracy) {
+			maxAccuracy = accuracy;
+			iterations = 0;
+		} else if (accuracy <= maxAccuracy) {
+			++iterations;
+		}
+		// features.shuffle(rand, labels);
+
+		// }
 		System.out.println();
 		Utilities.outputArray("final weights:", this.myWeights, true);
 		System.out.println("accuracy: " + maxAccuracy);
