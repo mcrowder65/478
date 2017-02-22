@@ -84,36 +84,48 @@ public class Backprop extends SupervisedLearner {
 		}
 	}
 
-	private void epoch(Matrix features, Matrix labels, int numHiddenNodes) {
+	private void epoch(Matrix features, Matrix labels, int numHiddenNodes, int numOutputNodes) {
 
 		for (int x = 0; x < features.rows(); x++) {
 			final double[] inputs = features.row(x);
 			final double target = labels.row(x)[0];
 
 			double[] netArray = new double[numHiddenNodes + 1];
-			for (int i = 1; i < netArray.length; i++) {
+			for (int i = numOutputNodes; i < netArray.length; i++) {
 				netArray[i] = calculateNet(inputs, i * (inputs.length + 1) + 1);
 			}
 			double[] outputArray = new double[numHiddenNodes + 1];
-			for (int i = 1; i < outputArray.length; i++) {
+			for (int i = numOutputNodes; i < outputArray.length; i++) {
 				outputArray[i] = calculateOutput(netArray[i]);
 			}
-			netArray[0] = calculateLastNet(outputArray);
+			for (int i = 0; i < numOutputNodes; i++) {
+				netArray[i] = calculateLastNet(outputArray);
+			}
 
-			outputArray[0] = calculateOutput(netArray[0]);
+			for (int i = 0; i < numOutputNodes; i++) {
+				outputArray[i] = calculateOutput(netArray[i]);
+			}
+
 			double[] deltaArray = new double[numHiddenNodes + 1];
-			deltaArray[0] = calculateExteriorDelta(target, outputArray[0]);
+			for (int i = 0; i < numOutputNodes; i++) {
+				deltaArray[i] = calculateExteriorDelta(target, outputArray[i]);
+			}
 
-			for (int i = 1; i < deltaArray.length; i++) {
-				deltaArray[i] = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
+			for (int i = numOutputNodes; i < deltaArray.length; i++) {
+				// TODO how do i decide upstream node?
+				double delta = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
+				deltaArray[i] = delta;
 			}
 			// num hidden nodes to output node
 			for (int i = 0; i < numHiddenNodes + 1; i++) {
-				double output = i == 0 ? BIAS : outputArray[i];
-				changeInWeights[i] = calculateDeltaW(output, deltaArray[0], MOMENTUM * changeInWeights[i]);
+				double output = i < numOutputNodes ? BIAS : outputArray[i];
+				// TODO deltaIndex does not work.
+				int deltaIndex = numHiddenNodes / numOutputNodes;
+				System.out.println(deltaIndex);
+				changeInWeights[i] = calculateDeltaW(output, deltaArray[deltaIndex], MOMENTUM * changeInWeights[i]);
 			}
 			int inputCounter = -1;
-			int deltaCounter = 1;
+			int deltaCounter = numOutputNodes;
 			for (int i = numHiddenNodes + 1; i < changeInWeights.length; i++) {
 				if (inputCounter < inputs.length) {
 					inputCounter++;
@@ -159,7 +171,7 @@ public class Backprop extends SupervisedLearner {
 		// Matrix validationSet = new Matrix(features);
 		// Utilities.outputArrayList(features2.m_data);
 		while (iterations != MAX_ITERATIONS) {
-			epoch(features2, labels2, numHiddenNodes);
+			epoch(features2, labels2, numHiddenNodes, numOutputNodes);
 			++epochs;
 
 			double accuracy = measureAccuracy(features, labels, null);
