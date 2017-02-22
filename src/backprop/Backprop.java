@@ -126,9 +126,7 @@ public class Backprop extends SupervisedLearner {
 				changeInWeights[i] = calculateDeltaW(output, weight, MOMENTUM * changeInWeights[i]);
 			}
 			calculateNewWeights(changeInWeights);
-			Utilities.outputArray(myWeights);
 		}
-		System.out.println("epoch complete");
 
 	}
 
@@ -151,6 +149,7 @@ public class Backprop extends SupervisedLearner {
 					"changeInWeights.length: " + changeInWeights.length + " myWeights.length: " + myWeights.length);
 			return;
 		}
+
 		for (int i = 0; i < myWeights.length; i++) {
 			changeInWeights[i] = 0;
 		}
@@ -159,20 +158,18 @@ public class Backprop extends SupervisedLearner {
 			++epochs;
 
 			double accuracy = measureAccuracy(features, labels, null);
-			// System.out.println("accuracy: " + accuracy + " maxAccuracy: " +
-			// maxAccuracy);
-			// System.out.print(epochs + ", ");
-			// System.out.print(accuracy + "\n");
+
 			if (accuracy > maxAccuracy) {
 				maxAccuracy = accuracy;
 				iterations = 0;
 			} else if (accuracy <= maxAccuracy) {
 				++iterations;
 			}
-			// features.shuffle(rand, labels);
+			features.shuffle(rand, labels);
 
 		}
 		System.out.println();
+		System.out.println("weight length: " + myWeights.length);
 		Utilities.outputArray("final weights:", this.myWeights, true);
 		System.out.println("accuracy: " + maxAccuracy);
 		System.out.println("epochs: " + epochs);
@@ -181,6 +178,7 @@ public class Backprop extends SupervisedLearner {
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		// TODO Auto-generated method stub
+		// 3 different output nodes
 
 	}
 
