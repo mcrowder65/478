@@ -10,8 +10,8 @@ public class Backprop extends SupervisedLearner {
 	private Random rand;
 	private double[] myWeights;
 	private double[] changeInWeights;
-	final private static double MOMENTUM = 0.9;
-	final private static double LEARNING_RATE = 0.175;
+	final private static double MOMENTUM = 0;
+	final private static double LEARNING_RATE = 0.1;
 	final private static int BIAS = 1;
 	final private static int MAX_ITERATIONS = 10;
 
@@ -137,7 +137,8 @@ public class Backprop extends SupervisedLearner {
 		double maxAccuracy = 0;
 		int iterations = 0;
 		final int numHiddenNodes = features.row(0).length * 2;
-		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1) + 1;
+		final int numOutputNodes = labels.m_enum_to_str.get(0).size();
+		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1) * numOutputNodes;
 		this.myWeights = new double[weightLength];
 		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.05, 0.05);
 
@@ -153,8 +154,12 @@ public class Backprop extends SupervisedLearner {
 		for (int i = 0; i < myWeights.length; i++) {
 			changeInWeights[i] = 0;
 		}
+		Matrix features2 = new Matrix(features, 0, 0, features.rows(), features.cols());
+		Matrix labels2 = new Matrix(features, 0, features.cols() - 1, features.rows(), 1);
+		// Matrix validationSet = new Matrix(features);
+		// Utilities.outputArrayList(features2.m_data);
 		while (iterations != MAX_ITERATIONS) {
-			epoch(features, labels, numHiddenNodes);
+			epoch(features2, labels2, numHiddenNodes);
 			++epochs;
 
 			double accuracy = measureAccuracy(features, labels, null);
@@ -175,10 +180,32 @@ public class Backprop extends SupervisedLearner {
 		System.out.println("epochs: " + epochs);
 	}
 
+	/**
+	 * 
+	 * @param pattern
+	 *            double[]
+	 * @param weights
+	 *            double[]
+	 * @return double
+	 */
+	protected double evaluateNet(double[] pattern, double[] weights) {
+		double net = 0;
+		for (int i = 0; i < pattern.length + 1; i++) {
+			net += (i == pattern.length ? BIAS * weights[i] : pattern[i] * weights[i]);
+		}
+		return Utilities.round(net, 100.0);
+	}
+
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		// TODO Auto-generated method stub
 		// 3 different output nodes
+		if (labels[0] != 0) {
+			// System.out.println("label not 0!: " + labels[0]);
+		}
+		double net = this.evaluateNet(features, this.myWeights);
+		// System.out.println(net);
+		labels[0] = 2;
 
 	}
 
