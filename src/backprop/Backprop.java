@@ -112,8 +112,11 @@ public class Backprop extends SupervisedLearner {
 			}
 
 			for (int i = numOutputNodes; i < deltaArray.length; i++) {
-				// TODO how do i decide upstream node?
-				double delta = calculateHiddenNodeDelta(outputArray[i], deltaArray[0], myWeights[i]);
+				double deltaValue = 0;
+				for (int k = 0; k < numOutputNodes; k++) {
+					deltaValue += deltaArray[k];
+				}
+				double delta = calculateHiddenNodeDelta(outputArray[i], deltaValue, myWeights[i]);
 				deltaArray[i] = delta;
 			}
 			// num hidden nodes to output node
