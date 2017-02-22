@@ -14,6 +14,7 @@ public class Backprop extends SupervisedLearner {
 	final private static double LEARNING_RATE = 0.1;
 	final private static int BIAS = 1;
 	final private static int MAX_ITERATIONS = 10;
+	private double[] outputNodes;
 
 	public Backprop(Random rand) {
 		this.rand = rand;
@@ -92,8 +93,6 @@ public class Backprop extends SupervisedLearner {
 
 		for (int x = 0; x < features.rows(); x++) {
 			final double[] inputs = features.row(x);
-			final double target = labels.row(x)[0];
-
 			double[] netArray = new double[numHiddenNodes + 1];
 			for (int i = numOutputNodes; i < netArray.length; i++) {
 				netArray[i] = calculateNet(inputs, i * (inputs.length + 1) + 1);
@@ -108,10 +107,12 @@ public class Backprop extends SupervisedLearner {
 
 			for (int i = 0; i < numOutputNodes; i++) {
 				outputArray[i] = calculateOutput(netArray[i]);
+				outputNodes[i] = outputArray[i];
 			}
-
 			double[] deltaArray = new double[numHiddenNodes + 1];
 			for (int i = 0; i < numOutputNodes; i++) {
+				double target = i == labels.row(x)[0] ? 1 : 0;
+
 				deltaArray[i] = calculateExteriorDelta(target, outputArray[i]);
 			}
 
@@ -132,7 +133,6 @@ public class Backprop extends SupervisedLearner {
 			for (int i = 0; i < numHiddenNodes + 1; i++) {
 				double output = i < numOutputNodes ? BIAS : outputArray[i];
 				int deltaIndex = i / numOutputNodes;
-				System.out.println(deltaIndex);
 				changeInWeights[i] = calculateDeltaW(output, deltaArray[deltaIndex], MOMENTUM * changeInWeights[i]);
 			}
 			int inputCounter = -1;
@@ -142,25 +142,26 @@ public class Backprop extends SupervisedLearner {
 					inputCounter++;
 				} else if (inputCounter == inputs.length) {
 					inputCounter = 0;
-					deltaCounter = deltaCounter >= deltaArray.length - 1 ? 0 : deltaCounter + 1;
+					deltaCounter = deltaCounter >= deltaArray.length - 1 ? numOutputNodes : deltaCounter + 1;
 				}
 				double output = inputCounter == 0 ? BIAS : inputs[inputCounter - 1];
 				double weight = deltaArray[deltaCounter];
 				changeInWeights[i] = calculateDeltaW(output, weight, MOMENTUM * changeInWeights[i]);
 			}
 			calculateNewWeights(changeInWeights);
+
 		}
 
 	}
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-
 		int epochs = 0;
 		double maxAccuracy = 0;
 		int iterations = 0;
 		final int numHiddenNodes = features.row(0).length * 2;
 		final int numOutputNodes = labels.m_enum_to_str.get(0).size();
+		outputNodes = new double[numOutputNodes];
 		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1) * numOutputNodes;
 		this.myWeights = new double[weightLength];
 		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.05, 0.05);
@@ -178,7 +179,7 @@ public class Backprop extends SupervisedLearner {
 			changeInWeights[i] = 0;
 		}
 		Matrix features2 = new Matrix(features, 0, 0, features.rows(), features.cols());
-		Matrix labels2 = new Matrix(features, 0, features.cols() - 1, features.rows(), 1);
+		Matrix labels2 = new Matrix(labels, 0, labels.cols() - 1, labels.rows(), 1);
 		// Matrix validationSet = new Matrix(features);
 		// Utilities.outputArrayList(features2.m_data);
 		while (iterations != MAX_ITERATIONS) {
@@ -193,7 +194,7 @@ public class Backprop extends SupervisedLearner {
 			} else if (accuracy <= maxAccuracy) {
 				++iterations;
 			}
-			features.shuffle(rand, labels);
+			features2.shuffle(rand, labels);
 
 		}
 		System.out.println();
@@ -219,16 +220,29 @@ public class Backprop extends SupervisedLearner {
 		return Utilities.round(net, 100.0);
 	}
 
+	/**
+	 * returns index of biggest output node
+	 * 
+	 * @return
+	 */
+	private int biggestOutputNode() {
+		double biggest = 0;
+		int winningIndex = 0;
+		for (int i = 0; i < outputNodes.length; i++) {
+			if (outputNodes[i] > biggest) {
+				biggest = outputNodes[i];
+				winningIndex = i;
+			}
+		}
+		return winningIndex;
+	}
+
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		// TODO Auto-generated method stub
 		// 3 different output nodes
-		if (labels[0] != 0) {
-			// System.out.println("label not 0!: " + labels[0]);
-		}
-		double net = this.evaluateNet(features, this.myWeights);
-		// System.out.println(net);
-		labels[0] = 2;
+		labels[0] = biggestOutputNode();
+		Utilities.outputArray(outputNodes);
 
 	}
 
