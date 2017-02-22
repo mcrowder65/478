@@ -63,9 +63,13 @@ public class Backprop extends SupervisedLearner {
 	 *            double
 	 * @return double
 	 */
-	private double calculateHiddenNodeDelta(double output, double upstreamDelta, double w) {
+	private double calculateHiddenNodeDelta(double output, double[] upstreamDeltas, double[] weights) {
 		// output ( 1 - output) * upstreamDelta * w
-		double result = output * (1 - output) * upstreamDelta * w;
+		double upstreamStuff = 0;
+		for (int i = 0; i < upstreamDeltas.length; i++) {
+			upstreamStuff += (upstreamDeltas[i] * weights[i]);
+		}
+		double result = output * (1 - output) * upstreamStuff;
 		return result;
 	}
 
@@ -112,18 +116,22 @@ public class Backprop extends SupervisedLearner {
 			}
 
 			for (int i = numOutputNodes; i < deltaArray.length; i++) {
-				double deltaValue = 0;
-				for (int k = 0; k < numOutputNodes; k++) {
-					deltaValue += deltaArray[k];
+
+				double[] tempDeltaArray = new double[numOutputNodes];
+				double[] tempWeightArray = new double[numOutputNodes];
+
+				// TODO tempWeightArray may be incorrect...
+				for (int k = 0; k < tempDeltaArray.length; k++) {
+					tempDeltaArray[k] = deltaArray[k];
+					tempWeightArray[k] = myWeights[i * numOutputNodes + k];
 				}
-				double delta = calculateHiddenNodeDelta(outputArray[i], deltaValue, myWeights[i]);
+				double delta = calculateHiddenNodeDelta(outputArray[i], tempDeltaArray, tempWeightArray);
 				deltaArray[i] = delta;
 			}
 			// num hidden nodes to output node
 			for (int i = 0; i < numHiddenNodes + 1; i++) {
 				double output = i < numOutputNodes ? BIAS : outputArray[i];
-				// TODO deltaIndex does not work.
-				int deltaIndex = numHiddenNodes / numOutputNodes;
+				int deltaIndex = i / numOutputNodes;
 				System.out.println(deltaIndex);
 				changeInWeights[i] = calculateDeltaW(output, deltaArray[deltaIndex], MOMENTUM * changeInWeights[i]);
 			}
@@ -134,7 +142,7 @@ public class Backprop extends SupervisedLearner {
 					inputCounter++;
 				} else if (inputCounter == inputs.length) {
 					inputCounter = 0;
-					deltaCounter++;
+					deltaCounter = deltaCounter >= deltaArray.length - 1 ? 0 : deltaCounter + 1;
 				}
 				double output = inputCounter == 0 ? BIAS : inputs[inputCounter - 1];
 				double weight = deltaArray[deltaCounter];
