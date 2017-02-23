@@ -38,8 +38,6 @@ public class Backprop extends SupervisedLearner {
 		double net = 0;
 		for (int i = startingPoint; i < output.length; i++) {
 			double weight = myWeights[weightIndex + i];
-			// TODO output
-			System.out.println(weightIndex + i);
 			double num = weight * (i == startingPoint ? BIAS : output[i - startingPoint]);
 			net += num;
 		}
@@ -106,8 +104,7 @@ public class Backprop extends SupervisedLearner {
 				outputArray[i] = calculateOutput(netArray[i]);
 			}
 			for (int i = 0; i < numOutputNodes; i++) {
-				// TODO pick the right weights!
-				int weightIndex = 0;
+				int weightIndex = numHiddenNodes * i;
 				netArray[i] = calculateLastNet(outputArray, numOutputNodes, weightIndex);
 			}
 
