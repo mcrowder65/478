@@ -117,6 +117,8 @@ public class Backprop extends SupervisedLearner {
 			final double[] inputs = features.row(x);
 			double[] netArray = new double[numHiddenNodes + numOutputNodes];
 			int startingPoint = 0;
+
+			// CALCULATE NET VALUES OF HIDDEN NODES
 			for (int i = numOutputNodes; i < netArray.length; i++) {
 				// if it's 0, then go ahead and calculate it to be 27 for the
 				// first time. think, the number of outputNodes is 3, and the
@@ -133,10 +135,13 @@ public class Backprop extends SupervisedLearner {
 				startingPoint = inputs.length + 1 + startingPoint;
 			}
 
+			// CALCULATE OUTPUT VALUES OF HIDDEN NODES
 			double[] outputArray = new double[numHiddenNodes + numOutputNodes];
 			for (int i = numOutputNodes; i < outputArray.length; i++) {
 				outputArray[i] = calculateOutput(netArray[i]);
 			}
+
+			// CALCULATE NET VALUES OF OUTPUT NODES
 			for (int i = 0; i < numOutputNodes; i++) {
 				// calculate weight index based on the number of hidden nodes.
 				// think about it. there are 3 outputs... so there are 9 weights
@@ -147,12 +152,15 @@ public class Backprop extends SupervisedLearner {
 				netArray[i] = calculateLastNet(outputArray, numOutputNodes, weightIndex);
 			}
 
+			// CALCULATE OUTPUT VALUES OF OUTPUT NODES
 			for (int i = 0; i < numOutputNodes; i++) {
 				double net = netArray[i];
 				outputArray[i] = calculateOutput(net);
 				outputNodes[i] = outputArray[i];
 			}
 			double[] deltaArray = new double[numHiddenNodes + numOutputNodes];
+
+			// CALCULATE DELTA VALUES OF OUTPUT NODES
 			for (int i = 0; i < numOutputNodes; i++) {
 				// make target 1 if the current label is the one i'm looking
 				// for?
@@ -162,6 +170,7 @@ public class Backprop extends SupervisedLearner {
 				deltaArray[i] = calculateExteriorDelta(target, outputArray[i]);
 			}
 
+			// CALCULATE DELTA VALUES FROM NUM HIDDEN NODES TO LENGTH
 			for (int i = numOutputNodes; i < deltaArray.length; i++) {
 
 				double[] tempDeltaArray = new double[numOutputNodes];
@@ -184,8 +193,8 @@ public class Backprop extends SupervisedLearner {
 				double delta = calculateHiddenNodeDelta(outputArray[i], tempDeltaArray, tempWeightArray);
 				deltaArray[i] = delta;
 			}
-			// num hidden nodes to output node
 
+			// CALCULATE WEIGHTS FROM HIDDEN NODES TO OUTPUT NODES
 			// If there were 3 output nodes and 8 hidden nodes, you are doing
 			// this 27 times -> 3 * (8 + 1) = 27... + 1 for bias
 			int counter = 0;
@@ -216,18 +225,33 @@ public class Backprop extends SupervisedLearner {
 				changeInWeights[i] = calculateDeltaW(output, deltaArray[deltaIndex], MOMENTUM * changeInWeights[i]);
 				counter++;
 			}
+
+			// CALCULATE CHANGE IN WEIGHTS FROM INPUTS TO HIDDEN NODES
+			// do (numHiddenNodes + 1) * numOutputNodes for starting point
+			// because if there were 8 hidden nodes + 1 for bias and 3 output
+			// nodes, then 9 * 3 = 27. 27 is the starting weight index of the
+			// first input node to the first hidden node
+			counter = 1;
+			int deltaIncrementer = 0;
 			int inputCounter = -1;
-			int deltaCounter = numOutputNodes;
-			for (int i = numHiddenNodes + 1; i < changeInWeights.length; i++) {
-				if (inputCounter < inputs.length) {
+			for (int i = (numHiddenNodes + 1) * numOutputNodes; i < myWeights.length; i++) {
+				int deltaIndex = numOutputNodes + deltaIncrementer;
+				// only increment deltaIncrementer once all inputs and bias have
+				// calculated their new weight corresponding to the hidden node
+				// deltas, then increment delta incrementer. we want deltaIndex
+				// to be numOutputNodes + deltaIncrementer because the starting
+				// index in deltas will be whatever numOutputNodes is.
+				if (counter % (inputs.length + 1) == 0) {
+					deltaIncrementer++;
+					inputCounter = -1;
+				} else {
 					inputCounter++;
-				} else if (inputCounter == inputs.length) {
-					inputCounter = 0;
-					deltaCounter = deltaCounter >= deltaArray.length - 1 ? numOutputNodes : deltaCounter + 1;
 				}
-				double output = inputCounter == 0 ? BIAS : inputs[inputCounter - 1];
-				double weight = deltaArray[deltaCounter];
-				changeInWeights[i] = calculateDeltaW(output, weight, MOMENTUM * changeInWeights[i]);
+
+				double delta = counter % (inputs.length + 1) != 0 ? deltaArray[deltaIndex] : BIAS;
+				double input = counter % (inputs.length + 1) != 0 ? inputs[inputCounter] : BIAS;
+				changeInWeights[i] = calculateDeltaW(input, delta, MOMENTUM * changeInWeights[i]);
+				counter++;
 			}
 			calculateNewWeights(changeInWeights);
 
