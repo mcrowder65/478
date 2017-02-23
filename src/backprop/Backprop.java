@@ -61,14 +61,22 @@ public class Backprop extends SupervisedLearner {
 		return output;
 	}
 
+	/**
+	 * (t1 - o1) o1 (1 - o1)
+	 * 
+	 * @param target
+	 *            double 1 or 0
+	 * @param output
+	 * @return
+	 */
 	private double calculateExteriorDelta(double target, double output) {
-		// (t1 - o1) o1 (1 - o1)
 		double result = (target - output) * output * (1 - output);
 
 		return result;
 	}
 
 	/**
+	 * output * (1 - output) * sigma (upstreamDelta * w)
 	 * 
 	 * @param output
 	 *            double
@@ -106,8 +114,6 @@ public class Backprop extends SupervisedLearner {
 	private void epoch(Matrix features, Matrix labels, int numHiddenNodes, int numOutputNodes) {
 
 		for (int x = 0; x < features.rows(); x++) {
-			// TODO start output
-			System.out.println("start");
 			final double[] inputs = features.row(x);
 			double[] netArray = new double[numHiddenNodes + numOutputNodes];
 			int startingPoint = 0;
@@ -146,8 +152,11 @@ public class Backprop extends SupervisedLearner {
 				outputArray[i] = calculateOutput(net);
 				outputNodes[i] = outputArray[i];
 			}
-			double[] deltaArray = new double[numHiddenNodes + 1];
+			double[] deltaArray = new double[numHiddenNodes + numOutputNodes];
 			for (int i = 0; i < numOutputNodes; i++) {
+				// make target 1 if the current label is the one i'm looking
+				// for?
+
 				double target = i == labels.row(x)[0] ? 1 : 0;
 
 				deltaArray[i] = calculateExteriorDelta(target, outputArray[i]);
@@ -158,11 +167,19 @@ public class Backprop extends SupervisedLearner {
 				double[] tempDeltaArray = new double[numOutputNodes];
 				double[] tempWeightArray = new double[numOutputNodes];
 
-				// TODO tempWeightArray may be incorrect...
 				for (int k = 0; k < tempDeltaArray.length; k++) {
+					// only use the first three delta
 					tempDeltaArray[k] = deltaArray[k];
-					int index = i * numOutputNodes + k;
-					tempWeightArray[k] = myWeights[i * numOutputNodes + k];
+					// index is found by taking the number of hidden nodes + 1
+					// for bias * k so this is how it works...
+					// the first hidden node to the first output is index 0...
+					// then all the other hidden nodes plus bias are indices
+					// 1-8. so then next time (numHiddenNodes + 1) * k will be 9
+					// when k is 1. Add (i - numOutputNodes) to increment so
+					// that the next delta weights will be correct.
+
+					int index = ((numHiddenNodes + 1) * k) + (i - numOutputNodes);
+					tempWeightArray[k] = myWeights[index];
 				}
 				double delta = calculateHiddenNodeDelta(outputArray[i], tempDeltaArray, tempWeightArray);
 				deltaArray[i] = delta;
