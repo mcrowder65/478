@@ -262,7 +262,7 @@ public class Backprop extends SupervisedLearner {
 					inputCounter++;
 				}
 
-				double delta = counter % (inputs.length + 1) != 0 ? deltaArray[deltaIndex] : BIAS;
+				double delta = deltaArray[deltaIndex];
 				double input = counter % (inputs.length + 1) != 0 ? inputs[inputCounter] : BIAS;
 				changeInWeights[i] = calculateDeltaW(input, delta, MOMENTUM * changeInWeights[i]);
 
