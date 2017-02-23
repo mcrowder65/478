@@ -80,10 +80,10 @@ public class Backprop extends SupervisedLearner {
 	 * 
 	 * @param output
 	 *            double
-	 * @param upstreamDelta
-	 *            double
-	 * @param w
-	 *            double
+	 * @param upstreamDeltas
+	 *            double[]
+	 * @param weights
+	 *            double[]
 	 * @return double
 	 */
 	private double calculateHiddenNodeDelta(double output, double[] upstreamDeltas, double[] weights) {
@@ -265,18 +265,18 @@ public class Backprop extends SupervisedLearner {
 				double delta = counter % (inputs.length + 1) != 0 ? deltaArray[deltaIndex] : BIAS;
 				double input = counter % (inputs.length + 1) != 0 ? inputs[inputCounter] : BIAS;
 				changeInWeights[i] = calculateDeltaW(input, delta, MOMENTUM * changeInWeights[i]);
+
 				counter++;
 			}
+			calculateNewWeights(changeInWeights);
 		}
 		return null;
 
 	}
 
 	private void epoch(Matrix features, Matrix labels, int numHiddenNodes, int numOutputNodes, int amountOfRows) {
-
 		for (int x = 0; x < amountOfRows; x++) {
 			this.iteration(features.row(x), labels.row(x), true, true, numHiddenNodes, numOutputNodes, false, false);
-
 		}
 
 	}
@@ -284,7 +284,7 @@ public class Backprop extends SupervisedLearner {
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		int epochs = 0;
-		double maxAccuracy = 0;
+		double maxAccuracy = Double.MAX_VALUE;
 		int iterations = 0;
 		final int numHiddenNodes = features.row(0).length * 2;
 		final int numOutputNodes = labels.m_enum_to_str.get(0).size();
@@ -307,10 +307,7 @@ public class Backprop extends SupervisedLearner {
 		}
 		final double trainingPercent = 0.8;
 		int amountOfRows = (int) (features.rows() * trainingPercent);
-		// Matrix features2 = new Matrix(features, 0, 0, features.rows(),
-		// features.cols());
-		// Matrix labels2 = new Matrix(labels, 0, labels.cols() - 1,
-		// labels.rows(), 1);
+
 		while (iterations != MAX_ITERATIONS) {
 			epoch(features, labels, numHiddenNodes, numOutputNodes, amountOfRows);
 			++epochs;
@@ -318,19 +315,21 @@ public class Backprop extends SupervisedLearner {
 			double MSE = calculateMSE(features, labels, amountOfRows, numHiddenNodes, numOutputNodes);
 			// double accuracy = measureAccuracy(features, labels, null);
 
-			if (MSE > maxAccuracy) {
+			if (MSE <= maxAccuracy) {
 				maxAccuracy = MSE;
 				iterations = 0;
-			} else if (MSE <= maxAccuracy) {
+			} else if (MSE > maxAccuracy) {
 				++iterations;
 			}
 			features.shuffle(rand, labels);
-
 		}
 		System.out.println();
 		System.out.println("weight length: " + myWeights.length);
+		// TODO output
+		for (int i = 0; i < myWeights.length; i++) {
+			System.out.println(i + " " + myWeights[i]);
+		}
 		Utilities.outputArray("final weights:", this.myWeights, true);
-		System.out.println("accuracy: " + maxAccuracy);
 		System.out.println("epochs: " + epochs);
 	}
 
@@ -375,7 +374,7 @@ public class Backprop extends SupervisedLearner {
 		double biggest = 0;
 		int winningIndex = 0;
 		for (int i = 0; i < outputs.length; i++) {
-			if (outputNodes[i] > biggest) {
+			if (outputs[i] > biggest) {
 				biggest = outputs[i];
 				winningIndex = i;
 			}
@@ -387,9 +386,10 @@ public class Backprop extends SupervisedLearner {
 	public void predict(double[] features, double[] labels) throws Exception {
 		// 3 different output nodes
 
-		// TODO how to calculate number of outputs?
-		double[] result = this.iteration(features, labels, true, true, features.length * 2, 3, true, false);
+		double[] result = this.iteration(features, labels, false, false, features.length * 2, outputNodes.length, true,
+				false);
 		labels[0] = biggestOutputNode(result);
+
 	}
 
 }
