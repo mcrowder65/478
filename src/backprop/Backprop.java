@@ -32,11 +32,15 @@ public class Backprop extends SupervisedLearner {
 		return net;
 	}
 
-	private double calculateLastNet(double[] input) {
+	private double calculateLastNet(double[] output, int startingPoint, int weightIndex) {
+		// TODO this is probably wrong :(
+
 		double net = 0;
-		for (int i = 0; i < input.length; i++) {
-			double weight = myWeights[i];
-			double num = weight * (i == 0 ? BIAS : input[i]);
+		for (int i = startingPoint; i < output.length; i++) {
+			double weight = myWeights[weightIndex + i];
+			// TODO output
+			System.out.println(weightIndex + i);
+			double num = weight * (i == startingPoint ? BIAS : output[i - startingPoint]);
 			net += num;
 		}
 		return net;
@@ -93,20 +97,23 @@ public class Backprop extends SupervisedLearner {
 
 		for (int x = 0; x < features.rows(); x++) {
 			final double[] inputs = features.row(x);
-			double[] netArray = new double[numHiddenNodes + 1];
+			double[] netArray = new double[numHiddenNodes + numOutputNodes];
 			for (int i = numOutputNodes; i < netArray.length; i++) {
 				netArray[i] = calculateNet(inputs, i * (inputs.length + 1) + 1);
 			}
-			double[] outputArray = new double[numHiddenNodes + 1];
+			double[] outputArray = new double[numHiddenNodes + numOutputNodes];
 			for (int i = numOutputNodes; i < outputArray.length; i++) {
 				outputArray[i] = calculateOutput(netArray[i]);
 			}
 			for (int i = 0; i < numOutputNodes; i++) {
-				netArray[i] = calculateLastNet(outputArray);
+				// TODO pick the right weights!
+				int weightIndex = 0;
+				netArray[i] = calculateLastNet(outputArray, numOutputNodes, weightIndex);
 			}
 
 			for (int i = 0; i < numOutputNodes; i++) {
-				outputArray[i] = calculateOutput(netArray[i]);
+				double net = netArray[i];
+				outputArray[i] = calculateOutput(net);
 				outputNodes[i] = outputArray[i];
 			}
 			double[] deltaArray = new double[numHiddenNodes + 1];
@@ -124,6 +131,7 @@ public class Backprop extends SupervisedLearner {
 				// TODO tempWeightArray may be incorrect...
 				for (int k = 0; k < tempDeltaArray.length; k++) {
 					tempDeltaArray[k] = deltaArray[k];
+					int index = i * numOutputNodes + k;
 					tempWeightArray[k] = myWeights[i * numOutputNodes + k];
 				}
 				double delta = calculateHiddenNodeDelta(outputArray[i], tempDeltaArray, tempWeightArray);
@@ -239,10 +247,8 @@ public class Backprop extends SupervisedLearner {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		// TODO Auto-generated method stub
 		// 3 different output nodes
 		labels[0] = biggestOutputNode();
-		Utilities.outputArray(outputNodes);
 
 	}
 
