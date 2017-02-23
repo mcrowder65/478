@@ -26,22 +26,37 @@ public class Backprop extends SupervisedLearner {
 		double net = 0;
 		for (int i = startingPoint; i < startingPoint + input.length + 1; i++) {
 			double weight = myWeights[i];
-			double num = weight * (i == startingPoint ? BIAS : input[i - startingPoint - 1]);
+			double num = weight * (i == startingPoint + input.length ? BIAS : input[i - startingPoint]);
 			net += num;
 		}
 		return net;
 	}
 
+	/**
+	 * 
+	 * @param output
+	 * @param startingPoint
+	 *            int - generally this is the numOutputNodes, because we don't
+	 *            want to add the output of the other nodes to the net
+	 * @param weightIndex
+	 * @return
+	 */
 	private double calculateLastNet(double[] output, int startingPoint, int weightIndex) {
 		// TODO this is probably wrong :(
-
 		double net = 0;
+
 		for (int i = startingPoint; i < output.length; i++) {
-			double weight = myWeights[weightIndex + i];
-			double num = weight * (i == startingPoint ? BIAS : output[i - startingPoint]);
-			net += num;
+
 		}
-		return net;
+		// double net = 0;
+		// for (int i = startingPoint; i < output.length; i++) {
+		// double weight = myWeights[weightIndex + i];
+		// double num = weight * (i == startingPoint ? BIAS : output[i -
+		// startingPoint]);
+		// net += num;
+		// }
+		// return net;
+		return 0;
 	}
 
 	private double calculateOutput(double net) {
@@ -94,17 +109,38 @@ public class Backprop extends SupervisedLearner {
 	private void epoch(Matrix features, Matrix labels, int numHiddenNodes, int numOutputNodes) {
 
 		for (int x = 0; x < features.rows(); x++) {
+			// TODO start output
+			System.out.println("start");
 			final double[] inputs = features.row(x);
 			double[] netArray = new double[numHiddenNodes + numOutputNodes];
+			int startingPoint = 0;
 			for (int i = numOutputNodes; i < netArray.length; i++) {
-				netArray[i] = calculateNet(inputs, i * (inputs.length + 1) + 1);
+				// if it's 0, then go ahead and calculate it to be 27 for the
+				// first time. think, the number of outputNodes is 3, and the
+				// number of hidden nodes is 8. add 1 for bias 3 * 9 = 27 -> so
+				// now the first weights from input to hidden nodes starts at
+				// index 27. only init when it's set at 0.
+
+				startingPoint = startingPoint == 0 ? (numOutputNodes * (numHiddenNodes + 1)) : startingPoint;
+				netArray[i] = calculateNet(inputs, startingPoint);
+
+				// now, add the input length (4) + 1 for bias. so 5..... there
+				// would be 5 weights connected plus the starting point to get
+				// the new index!
+				startingPoint = inputs.length + 1 + startingPoint;
 			}
+
 			double[] outputArray = new double[numHiddenNodes + numOutputNodes];
 			for (int i = numOutputNodes; i < outputArray.length; i++) {
 				outputArray[i] = calculateOutput(netArray[i]);
 			}
 			for (int i = 0; i < numOutputNodes; i++) {
-				int weightIndex = numHiddenNodes * i;
+				// calculate weight index based on the number of hidden nodes.
+				// think about it. there are 3 outputs... so there are 9 weights
+				// that connect to each output, so (numHiddenNodes + 1) * i will
+				// get you the right starting index.
+
+				int weightIndex = (numHiddenNodes + 1) * i;
 				netArray[i] = calculateLastNet(outputArray, numOutputNodes, weightIndex);
 			}
 
@@ -167,7 +203,7 @@ public class Backprop extends SupervisedLearner {
 		final int numHiddenNodes = features.row(0).length * 2;
 		final int numOutputNodes = labels.m_enum_to_str.get(0).size();
 		outputNodes = new double[numOutputNodes];
-		int weightLength = (features.row(0).length + 1) * (numHiddenNodes + 1) * numOutputNodes;
+		int weightLength = (features.row(0).length + 1) * (numHiddenNodes) + (numOutputNodes * (numHiddenNodes + 1));
 		this.myWeights = new double[weightLength];
 		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.05, 0.05);
 
@@ -246,7 +282,6 @@ public class Backprop extends SupervisedLearner {
 	public void predict(double[] features, double[] labels) throws Exception {
 		// 3 different output nodes
 		labels[0] = biggestOutputNode();
-
 	}
 
 }
