@@ -42,21 +42,18 @@ public class Backprop extends SupervisedLearner {
 	 * @return
 	 */
 	private double calculateLastNet(double[] output, int startingPoint, int weightIndex) {
-		// TODO this is probably wrong :(
 		double net = 0;
 
-		for (int i = startingPoint; i < output.length; i++) {
-
+		for (int i = startingPoint; i < output.length + 1; i++) {
+			// increment weightIndex everytime.
+			// do i - startingPoint so that it increments from 0 to
+			// output.length
+			double weight = myWeights[weightIndex + (i - startingPoint)];
+			double num = weight * (i == output.length ? BIAS : output[i]);
+			net += num;
 		}
-		// double net = 0;
-		// for (int i = startingPoint; i < output.length; i++) {
-		// double weight = myWeights[weightIndex + i];
-		// double num = weight * (i == startingPoint ? BIAS : output[i -
-		// startingPoint]);
-		// net += num;
-		// }
-		// return net;
-		return 0;
+
+		return net;
 	}
 
 	private double calculateOutput(double net) {
