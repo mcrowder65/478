@@ -285,12 +285,11 @@ public class Backprop extends SupervisedLearner {
 		}
 		Matrix features2 = new Matrix(features, 0, 0, features.rows(), features.cols());
 		Matrix labels2 = new Matrix(labels, 0, labels.cols() - 1, labels.rows(), 1);
-		// Matrix validationSet = new Matrix(features);
-		// Utilities.outputArrayList(features2.m_data);
 		while (iterations != MAX_ITERATIONS) {
 			epoch(features2, labels2, numHiddenNodes, numOutputNodes);
 			++epochs;
-
+			Utilities.outputArray(outputNodes);
+			System.out.println(biggestOutputNode());
 			double accuracy = measureAccuracy(features, labels, null);
 
 			if (accuracy > maxAccuracy) {
@@ -345,6 +344,7 @@ public class Backprop extends SupervisedLearner {
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		// 3 different output nodes
+
 		labels[0] = biggestOutputNode();
 	}
 
