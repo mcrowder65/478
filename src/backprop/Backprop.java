@@ -185,10 +185,36 @@ public class Backprop extends SupervisedLearner {
 				deltaArray[i] = delta;
 			}
 			// num hidden nodes to output node
-			for (int i = 0; i < numHiddenNodes + 1; i++) {
-				double output = i < numOutputNodes ? BIAS : outputArray[i];
-				int deltaIndex = i / numOutputNodes;
+
+			// If there were 3 output nodes and 8 hidden nodes, you are doing
+			// this 27 times -> 3 * (8 + 1) = 27... + 1 for bias
+			int counter = 0;
+			for (int i = 0; i < (numHiddenNodes + 1) * numOutputNodes; i++) {
+				// use i for change in weights index
+				int index = counter + numOutputNodes;
+				double output = Double.MAX_VALUE;
+				// We are trying to calculate the change in weights from the
+				// hidden nodes to the output nodes in order to calculate those,
+				// we need to use their little delta values and the output of
+				// each hidden node. finding the output index is done by taking
+				// the (counter) value + numOutputNodes. Resetting the counter
+				// to -1 will then put it back at 0, because we want the output
+				// indices of the hidden nodes (which in the iris case are 3-10)
+				// + bias.
+				if (index >= outputArray.length) {
+					counter = -1;
+				}
+				output = counter != -1 ? outputArray[counter] : BIAS;
+				// We want our delta index to be one of the output nodes delta
+				// index. so we want our data to split up evenly so that each
+				// one is using the correct delta value. if we went from 0-26
+				// inclusive, then it would split up from 0-8 as 0's, 9-17 as
+				// 1's, and 18-26 as 2's.
+
+				int deltaIndex = i / (numHiddenNodes + 1);
+
 				changeInWeights[i] = calculateDeltaW(output, deltaArray[deltaIndex], MOMENTUM * changeInWeights[i]);
+				counter++;
 			}
 			int inputCounter = -1;
 			int deltaCounter = numOutputNodes;
