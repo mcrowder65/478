@@ -12,8 +12,8 @@ public class Backprop extends SupervisedLearner {
 	private Random rand;
 	private double[] myWeights;
 	private double[] changeInWeights;
-	final private static double MOMENTUM = 0;
-	final private static double LEARNING_RATE = 0.5;
+	final private static double MOMENTUM = 0.9;
+	final private static double LEARNING_RATE = 0.1;
 	final private static int BIAS = 1;
 	final private static int MAX_ITERATIONS = 100;
 	private Matrix testFeatures;
@@ -25,7 +25,8 @@ public class Backprop extends SupervisedLearner {
 	}
 
 	private int numHiddenNodes(double[] input) {
-		return input.length * 2;
+		return 256;
+		// return input.length * 2;
 	}
 
 	private double calculateNet(double[] input, int startingPoint) {
@@ -349,7 +350,6 @@ public class Backprop extends SupervisedLearner {
 			double T_MSE = calculateMSE(features, labels, 0, amountOfRows,
 					numHiddenNodes, numOutputNodes);
 			T_MSEs.add(T_MSE);
-			// System.out.println("T_MSE: " + T_MSE);
 			double VS_MSE = calculateMSE(features, labels, amountOfRows,
 					features.rows(), numHiddenNodes, numOutputNodes);
 			VS_MSEs.add(VS_MSE);
@@ -377,26 +377,28 @@ public class Backprop extends SupervisedLearner {
 		}
 		System.out.println("T_MSE");
 		outputArrayList(T_MSEs);
-
+		//
 		System.out.println("VS_MSE");
 		outputArrayList(VS_MSEs);
-
-		System.out.println("VS_classifications");
-		outputArrayList(VS_classifications);
+		//
+		// System.out.println("VS_classifications");
+		// outputArrayList(VS_classifications);
 		System.out.println("TEST_MSEs");
 		outputArrayList(TEST_MSEs);
-		System.out.println("TEST_classifications");
-		outputArrayList(TEST_classifications);
+
+		// System.out.println("TEST_classifications");
+		// outputArrayList(TEST_classifications);
 		System.out.println();
-		System.out.println("weight length: " + myWeights.length);
-		Utilities.outputArray("final weights:", this.myWeights, true);
+		System.out.println("MOMENTUM: " + MOMENTUM);
+		System.out.println("Number of hidden nodes: " + numHiddenNodes);
+		// System.out.println("weight length: " + myWeights.length);
+		// Utilities.outputArray("final weights:", this.myWeights, true);
 		System.out.println("epochs: " + epochs);
+		System.out.println("LEARNING_RATE: " + LEARNING_RATE);
 	}
 
 	private void outputArrayList(List<Double> list) {
-		for (int i = list.size() - 1; i < list.size(); i++) {
-			System.out.println(list.get(i));
-		}
+		System.out.println(list.get(list.size() - 1));
 
 	}
 
