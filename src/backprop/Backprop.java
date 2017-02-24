@@ -1,5 +1,7 @@
 package backprop;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import toolkit.Matrix;
@@ -10,14 +12,18 @@ public class Backprop extends SupervisedLearner {
 	private Random rand;
 	private double[] myWeights;
 	private double[] changeInWeights;
-	final private static double MOMENTUM = 0.6;
+	final private static double MOMENTUM = 0;
 	final private static double LEARNING_RATE = 0.1;
 	final private static int BIAS = 1;
-	final private static int MAX_ITERATIONS = 10;
+	final private static int MAX_ITERATIONS = 100;
 	private double[] outputNodes;
 
 	public Backprop(Random rand) {
 		this.rand = rand;
+	}
+
+	private int numHiddenNodes(double[] input) {
+		return input.length * 2;
 	}
 
 	private double calculateNet(double[] input, int startingPoint) {
@@ -158,6 +164,7 @@ public class Backprop extends SupervisedLearner {
 				outputNodes[i] = outputArray[i];
 			}
 		}
+
 		if (validating) {
 			double[] outputs = new double[numOutputNodes];
 			for (int i = 0; i < numOutputNodes; i++) {
@@ -284,9 +291,10 @@ public class Backprop extends SupervisedLearner {
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		int epochs = 0;
+		features.shuffle(rand, labels);
 		double maxAccuracy = Double.MAX_VALUE;
 		int iterations = 0;
-		final int numHiddenNodes = features.row(0).length * 2;
+		final int numHiddenNodes = numHiddenNodes(features.row(0));
 		final int numOutputNodes = labels.m_enum_to_str.get(0).size();
 		outputNodes = new double[numOutputNodes];
 		int weightLength = (features.row(0).length + 1) * (numHiddenNodes) + (numOutputNodes * (numHiddenNodes + 1));
@@ -307,33 +315,65 @@ public class Backprop extends SupervisedLearner {
 		}
 		final double trainingPercent = 0.8;
 		int amountOfRows = (int) (features.rows() * trainingPercent);
-
+		List<Double> T_MSEs = new ArrayList<>();
+		List<Double> VS_MSEs = new ArrayList<>();
+		List<Double> classifications = new ArrayList<>();
 		while (iterations != MAX_ITERATIONS) {
 			epoch(features, labels, numHiddenNodes, numOutputNodes, amountOfRows);
 			++epochs;
-
-			double MSE = calculateMSE(features, labels, amountOfRows, numHiddenNodes, numOutputNodes);
-			// double accuracy = measureAccuracy(features, labels, null);
-
-			if (MSE <= maxAccuracy) {
-				maxAccuracy = MSE;
+			double T_MSE = calculateMSE(features, labels, 0, amountOfRows, numHiddenNodes, numOutputNodes);
+			T_MSEs.add(T_MSE);
+			// System.out.println("T_MSE: " + T_MSE);
+			double VS_MSE = calculateMSE(features, labels, amountOfRows, features.rows(), numHiddenNodes,
+					numOutputNodes);
+			VS_MSEs.add(VS_MSE);
+			double classification = this.calculateClassificationCorrection(features, labels, amountOfRows,
+					features.rows(), numHiddenNodes, numOutputNodes);
+			classifications.add(classification);
+			if (VS_MSE <= maxAccuracy) {
+				maxAccuracy = VS_MSE;
 				iterations = 0;
-			} else if (MSE > maxAccuracy) {
+			} else if (VS_MSE > maxAccuracy) {
 				++iterations;
 			}
 			features.shuffle(rand, labels);
 		}
+		System.out.println("T_MSE");
+		outputArrayList(T_MSEs);
+
+		System.out.println("VS_MSE");
+		outputArrayList(VS_MSEs);
+
+		System.out.println("classifications");
+		outputArrayList(classifications);
+
 		System.out.println();
 		System.out.println("weight length: " + myWeights.length);
-		// TODO output
-		for (int i = 0; i < myWeights.length; i++) {
-			System.out.println(i + " " + myWeights[i]);
-		}
 		Utilities.outputArray("final weights:", this.myWeights, true);
 		System.out.println("epochs: " + epochs);
 	}
 
-	private double calculateMSE(Matrix validation, Matrix labels, int startingRow, int numHiddenNodes,
+	private void outputArrayList(List<Double> list) {
+		for (int i = 0; i < list.size(); i++) {
+			System.out.println(list.get(i));
+		}
+	}
+
+	private double calculateClassificationCorrection(Matrix validation, Matrix labels, int startingRow, int stoppingRow,
+			int numHiddenNodes, int numOutputNodes) {
+		int numRight = 0;
+		for (int i = startingRow; i < stoppingRow; i++) {
+			double[] outputArr = this.iteration(validation.row(i), labels.row(0), false, false, numHiddenNodes,
+					numOutputNodes, true, false);
+			int winningIndex = biggestOutputNode(outputArr);
+			if (winningIndex == labels.row(i)[0]) {
+				numRight++;
+			}
+		}
+		return (double) numRight / (double) (stoppingRow - startingRow);
+	}
+
+	private double calculateMSE(Matrix validation, Matrix labels, int startingRow, int stoppingRow, int numHiddenNodes,
 			int numOutputNodes) {
 		double MSE = 0;
 		for (int i = startingRow; i < validation.rows(); i++) {
@@ -347,22 +387,6 @@ public class Backprop extends SupervisedLearner {
 		int num = validation.rows() - startingRow;
 
 		return MSE / (num * validation.row(0).length);
-	}
-
-	/**
-	 * 
-	 * @param pattern
-	 *            double[]
-	 * @param weights
-	 *            double[]
-	 * @return double
-	 */
-	protected double evaluateNet(double[] pattern, double[] weights) {
-		double net = 0;
-		for (int i = 0; i < pattern.length + 1; i++) {
-			net += (i == pattern.length ? BIAS * weights[i] : pattern[i] * weights[i]);
-		}
-		return Utilities.round(net, 100.0);
 	}
 
 	/**
@@ -386,8 +410,8 @@ public class Backprop extends SupervisedLearner {
 	public void predict(double[] features, double[] labels) throws Exception {
 		// 3 different output nodes
 
-		double[] result = this.iteration(features, labels, false, false, features.length * 2, outputNodes.length, true,
-				false);
+		double[] result = this.iteration(features, labels, false, false, numHiddenNodes(features), outputNodes.length,
+				true, false);
 		labels[0] = biggestOutputNode(result);
 
 	}
