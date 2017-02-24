@@ -15,7 +15,7 @@ public class Backprop extends SupervisedLearner {
 	final private static double MOMENTUM = 0;
 	final private static double LEARNING_RATE = 0.1;
 	final private static int BIAS = 1;
-	final private static int MAX_ITERATIONS = 100;
+	final private static int MAX_ITERATIONS = 300;
 	private double[] outputNodes;
 
 	public Backprop(Random rand) {
@@ -301,6 +301,8 @@ public class Backprop extends SupervisedLearner {
 		this.myWeights = new double[weightLength];
 		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.5, 0.5);
 
+		System.out.println("initialWeights: ");
+		Utilities.outputArray(myWeights);
 		changeInWeights = new double[weightLength];
 		if (myWeights.length != changeInWeights.length) {
 
@@ -338,14 +340,14 @@ public class Backprop extends SupervisedLearner {
 			}
 			features.shuffle(rand, labels);
 		}
-		System.out.println("T_MSE");
-		outputArrayList(T_MSEs);
-
-		System.out.println("VS_MSE");
-		outputArrayList(VS_MSEs);
-
-		System.out.println("classifications");
-		outputArrayList(classifications);
+		// System.out.println("T_MSE");
+		// outputArrayList(T_MSEs);
+		//
+		// System.out.println("VS_MSE");
+		// outputArrayList(VS_MSEs);
+		//
+		// System.out.println("classifications");
+		// outputArrayList(classifications);
 
 		System.out.println();
 		System.out.println("weight length: " + myWeights.length);
