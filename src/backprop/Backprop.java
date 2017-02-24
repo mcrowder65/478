@@ -12,7 +12,7 @@ public class Backprop extends SupervisedLearner {
 	private Random rand;
 	private double[] myWeights;
 	private double[] changeInWeights;
-	final private static double MOMENTUM = 0.9;
+	final private static double MOMENTUM = 0.1;
 	final private static double LEARNING_RATE = 0.1;
 	final private static int BIAS = 1;
 	final private static int MAX_ITERATIONS = 100;
