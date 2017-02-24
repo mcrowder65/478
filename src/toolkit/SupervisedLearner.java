@@ -12,6 +12,8 @@ public abstract class SupervisedLearner {
 	// support multi-dimensional label vectors.)
 	public abstract void predict(double[] features, double[] labels) throws Exception;
 
+	
+	public abstract void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception;
 	// The model must be trained before you call this method. If the label is
 	// nominal,
 	// it returns the predictive accuracy. If the label is continuous, it

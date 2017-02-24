@@ -91,7 +91,7 @@ public class MLSystemManager {
 				testData.normalize(); // BUG! This may normalize differently
 										// from the training data. It should use
 										// the same ranges for normalization!
-
+			
 			System.out.println("Calculating accuracy on separate test set...");
 			System.out.println("Test set name: " + evalParameter);
 			System.out.println("Number of test instances: " + testData.rows());
@@ -126,6 +126,7 @@ public class MLSystemManager {
 			Matrix trainLabels = new Matrix(data, 0, data.cols() - 1, trainSize, 1);
 			Matrix testFeatures = new Matrix(data, trainSize, 0, data.rows() - trainSize, data.cols() - 1);
 			Matrix testLabels = new Matrix(data, trainSize, data.cols() - 1, data.rows() - trainSize, 1);
+			learner.setTestSet(testFeatures, testLabels);
 			double startTime = System.currentTimeMillis();
 			learner.train(trainFeatures, trainLabels);
 			double elapsedTime = System.currentTimeMillis() - startTime;

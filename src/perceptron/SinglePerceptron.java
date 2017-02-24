@@ -63,4 +63,11 @@ public class SinglePerceptron extends Perceptron {
 		}
 	}
 
+	@Override
+	public void setTestSet(Matrix testFeatures, Matrix testLabels)
+			throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

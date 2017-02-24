@@ -30,4 +30,10 @@ public class BaselineLearner extends SupervisedLearner {
 			labels[i] = m_labels[i];
 	}
 
+	@Override
+	public void setTestSet(Matrix testFeatures, Matrix testLabels)
+			throws Exception {
+		
+	}
+
 }
