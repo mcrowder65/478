@@ -9,6 +9,20 @@ import utilities.Utilities;
 
 public class DecisionTree extends SupervisedLearner {
 
+	private double calculateOuterEntropy(Map<Double, Integer> map) {
+		int totalSize = 0;
+		for (double key : map.keySet()) {
+			totalSize += map.get(key);
+		}
+		double returnValue = 0;
+		for (double key : map.keySet()) {
+			double value = map.get(key);
+			double temp = -1 * (value / totalSize) * logB2(value / totalSize);
+			returnValue += temp;
+		}
+		return returnValue;
+	}
+
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		// go for number of attributes
@@ -16,18 +30,8 @@ public class DecisionTree extends SupervisedLearner {
 		double[] labelsArray = this.translateLabelsToDoubleArray(labels);
 		Map<Double, Integer> mapOfOuterEntropy = calculateSplit(labelsArray);
 		Utilities.outputMap(mapOfOuterEntropy);
-		for (int y = 0; y < features.row(0).length; y++) {
-			System.out.println(y);
-		}
-		for (int i = 0; i < features.rows(); i++) {
-			double[] feature = features.row(i);
-			Utilities.outputArray("feature:", feature, false);
-			double[] label = labels.row(i);
-			Utilities.outputArray(" label:", label);
-		}
-		System.out.println("hello");
-		System.out.println("log(8): " + Math.log(8));
-		System.out.println("log(8)/log(2): " + logB2(8));
+		double outerEntropy = this.calculateOuterEntropy(mapOfOuterEntropy);
+		System.out.println("outerEntropy: " + outerEntropy);
 	}
 
 	@Override
