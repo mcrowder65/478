@@ -4,6 +4,7 @@ package toolkit;
 import java.util.Random;
 
 import backprop.Backprop;
+import decisiontree.DecisionTree;
 import perceptron.SinglePerceptron;
 
 public class MLSystemManager {
@@ -19,8 +20,8 @@ public class MLSystemManager {
 			return new SinglePerceptron(rand);
 		else if (model.equals("backprop"))
 			return new Backprop(rand);
-		// else if (model.equals("neuralnet")) return new NeuralNet(rand);
-		// else if (model.equals("decisiontree")) return new DecisionTree();
+		else if (model.equals("decisiontree"))
+			return new DecisionTree();
 		// else if (model.equals("knn")) return new InstanceBasedLearner();
 		else
 			throw new Exception("Unrecognized model: " + model);
