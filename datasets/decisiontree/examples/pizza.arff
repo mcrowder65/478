@@ -12,8 +12,8 @@
 @ATTRIBUTE class { awful, edible, stellar }
 
 @DATA
-%none, vegetarian, sweet, low_gluten, awful
-%some, vegetarian, sweet, low_gluten, awful
+none, vegetarian, sweet, low_gluten, awful
+some, vegetarian, sweet, low_gluten, awful
 lots, vegetarian, sweet, low_gluten, awful
 lots, vegetarian, sweet, low_gluten, edible
 none, meaty, sweet, low_gluten, awful
