@@ -1,12 +1,28 @@
 package utilities;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
 public class Utilities {
+	/**
+	 * outputs new line
+	 * 
+	 * @param arr
+	 */
 	static public void outputArray(double[] arr) {
 		outputArray(arr, true);
+	}
+
+	/**
+	 * outputs new line
+	 * 
+	 * @param prepend
+	 * @param arr
+	 */
+	static public void outputArray(String prepend, double[] arr) {
+		outputArray(prepend, arr, true);
 	}
 
 	static public void outputArray(double[] arr, boolean outputNewLine) {
@@ -20,6 +36,21 @@ public class Utilities {
 			System.out.println();
 		}
 
+	}
+
+	@SuppressWarnings("rawtypes")
+	static public void outputMap(Map map) {
+		int iter = 0;
+		System.out.print("{ ");
+		for (Object key : map.keySet()) {
+			System.out.print(key + " => " + map.get(key));
+			iter++;
+			if (iter != map.keySet().size()) {
+				System.out.print(", ");
+			}
+
+		}
+		System.out.println(" }");
 	}
 
 	@SuppressWarnings("rawtypes")
