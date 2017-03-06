@@ -10,10 +10,7 @@ import utilities.Utilities;
 public class DecisionTree extends SupervisedLearner {
 
 	private double calculateEntropy(Map<Double, Integer> map) {
-		int totalSize = 0;
-		for (double key : map.keySet()) {
-			totalSize += map.get(key);
-		}
+		int totalSize = this.calculateValueLength(map);
 		double returnValue = 0;
 		for (double key : map.keySet()) {
 			double value = map.get(key);
@@ -24,6 +21,7 @@ public class DecisionTree extends SupervisedLearner {
 	}
 
 	private double calculateInfoGain(double[] entropies, Map<Double, Integer> map) {
+
 		return -1;
 	}
 
@@ -32,16 +30,17 @@ public class DecisionTree extends SupervisedLearner {
 		// calculate biggest entropy
 		double[] labelsArray = this.translateLabelsToDoubleArray(labels);
 		Map<Double, Integer> mapOfOuterEntropy = calculateSplit(labelsArray);
+		int mapOfOuterEntropyValueLength = this.calculateValueLength(mapOfOuterEntropy);
 		Utilities.outputMap(mapOfOuterEntropy);
 		double outerEntropy = this.calculateEntropy(mapOfOuterEntropy);
-		System.out.println("outerEntropy: " + outerEntropy);
 		double[] infoGains = new double[features.cols()];
 		for (int x = 0; x < features.cols(); x++) {
 			double[] column = features.col(x);
-
+			infoGains[x] = outerEntropy;
 			Map<Double, Integer> map = calculateSplit(column);
 			Utilities.outputMap(map);
 			double[] individualEntropies = new double[map.keySet().size()];
+			double[] fractions = new double[map.keySet().size()];
 			int iter = 0;
 			for (double key : map.keySet()) {
 				Map<Double, Integer> compareToOutput = new HashMap<>();
@@ -57,12 +56,31 @@ public class DecisionTree extends SupervisedLearner {
 						}
 					}
 				}
+				Utilities.outputMap(compareToOutput);
 				individualEntropies[iter] = this.calculateEntropy(compareToOutput);
-				System.out.println(individualEntropies[iter]);
+				double valueLength = this.calculateValueLength(compareToOutput);
+				fractions[iter] = valueLength / mapOfOuterEntropyValueLength;
+				infoGains[x] -= (fractions[iter] * individualEntropies[iter]);
 				iter++;
 			}
-
 		}
+		int bestInfoGainIndex = -1;
+		double MAX_INFO_GAIN = 0;
+		for (int i = 0; i < infoGains.length; i++) {
+			if (infoGains[i] > MAX_INFO_GAIN) {
+				MAX_INFO_GAIN = infoGains[i];
+				bestInfoGainIndex = i;
+			}
+		}
+		System.out.println("best info gain: " + infoGains[bestInfoGainIndex]);
+	}
+
+	private int calculateValueLength(Map<Double, Integer> map) {
+		int returnValue = 0;
+		for (double key : map.keySet()) {
+			returnValue += map.get(key);
+		}
+		return returnValue;
 	}
 
 	@Override
