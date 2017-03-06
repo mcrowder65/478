@@ -26,11 +26,26 @@ public class Matrix {
 	static double MISSING = Double.MAX_VALUE; // representation of missing
 												// values in the dataset
 
-	// Creates a 0x0 matrix. You should call loadARFF or setSize next.
+	/**
+	 * Creates a 0x0 matrix. You should call loadARFF or setSize next.
+	 */
 	public Matrix() {
 	}
 
-	// Copies the specified portion of that matrix into this matrix
+	/**
+	 * Copies the specified portion of that matrix into this matrix
+	 * 
+	 * @param that
+	 *            Matrix
+	 * @param rowStart
+	 *            int
+	 * @param colStart
+	 *            int
+	 * @param rowCount
+	 *            int
+	 * @param colCount
+	 *            int
+	 */
 	public Matrix(Matrix that, int rowStart, int colStart, int rowCount, int colCount) {
 		m_data = new ArrayList<double[]>();
 		for (int j = 0; j < rowCount; j++) {
@@ -50,7 +65,19 @@ public class Matrix {
 		}
 	}
 
-	// Adds a copy of the specified portion of that matrix to this matrix
+	/**
+	 * Adds a copy of the specified portion of that matrix to this matrix
+	 * 
+	 * @param that
+	 *            Matrix
+	 * @param rowStart
+	 *            int
+	 * @param colStart
+	 *            int
+	 * @param rowCount
+	 *            int
+	 * @throws Exception
+	 */
 	public void add(Matrix that, int rowStart, int colStart, int rowCount) throws Exception {
 		if (colStart + cols() > that.cols())
 			throw new Exception("out of range");
@@ -224,39 +251,87 @@ public class Matrix {
 		return column;
 	}
 
-	// Returns the element at the specified row and column
+	/**
+	 * Returns the element at the specified row and column
+	 * 
+	 * @param r
+	 *            int
+	 * @param c
+	 *            int
+	 * @return double
+	 */
 	public double get(int r, int c) {
 		return m_data.get(r)[c];
 	}
 
-	// Sets the value at the specified row and column
-	void set(int r, int c, double v) {
+	/**
+	 * sets the value at the specified row and column
+	 * 
+	 * @param r
+	 *            int
+	 * @param c
+	 *            int
+	 * @param v
+	 *            double
+	 */
+	public void set(int r, int c, double v) {
 		row(r)[c] = v;
 	}
 
-	// Returns the name of the specified attribute
-	String attrName(int col) {
+	/**
+	 * Returns the name of the specified attribute
+	 * 
+	 * @param col
+	 *            int
+	 * @return String
+	 */
+	public String attrName(int col) {
 		return m_attr_name.get(col);
 	}
 
-	// Set the name of the specified attribute
-	void setAttrName(int col, String name) {
+	/**
+	 * Set the name of the specified attribute
+	 * 
+	 * @param col
+	 *            int
+	 * @param name
+	 *            String
+	 */
+	public void setAttrName(int col, String name) {
 		m_attr_name.set(col, name);
 	}
 
-	// Returns the name of the specified value
-	String attrValue(int attr, int val) {
+	/**
+	 * Returns the name of the specified value
+	 * 
+	 * @param attr
+	 *            int
+	 * @param val
+	 *            int
+	 * @return String
+	 */
+	public String attrValue(int attr, int val) {
 		return m_enum_to_str.get(attr).get(val);
 	}
 
-	// Returns the number of values associated with the specified attribute (or
-	// column)
-	// 0=continuous, 2=binary, 3=trinary, etc.
-	int valueCount(int col) {
+	/**
+	 * Returns the number of values associated with the specified attribute (or
+	 * column) 0=continuous, 2=binary, 3=trinary, etc.
+	 * 
+	 * @param col
+	 *            int
+	 * @return int
+	 */
+	public int valueCount(int col) {
 		return m_enum_to_str.get(col).size();
 	}
 
-	// Shuffles the row order
+	/**
+	 * Shuffles the row order
+	 * 
+	 * @param rand
+	 *            Random
+	 */
 	public void shuffle(Random rand) {
 		for (int n = rows(); n > 0; n--) {
 			int i = rand.nextInt(n);
@@ -266,7 +341,14 @@ public class Matrix {
 		}
 	}
 
-	// Shuffles the row order with a buddy matrix
+	/**
+	 * Shuffles the row order with a buddy matrix
+	 * 
+	 * @param rand
+	 *            Random
+	 * @param buddy
+	 *            Matrix
+	 */
 	public void shuffle(Random rand, Matrix buddy) {
 		for (int n = rows(); n > 0; n--) {
 			int i = rand.nextInt(n);
@@ -280,7 +362,25 @@ public class Matrix {
 		}
 	}
 
-	// Returns the mean of the specified column
+	/**
+	 * Removes a row from the matrix. When using it,<br>
+	 * It would be wise to loop from the end and go to -1<br>
+	 * *** I WROTE THIS AND IT WAS NOT WRITTEN BY TA'S ***
+	 * 
+	 * @param r
+	 *            int
+	 */
+	public void removeRow(int r) {
+		m_data.remove(r);
+	}
+
+	/**
+	 * Returns the mean of the specified column
+	 * 
+	 * @param col
+	 *            int
+	 * @return double
+	 */
 	double columnMean(int col) {
 		double sum = 0;
 		int count = 0;
@@ -294,7 +394,13 @@ public class Matrix {
 		return sum / count;
 	}
 
-	// Returns the min value in the specified column
+	/**
+	 * Returns the min value in the specified column
+	 * 
+	 * @param col
+	 *            int
+	 * @return double
+	 */
 	double columnMin(int col) {
 		double m = MISSING;
 		for (int i = 0; i < rows(); i++) {
@@ -307,7 +413,13 @@ public class Matrix {
 		return m;
 	}
 
-	// Returns the max value in the specified column
+	/**
+	 * Returns the max value in the specified column
+	 * 
+	 * @param col
+	 *            int
+	 * @return double
+	 */
 	double columnMax(int col) {
 		double m = MISSING;
 		for (int i = 0; i < rows(); i++) {
@@ -320,7 +432,13 @@ public class Matrix {
 		return m;
 	}
 
-	// Returns the most common value in the specified column
+	/**
+	 * Returns the most common value in the specified column
+	 * 
+	 * @param col
+	 *            int
+	 * @return double
+	 */
 	double mostCommonValue(int col) {
 		TreeMap<Double, Integer> tm = new TreeMap<Double, Integer>();
 		for (int i = 0; i < rows(); i++) {
@@ -360,7 +478,7 @@ public class Matrix {
 		}
 	}
 
-	void print() {
+	public void print() {
 		System.out.println("@RELATION Untitled");
 		for (int i = 0; i < m_attr_name.size(); i++) {
 			System.out.print("@ATTRIBUTE " + m_attr_name.get(i));

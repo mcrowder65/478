@@ -5,7 +5,6 @@ import java.util.Map;
 
 import toolkit.Matrix;
 import toolkit.SupervisedLearner;
-import utilities.Utilities;
 
 public class DecisionTree extends SupervisedLearner {
 
@@ -20,25 +19,20 @@ public class DecisionTree extends SupervisedLearner {
 		return returnValue;
 	}
 
-	private double calculateInfoGain(double[] entropies, Map<Double, Integer> map) {
-
-		return -1;
-	}
-
 	private void myTrain(Matrix features, Matrix labels) {
 		// go for number of attributes
 		// calculate biggest entropy
 		double[] labelsArray = this.translateLabelsToDoubleArray(labels);
 		Map<Double, Integer> mapOfOuterEntropy = calculateSplit(labelsArray);
 		int mapOfOuterEntropyValueLength = this.calculateValueLength(mapOfOuterEntropy);
-		Utilities.outputMap(mapOfOuterEntropy);
+		// Utilities.outputMap(mapOfOuterEntropy);
 		double outerEntropy = this.calculateEntropy(mapOfOuterEntropy);
 		double[] infoGains = new double[features.cols()];
 		for (int x = 0; x < features.cols(); x++) {
 			double[] column = features.col(x);
 			infoGains[x] = outerEntropy;
 			Map<Double, Integer> map = calculateSplit(column);
-			Utilities.outputMap(map);
+			// Utilities.outputMap(map);
 			double[] individualEntropies = new double[map.keySet().size()];
 			double[] fractions = new double[map.keySet().size()];
 			int iter = 0;
@@ -56,7 +50,7 @@ public class DecisionTree extends SupervisedLearner {
 						}
 					}
 				}
-				Utilities.outputMap(compareToOutput);
+				// Utilities.outputMap(compareToOutput);
 				individualEntropies[iter] = this.calculateEntropy(compareToOutput);
 				double valueLength = this.calculateValueLength(compareToOutput);
 				fractions[iter] = valueLength / mapOfOuterEntropyValueLength;
@@ -72,7 +66,36 @@ public class DecisionTree extends SupervisedLearner {
 				bestInfoGainIndex = i;
 			}
 		}
+		if (bestInfoGainIndex == -1) {
+			System.out.println("done splitting");
+			return;
+		}
 		System.out.println("best info gain: " + infoGains[bestInfoGainIndex]);
+		System.out.println("splitting on: " + features.m_attr_name.get(bestInfoGainIndex));
+		double[] bestInfoGainColumn = features.col(bestInfoGainIndex);
+		Map<Double, Integer> bestInfoGainMap = this.calculateSplit(bestInfoGainColumn);
+		// Utilities.outputMap(bestInfoGainMap);
+		for (double key : bestInfoGainMap.keySet()) {
+			int value = bestInfoGainMap.get(key);
+			Matrix newFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
+			Matrix newLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
+			for (int i = features.rows() - 1; i > -1; i--) {
+				if (features.get(i, bestInfoGainIndex) != key) {
+
+					try {
+						// TODO figure out what 4 is
+						// newFeatures.add(features, i, bestInfoGainIndex, 1);
+						newFeatures.removeRow(i);
+						newLabels.removeRow(i);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			newFeatures.print();
+			newLabels.print();
+			this.myTrain(newFeatures, newLabels);
+		}
 	}
 
 	private int calculateValueLength(Map<Double, Integer> map) {
