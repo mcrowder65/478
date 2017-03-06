@@ -216,6 +216,14 @@ public class Matrix {
 		return m_data.get(r);
 	}
 
+	public double[] col(int c) {
+		double[] column = new double[rows()];
+		for (int i = 0; i < rows(); i++) {
+			column[i] = get(i, c);
+		}
+		return column;
+	}
+
 	// Returns the element at the specified row and column
 	public double get(int r, int c) {
 		return m_data.get(r)[c];
