@@ -9,6 +9,7 @@ import utilities.Utilities;
 
 public class DecisionTree extends SupervisedLearner {
 	private DTNode decisionTree;
+	private Matrix myFeatures;
 
 	private double calculateEntropy(Map<Double, Integer> map) {
 		int totalSize = this.calculateValueLength(map);
@@ -140,10 +141,13 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-		System.out.println("train");
+		// System.out.println("train");
 		decisionTree = new DTNode();
+		myFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
 		myTrain(features, labels, decisionTree);
-		System.out.println(decisionTree);
+
+		// this.setFeatures(features);
+		// System.out.println(decisionTree);
 	}
 
 	@Override
@@ -151,6 +155,15 @@ public class DecisionTree extends SupervisedLearner {
 		System.out.println("predict");
 		Utilities.outputArray(features, false);
 		System.out.println(" " + labels[0]);
+		for (int i = 0; i < features.length; i++) {
+			String attribute = myFeatures.m_attr_name.get(i);
+
+			System.out.println("attribute: " + attribute);
+			String feature = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
+			System.out.println("feature: " + feature);
+			System.out.println();
+			// String attribute = myFeatures.m_str_to_enum;
+		}
 		// TODO figure out testing ... do i put some features through and
 		// compare my label?
 	}
