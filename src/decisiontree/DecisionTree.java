@@ -9,6 +9,7 @@ import toolkit.SupervisedLearner;
 public class DecisionTree extends SupervisedLearner {
 	private DTNode decisionTree;
 	private Matrix myFeatures;
+	private Matrix myLabels;
 
 	private double calculateEntropy(Map<Double, Integer> map) {
 		int totalSize = this.calculateValueLength(map);
@@ -142,7 +143,9 @@ public class DecisionTree extends SupervisedLearner {
 	public void train(Matrix features, Matrix labels) throws Exception {
 		// System.out.println("train");
 		decisionTree = new DTNode();
+
 		myFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
+		myLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
 		myTrain(features, labels, decisionTree);
 
 		// this.setFeatures(features);
@@ -151,35 +154,9 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		// System.out.println("predict");
-		// Utilities.outputArray(features, false);
-		// System.out.println(" " + labels[0]);
 		DTNode nodeDaddy = decisionTree;
 		String response = response(nodeDaddy, features);
-		String rootSplit = nodeDaddy.getValue();
-		DTNode rootSplitNode = nodeDaddy.getNode(rootSplit);
-		System.out.println(rootSplitNode);
-		for (int i = 0; i < features.length; i++) {
-			String attribute = myFeatures.m_attr_name.get(i);
-			String feature = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
-			System.out.println(nodeDaddy.getValue());
-			if (nodeDaddy.getValue().equals(attribute)) {
-				i = -1;
-				// System.out.println(nodeDaddy.getValue());
-				nodeDaddy = nodeDaddy.getNode(feature);
-
-			} else if (nodeDaddy.getValue().equals(feature)) {
-				i = -1;
-				System.out.println(nodeDaddy.getValue());
-				nodeDaddy = nodeDaddy.getNode(feature);
-			}
-
-		}
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		// TODO figure out testing ... do i put some features through and
-		// compare my label?
+		labels[0] = myLabels.m_str_to_enum.get(0).get(response);
 	}
 
 	private String response(DTNode node, double[] features) {
@@ -195,7 +172,6 @@ public class DecisionTree extends SupervisedLearner {
 					if (key.equals(feature)) {
 						return response(nodes.get(key), features);
 					}
-					System.out.println(key);
 				}
 			}
 		}
