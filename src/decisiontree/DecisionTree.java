@@ -8,6 +8,7 @@ import toolkit.SupervisedLearner;
 import utilities.Utilities;
 
 public class DecisionTree extends SupervisedLearner {
+	private DTNode decisionTree;
 
 	private double calculateEntropy(Map<Double, Integer> map) {
 		int totalSize = this.calculateValueLength(map);
@@ -89,14 +90,8 @@ public class DecisionTree extends SupervisedLearner {
 		if (bestInfoGainIndex == -1) {
 			// System.out.println("done splitting");
 			node.setLeafNode(true);
-			// int attrNameIndex =
-			// features.m_attr_name.indexOf(node.getValue());
-			// Map<String, Integer> nodes =
-			// features.m_str_to_enum.get(attrNameIndex);
-			// for (String key : nodes.keySet()) {
-			// node.setNode(key, new DTNode("yes"));
-			// }
 
+			node.setValue(labels.m_enum_to_str.get(0).get((int) labels.row(0)[0]));
 			return;
 		}
 		// System.out.println("best info gain: " +
@@ -146,7 +141,7 @@ public class DecisionTree extends SupervisedLearner {
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		System.out.println("train");
-		DTNode decisionTree = new DTNode();
+		decisionTree = new DTNode();
 		myTrain(features, labels, decisionTree);
 		System.out.println(decisionTree);
 	}
