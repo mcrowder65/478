@@ -30,12 +30,14 @@ public class DecisionTree extends SupervisedLearner {
 		double[] infoGains = new double[features.cols()];
 		for (int x = 0; x < features.cols(); x++) {
 			double[] column = features.col(x);
+			System.out.println("splitting on: " + features.m_attr_name.get(x));
 			infoGains[x] = outerEntropy;
 			Map<Double, Integer> map = calculateSplit(column);
 			// Utilities.outputMap(map);
 			double[] individualEntropies = new double[map.keySet().size()];
 			double[] fractions = new double[map.keySet().size()];
 			int iter = 0;
+			System.out.println(outerEntropy + " ");
 			for (double key : map.keySet()) {
 				Map<Double, Integer> compareToOutput = new HashMap<>();
 				for (int i = 0; i < column.length; i++) {
@@ -53,10 +55,19 @@ public class DecisionTree extends SupervisedLearner {
 				// Utilities.outputMap(compareToOutput);
 				individualEntropies[iter] = this.calculateEntropy(compareToOutput);
 				double valueLength = this.calculateValueLength(compareToOutput);
+				System.out.println(" -" + (int) valueLength + "/" + mapOfOuterEntropyValueLength + " * "
+						+ individualEntropies[iter]);
+
 				fractions[iter] = valueLength / mapOfOuterEntropyValueLength;
 				infoGains[x] -= (fractions[iter] * individualEntropies[iter]);
+
 				iter++;
 			}
+			System.out.println(" = " + infoGains[x]);
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
 		}
 		int bestInfoGainIndex = -1;
 		double MAX_INFO_GAIN = 0;
@@ -76,15 +87,12 @@ public class DecisionTree extends SupervisedLearner {
 		Map<Double, Integer> bestInfoGainMap = this.calculateSplit(bestInfoGainColumn);
 		// Utilities.outputMap(bestInfoGainMap);
 		for (double key : bestInfoGainMap.keySet()) {
-			int value = bestInfoGainMap.get(key);
 			Matrix newFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
 			Matrix newLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
 			for (int i = features.rows() - 1; i > -1; i--) {
 				if (features.get(i, bestInfoGainIndex) != key) {
 
 					try {
-						// TODO figure out what 4 is
-						// newFeatures.add(features, i, bestInfoGainIndex, 1);
 						newFeatures.removeRow(i);
 						newLabels.removeRow(i);
 					} catch (Exception e) {
