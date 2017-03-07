@@ -28,7 +28,9 @@ public class DecisionTree extends SupervisedLearner {
 		// Utilities.outputMap(mapOfOuterEntropy);
 		double outerEntropy = this.calculateEntropy(mapOfOuterEntropy);
 		double[] infoGains = new double[features.cols()];
+		// TODO comment this up
 		for (int x = 0; x < features.cols(); x++) {
+			// TODO abstract this
 			double[] column = features.col(x);
 			System.out.println("splitting on: " + features.m_attr_name.get(x));
 			infoGains[x] = outerEntropy;
@@ -120,14 +122,13 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		// TODO Auto-generated method stub
-
+		// TODO figure out testing ... do i put some features through and
+		// compare my label?
 	}
 
 	@Override
 	public void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception {
-		// TODO Auto-generated method stub
-
+		// TODO do i need to do this one?
 	}
 
 	private Map<Double, Integer> calculateSplit(double[] column) {
