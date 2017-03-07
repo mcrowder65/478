@@ -66,8 +66,7 @@ public class DecisionTree extends SupervisedLearner {
 			System.out.println(" = " + infoGains[x]);
 			System.out.println();
 			System.out.println();
-			System.out.println();
-			System.out.println();
+
 		}
 		int bestInfoGainIndex = -1;
 		double MAX_INFO_GAIN = 0;
