@@ -1,7 +1,12 @@
 package decisiontree;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * String value;<br>
@@ -15,6 +20,7 @@ public class DTNode {
 	private String value;
 	private boolean isLeafNode;
 	private Map<String, DTNode> nodes;
+	transient private ObjectMapper mapper = new ObjectMapper();
 
 	public DTNode() {
 		nodes = new HashMap<>();
@@ -74,7 +80,17 @@ public class DTNode {
 
 	@Override
 	public String toString() {
-		return "[value=" + value + ", isLeafNode=" + isLeafNode + ", nodes=" + nodes + "]";
+
+		try {
+			return mapper.writeValueAsString(this);
+		} catch (JsonGenerationException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

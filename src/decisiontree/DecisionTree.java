@@ -10,6 +10,8 @@ public class DecisionTree extends SupervisedLearner {
 	private DTNode decisionTree;
 	private Matrix myFeatures;
 	private Matrix myLabels;
+	private Matrix testFeatures;
+	private Matrix testLabels;
 
 	private double calculateEntropy(Map<Double, Integer> map) {
 		int totalSize = this.calculateValueLength(map);
@@ -90,15 +92,19 @@ public class DecisionTree extends SupervisedLearner {
 		}
 		if (bestInfoGainIndex == -1) {
 			// System.out.println("done splitting");
-			node.setLeafNode(true);
+			if (node != null) {
+				node.setLeafNode(true);
 
-			node.setValue(labels.m_enum_to_str.get(0).get((int) labels.row(0)[0]));
+				node.setValue(labels.m_enum_to_str.get(0).get((int) labels.row(0)[0]));
+			}
+
 			return;
 		}
 		// System.out.println("best info gain: " +
 		// infoGains[bestInfoGainIndex]);
 		// System.out.println("splitting on: " +
 		// features.m_attr_name.get(bestInfoGainIndex));
+
 		node.setValue(features.m_attr_name.get(bestInfoGainIndex));
 		int attrNameIndex = features.m_attr_name.indexOf(node.getValue());
 		Map<String, Integer> nodes = features.m_str_to_enum.get(attrNameIndex);
@@ -128,6 +134,7 @@ public class DecisionTree extends SupervisedLearner {
 			// newFeatures.print();
 			// newLabels.print();
 			this.myTrain(newFeatures, newLabels, node.getNode(featureName));
+
 		}
 	}
 
@@ -143,13 +150,11 @@ public class DecisionTree extends SupervisedLearner {
 	public void train(Matrix features, Matrix labels) throws Exception {
 		// System.out.println("train");
 		decisionTree = new DTNode();
-
 		myFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
 		myLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
+		// myFeatures.print();
 		myTrain(features, labels, decisionTree);
-
-		// this.setFeatures(features);
-		// System.out.println(decisionTree);
+		System.out.println(decisionTree);
 	}
 
 	@Override
@@ -181,6 +186,8 @@ public class DecisionTree extends SupervisedLearner {
 	@Override
 	public void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception {
 		// TODO do i need to do this one?
+		this.testFeatures = testFeatures;
+		this.testLabels = testLabels;
 	}
 
 	private Map<Double, Integer> calculateSplit(double[] column) {

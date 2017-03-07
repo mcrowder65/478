@@ -35,9 +35,7 @@ public class Backprop extends SupervisedLearner {
 		double net = 0;
 		for (int i = startingPoint; i < startingPoint + input.length + 1; i++) {
 			double weight = myWeights[i];
-			double num = weight
-					* (i == startingPoint + input.length ? BIAS : input[i
-							- startingPoint]);
+			double num = weight * (i == startingPoint + input.length ? BIAS : input[i - startingPoint]);
 			net += num;
 		}
 		return net;
@@ -52,8 +50,7 @@ public class Backprop extends SupervisedLearner {
 	 * @param weightIndex
 	 * @return
 	 */
-	private double calculateLastNet(double[] output, int startingPoint,
-			int weightIndex) {
+	private double calculateLastNet(double[] output, int startingPoint, int weightIndex) {
 		double net = 0;
 
 		for (int i = startingPoint; i < output.length + 1; i++) {
@@ -98,8 +95,7 @@ public class Backprop extends SupervisedLearner {
 	 *            double[]
 	 * @return double
 	 */
-	private double calculateHiddenNodeDelta(double output,
-			double[] upstreamDeltas, double[] weights) {
+	private double calculateHiddenNodeDelta(double output, double[] upstreamDeltas, double[] weights) {
 		// output ( 1 - output) * upstreamDelta * w
 		double upstreamStuff = 0;
 		for (int i = 0; i < upstreamDeltas.length; i++) {
@@ -117,17 +113,15 @@ public class Backprop extends SupervisedLearner {
 
 	private void calculateNewWeights(double[] changeInWeights) {
 		if (changeInWeights.length != myWeights.length) {
-			throw new Error(
-					"Why aren't changeInWeights and myWeights equal length?");
+			throw new Error("Why aren't changeInWeights and myWeights equal length?");
 		}
 		for (int i = 0; i < changeInWeights.length; i++) {
 			myWeights[i] = myWeights[i] + changeInWeights[i];
 		}
 	}
 
-	private double[] iteration(double[] inputs, double[] labels,
-			boolean updateWeights, boolean updateOutputs, int numHiddenNodes,
-			int numOutputNodes, boolean validating, boolean MSEing) {
+	private double[] iteration(double[] inputs, double[] labels, boolean updateWeights, boolean updateOutputs,
+			int numHiddenNodes, int numOutputNodes, boolean validating, boolean MSEing) {
 		double[] netArray = new double[numHiddenNodes + numOutputNodes];
 		int startingPoint = 0;
 
@@ -139,8 +133,7 @@ public class Backprop extends SupervisedLearner {
 			// now the first weights from input to hidden nodes starts at
 			// index 27. only init when it's set at 0.
 
-			startingPoint = startingPoint == 0 ? (numOutputNodes * (numHiddenNodes + 1))
-					: startingPoint;
+			startingPoint = startingPoint == 0 ? (numOutputNodes * (numHiddenNodes + 1)) : startingPoint;
 			netArray[i] = calculateNet(inputs, startingPoint);
 
 			// now, add the input length (4) + 1 for bias. so 5..... there
@@ -163,8 +156,7 @@ public class Backprop extends SupervisedLearner {
 			// get you the right starting index.
 
 			int weightIndex = (numHiddenNodes + 1) * i;
-			netArray[i] = calculateLastNet(outputArray, numOutputNodes,
-					weightIndex);
+			netArray[i] = calculateLastNet(outputArray, numOutputNodes, weightIndex);
 		}
 
 		// CALCULATE OUTPUT VALUES OF OUTPUT NODES
@@ -221,8 +213,7 @@ public class Backprop extends SupervisedLearner {
 				int index = ((numHiddenNodes + 1) * k) + (i - numOutputNodes);
 				tempWeightArray[k] = myWeights[index];
 			}
-			double delta = calculateHiddenNodeDelta(outputArray[i],
-					tempDeltaArray, tempWeightArray);
+			double delta = calculateHiddenNodeDelta(outputArray[i], tempDeltaArray, tempWeightArray);
 			deltaArray[i] = delta;
 		}
 
@@ -255,8 +246,7 @@ public class Backprop extends SupervisedLearner {
 
 				int deltaIndex = i / (numHiddenNodes + 1);
 
-				changeInWeights[i] = calculateDeltaW(output,
-						deltaArray[deltaIndex], MOMENTUM * changeInWeights[i]);
+				changeInWeights[i] = calculateDeltaW(output, deltaArray[deltaIndex], MOMENTUM * changeInWeights[i]);
 				counter++;
 			}
 
@@ -283,10 +273,8 @@ public class Backprop extends SupervisedLearner {
 				}
 
 				double delta = deltaArray[deltaIndex];
-				double input = counter % (inputs.length + 1) != 0 ? inputs[inputCounter]
-						: BIAS;
-				changeInWeights[i] = calculateDeltaW(input, delta, MOMENTUM
-						* changeInWeights[i]);
+				double input = counter % (inputs.length + 1) != 0 ? inputs[inputCounter] : BIAS;
+				changeInWeights[i] = calculateDeltaW(input, delta, MOMENTUM * changeInWeights[i]);
 
 				counter++;
 			}
@@ -296,11 +284,9 @@ public class Backprop extends SupervisedLearner {
 
 	}
 
-	private void epoch(Matrix features, Matrix labels, int numHiddenNodes,
-			int numOutputNodes, int amountOfRows) {
+	private void epoch(Matrix features, Matrix labels, int numHiddenNodes, int numOutputNodes, int amountOfRows) {
 		for (int x = 0; x < amountOfRows; x++) {
-			this.iteration(features.row(x), labels.row(x), true, true,
-					numHiddenNodes, numOutputNodes, false, false);
+			this.iteration(features.row(x), labels.row(x), true, true, numHiddenNodes, numOutputNodes, false, false);
 		}
 
 	}
@@ -314,22 +300,18 @@ public class Backprop extends SupervisedLearner {
 		final int numHiddenNodes = numHiddenNodes(features.row(0));
 		final int numOutputNodes = labels.m_enum_to_str.get(0).size();
 		outputNodes = new double[numOutputNodes];
-		int weightLength = (features.row(0).length + 1) * (numHiddenNodes)
-				+ (numOutputNodes * (numHiddenNodes + 1));
+		int weightLength = (features.row(0).length + 1) * (numHiddenNodes) + (numOutputNodes * (numHiddenNodes + 1));
 		this.myWeights = new double[weightLength];
-		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand,
-				-0.5, 0.5);
+		this.myWeights = Utilities.initializeWeights(this.myWeights, this.rand, -0.5, 0.5);
 
 		System.out.println("initialWeights: ");
 		Utilities.outputArray(myWeights);
 		changeInWeights = new double[weightLength];
 		if (myWeights.length != changeInWeights.length) {
 
-			System.err
-					.println("why aren't changeInWeights length and myWeights length the same");
-			System.out.println("changeInWeights.length: "
-					+ changeInWeights.length + " myWeights.length: "
-					+ myWeights.length);
+			System.err.println("why aren't changeInWeights length and myWeights length the same");
+			System.out.println(
+					"changeInWeights.length: " + changeInWeights.length + " myWeights.length: " + myWeights.length);
 			return;
 		}
 
@@ -344,27 +326,22 @@ public class Backprop extends SupervisedLearner {
 		List<Double> TEST_MSEs = new ArrayList<>();
 		List<Double> TEST_classifications = new ArrayList<>();
 		while (iterations != MAX_ITERATIONS) {
-			epoch(features, labels, numHiddenNodes, numOutputNodes,
-					amountOfRows);
+			epoch(features, labels, numHiddenNodes, numOutputNodes, amountOfRows);
 			++epochs;
-			double T_MSE = calculateMSE(features, labels, 0, amountOfRows,
-					numHiddenNodes, numOutputNodes);
+			double T_MSE = calculateMSE(features, labels, 0, amountOfRows, numHiddenNodes, numOutputNodes);
 			T_MSEs.add(T_MSE);
-			double VS_MSE = calculateMSE(features, labels, amountOfRows,
-					features.rows(), numHiddenNodes, numOutputNodes);
+			double VS_MSE = calculateMSE(features, labels, amountOfRows, features.rows(), numHiddenNodes,
+					numOutputNodes);
 			VS_MSEs.add(VS_MSE);
-			double TEST_MSE = calculateMSE(this.testFeatures, this.testLabels,
-					0, this.testFeatures.rows(), numHiddenNodes, numOutputNodes);
-			TEST_MSEs.add(TEST_MSE);
-			double VS_classification = this.calculateClassificationCorrection(
-					features, labels, amountOfRows, features.rows(),
+			double TEST_MSE = calculateMSE(this.testFeatures, this.testLabels, 0, this.testFeatures.rows(),
 					numHiddenNodes, numOutputNodes);
+			TEST_MSEs.add(TEST_MSE);
+			double VS_classification = this.calculateClassificationCorrection(features, labels, amountOfRows,
+					features.rows(), numHiddenNodes, numOutputNodes);
 			VS_classifications.add(VS_classification);
 
-			double TEST_classification = this
-					.calculateClassificationCorrection(this.testFeatures,
-							this.testLabels, 0, this.testFeatures.rows(),
-							numHiddenNodes, numOutputNodes);
+			double TEST_classification = this.calculateClassificationCorrection(this.testFeatures, this.testLabels, 0,
+					this.testFeatures.rows(), numHiddenNodes, numOutputNodes);
 			TEST_classifications.add(TEST_classification);
 			if (VS_MSE <= maxAccuracy) {
 				maxAccuracy = VS_MSE;
@@ -402,13 +379,11 @@ public class Backprop extends SupervisedLearner {
 
 	}
 
-	private double calculateClassificationCorrection(Matrix validation,
-			Matrix labels, int startingRow, int stoppingRow,
+	private double calculateClassificationCorrection(Matrix validation, Matrix labels, int startingRow, int stoppingRow,
 			int numHiddenNodes, int numOutputNodes) {
 		int numRight = 0;
 		for (int i = startingRow; i < stoppingRow; i++) {
-			double[] outputArr = this.iteration(validation.row(i),
-					labels.row(0), false, false, numHiddenNodes,
+			double[] outputArr = this.iteration(validation.row(i), labels.row(0), false, false, numHiddenNodes,
 					numOutputNodes, true, false);
 			int winningIndex = biggestOutputNode(outputArr);
 			if (winningIndex == labels.row(i)[0]) {
@@ -418,13 +393,11 @@ public class Backprop extends SupervisedLearner {
 		return (double) numRight / (double) (stoppingRow - startingRow);
 	}
 
-	private double calculateMSE(Matrix validation, Matrix labels,
-			int startingRow, int stoppingRow, int numHiddenNodes,
+	private double calculateMSE(Matrix validation, Matrix labels, int startingRow, int stoppingRow, int numHiddenNodes,
 			int numOutputNodes) {
 		double MSE = 0;
 		for (int i = startingRow; i < validation.rows(); i++) {
-			double[] deltaArr = this.iteration(validation.row(i),
-					labels.row(i), false, false, numHiddenNodes,
+			double[] deltaArr = this.iteration(validation.row(i), labels.row(i), false, false, numHiddenNodes,
 					numOutputNodes, false, true);
 			for (int x = 0; x < deltaArr.length; x++) {
 				MSE += (Math.pow(deltaArr[x], 2));
@@ -457,16 +430,14 @@ public class Backprop extends SupervisedLearner {
 	public void predict(double[] features, double[] labels) throws Exception {
 		// 3 different output nodes
 
-		double[] result = this.iteration(features, labels, false, false,
-				numHiddenNodes(features), outputNodes.length, true, false);
+		double[] result = this.iteration(features, labels, false, false, numHiddenNodes(features), outputNodes.length,
+				true, false);
 		labels[0] = biggestOutputNode(result);
 
 	}
 
 	@Override
-	public void setTestSet(Matrix testFeatures, Matrix testLabels)
-			throws Exception {
-		// TODO Auto-generated method stub
+	public void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception {
 		this.testFeatures = testFeatures;
 		this.testLabels = testLabels;
 	}
