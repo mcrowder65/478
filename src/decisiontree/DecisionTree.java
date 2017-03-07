@@ -5,7 +5,6 @@ import java.util.Map;
 
 import toolkit.Matrix;
 import toolkit.SupervisedLearner;
-import utilities.Utilities;
 
 public class DecisionTree extends SupervisedLearner {
 	private DTNode decisionTree;
@@ -152,20 +151,55 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		System.out.println("predict");
-		Utilities.outputArray(features, false);
-		System.out.println(" " + labels[0]);
+		// System.out.println("predict");
+		// Utilities.outputArray(features, false);
+		// System.out.println(" " + labels[0]);
+		DTNode nodeDaddy = decisionTree;
+		String response = response(nodeDaddy, features);
+		String rootSplit = nodeDaddy.getValue();
+		DTNode rootSplitNode = nodeDaddy.getNode(rootSplit);
+		System.out.println(rootSplitNode);
 		for (int i = 0; i < features.length; i++) {
 			String attribute = myFeatures.m_attr_name.get(i);
-
-			System.out.println("attribute: " + attribute);
 			String feature = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
-			System.out.println("feature: " + feature);
-			System.out.println();
-			// String attribute = myFeatures.m_str_to_enum;
+			System.out.println(nodeDaddy.getValue());
+			if (nodeDaddy.getValue().equals(attribute)) {
+				i = -1;
+				// System.out.println(nodeDaddy.getValue());
+				nodeDaddy = nodeDaddy.getNode(feature);
+
+			} else if (nodeDaddy.getValue().equals(feature)) {
+				i = -1;
+				System.out.println(nodeDaddy.getValue());
+				nodeDaddy = nodeDaddy.getNode(feature);
+			}
+
 		}
+		System.out.println();
+		System.out.println();
+		System.out.println();
 		// TODO figure out testing ... do i put some features through and
 		// compare my label?
+	}
+
+	private String response(DTNode node, double[] features) {
+		if (node.isLeafNode()) {
+			return node.getValue();
+		}
+		for (int i = 0; i < features.length; i++) {
+			String attribute = myFeatures.m_attr_name.get(i);
+			String feature = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
+			if (node.getValue().equals(attribute)) {
+				Map<String, DTNode> nodes = node.getNodes();
+				for (String key : nodes.keySet()) {
+					if (key.equals(feature)) {
+						return response(nodes.get(key), features);
+					}
+					System.out.println(key);
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override

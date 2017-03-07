@@ -3,6 +3,14 @@ package decisiontree;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * String value;<br>
+ * boolean isLeafNode;<br>
+ * Map of String, DTNode nodes;
+ * 
+ * @author mcrowder65
+ *
+ */
 public class DTNode {
 	private String value;
 	private boolean isLeafNode;
