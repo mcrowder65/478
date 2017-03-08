@@ -8,6 +8,8 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import toolkit.Matrix;
+
 /**
  * String value;<br>
  * boolean isLeafNode;<br>
@@ -18,14 +20,30 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class DTNode {
 	private String value;
-	private boolean isLeafNode;
 	private Map<String, DTNode> nodes;
 	transient private ObjectMapper mapper = new ObjectMapper();
+	transient private Matrix features;
+	transient private Matrix labels;
+
+	public Matrix getFeatures() {
+		return features;
+	}
+
+	public void setFeatures(Matrix features) {
+		this.features = features;
+	}
+
+	public Matrix getLabels() {
+		return labels;
+	}
+
+	public void setLabels(Matrix labels) {
+		this.labels = labels;
+	}
 
 	public DTNode() {
 		nodes = new HashMap<>();
 		this.value = null;
-		this.isLeafNode = false;
 	}
 
 	/**
@@ -37,13 +55,11 @@ public class DTNode {
 	public DTNode(String value) {
 		nodes = new HashMap<>();
 		this.value = value;
-		this.isLeafNode = false;
 	}
 
 	public DTNode(String value, boolean isLeafNode) {
 		nodes = new HashMap<>();
 		this.value = value;
-		this.isLeafNode = isLeafNode;
 	}
 
 	public String getValue() {
@@ -52,14 +68,6 @@ public class DTNode {
 
 	public void setValue(String value) {
 		this.value = value;
-	}
-
-	public boolean isLeafNode() {
-		return isLeafNode;
-	}
-
-	public void setLeafNode(boolean isLeafNode) {
-		this.isLeafNode = isLeafNode;
 	}
 
 	public Map<String, DTNode> getNodes() {

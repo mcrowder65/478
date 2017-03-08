@@ -3,3 +3,5 @@
 2 - graph x/y points and the line
 
 5 - do accuracy / epochs 
+
+-L decisiontree -A datasets/decisiontree/2/voting.arff -E cross 10

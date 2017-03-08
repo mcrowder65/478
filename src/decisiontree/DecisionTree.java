@@ -1,6 +1,7 @@
 package decisiontree;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import toolkit.Matrix;
@@ -34,7 +35,6 @@ public class DecisionTree extends SupervisedLearner {
 		double[] infoGains = new double[features.cols()];
 		for (int x = 0; x < features.cols(); x++) {
 			// Go through each column in features
-			// TODO abstract this
 			double[] column = features.col(x);
 			// System.out.println("splitting on: " +
 			// features.m_attr_name.get(x));
@@ -68,9 +68,6 @@ public class DecisionTree extends SupervisedLearner {
 				// do the 3/4 * log(3/4) / log 2 ... etc. etc.
 				individualEntropies[iter] = this.calculateEntropy(compareToOutput);
 				double valueLength = this.calculateValueLength(compareToOutput);
-				// System.out.println(" -" + (int) valueLength + "/" +
-				// mapOfOuterEntropyValueLength + " * "
-				// + individualEntropies[iter]);
 
 				fractions[iter] = valueLength / mapOfOuterEntropyValueLength;
 				infoGains[x] -= (fractions[iter] * individualEntropies[iter]);
@@ -91,33 +88,34 @@ public class DecisionTree extends SupervisedLearner {
 			}
 		}
 		if (bestInfoGainIndex == -1) {
-			// System.out.println("done splitting");
-			if (node != null) {
-				node.setLeafNode(true);
 
-				node.setValue(labels.m_enum_to_str.get(0).get((int) labels.row(0)[0]));
-			}
-
+			node.setValue(labels.m_enum_to_str.get(0).get((int) labels.row(0)[0]));
 			return;
 		}
 		// System.out.println("best info gain: " +
 		// infoGains[bestInfoGainIndex]);
 		// System.out.println("splitting on: " +
 		// features.m_attr_name.get(bestInfoGainIndex));
+		String value = features.m_attr_name.get(bestInfoGainIndex);
+		node.setValue(value);
 
-		node.setValue(features.m_attr_name.get(bestInfoGainIndex));
 		int attrNameIndex = features.m_attr_name.indexOf(node.getValue());
 		Map<String, Integer> nodes = features.m_str_to_enum.get(attrNameIndex);
 		for (String key : nodes.keySet()) {
 			node.setNode(key, new DTNode());
+			node.getNode(key).setFeatures(features);
+			node.getNode(key).setLabels(labels);
 		}
+		node.setNode("unknown", new DTNode());
+		node.getNode("unknown").setFeatures(features);
+		node.getNode("unknown").setLabels(labels);
 
 		// get new features and labels
 		double[] bestInfoGainColumn = features.col(bestInfoGainIndex);
 		Map<Double, Integer> bestInfoGainMap = this.calculateSplit(bestInfoGainColumn);
 		// Utilities.outputMap(bestInfoGainMap);
 		for (double key : bestInfoGainMap.keySet()) {
-			String featureName = features.m_enum_to_str.get(attrNameIndex).get((int) key);
+
 			Matrix newFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
 			Matrix newLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
 			for (int i = features.rows() - 1; i > -1; i--) {
@@ -131,9 +129,19 @@ public class DecisionTree extends SupervisedLearner {
 					}
 				}
 			}
+			String featureName = features.m_enum_to_str.get(attrNameIndex).get((int) key);
+			if (featureName == null) {
+				featureName = "unknown";
+			}
 			// newFeatures.print();
 			// newLabels.print();
-			this.myTrain(newFeatures, newLabels, node.getNode(featureName));
+
+			DTNode newNode = node.getNode(featureName);
+			if (newNode != null) {
+				newNode.setFeatures(newFeatures);
+				newNode.setLabels(newLabels);
+				this.myTrain(newFeatures, newLabels, newNode);
+			}
 
 		}
 	}
@@ -154,24 +162,82 @@ public class DecisionTree extends SupervisedLearner {
 		myLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
 		// myFeatures.print();
 		myTrain(features, labels, decisionTree);
-		System.out.println(decisionTree);
+		// System.out.println(decisionTree);
 	}
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		DTNode nodeDaddy = decisionTree;
 		String response = response(nodeDaddy, features);
+		// String[] strFeatures = featuresToNames(features);
+		// Utilities.outputArrayWithNoSpaces(strFeatures);
+		// System.out.println("response: " + response);
+
 		labels[0] = myLabels.m_str_to_enum.get(0).get(response);
+
+	}
+
+	private String[] featuresToNames(double[] features) {
+		String[] arr = new String[features.length];
+		for (int i = 0; i < features.length; i++) {
+			arr[i] = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
+		}
+		return arr;
+	}
+
+	private double getPopularElement(double[] a) {
+		int count = 1, tempCount;
+		int popular = (int) a[0];
+		int temp = 0;
+		for (int i = 0; i < (a.length - 1); i++) {
+			temp = (int) a[i];
+			tempCount = 0;
+			for (int j = 1; j < a.length; j++) {
+				if (temp == a[j])
+					tempCount++;
+			}
+			if (tempCount > count) {
+				popular = temp;
+				count = tempCount;
+			}
+		}
+		return popular;
+	}
+
+	private double[] mDataToArr(List<double[]> m_data) {
+		double[] arr = new double[m_data.size()];
+		for (int i = 0; i < m_data.size(); i++) {
+			arr[i] = m_data.get(i)[0];
+		}
+		return arr;
+	}
+
+	private String labelNumberToStringValue(int i) {
+		return myLabels.m_enum_to_str.get(0).get(i);
 	}
 
 	private String response(DTNode node, double[] features) {
-		if (node.isLeafNode()) {
-			return node.getValue();
+		if (node.getNodes().size() == 0) {
+			if (node.getValue() != null) {
+				return node.getValue();
+			} else {
+				Matrix labels = node.getLabels();
+				double[] arr = mDataToArr(labels.m_data);
+				double popElement = getPopularElement(arr);
+				String ret = labelNumberToStringValue((int) popElement);
+
+				return ret;
+			}
+
 		}
 		for (int i = 0; i < features.length; i++) {
 			String attribute = myFeatures.m_attr_name.get(i);
 			String feature = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
-			if (node.getValue().equals(attribute)) {
+			if (feature == null) {
+				feature = "unknown";
+			}
+			if (attribute.equals(node.getValue())) {
+				// if (node.getValue().equals(attribute)) {
 				Map<String, DTNode> nodes = node.getNodes();
 				for (String key : nodes.keySet()) {
 					if (key.equals(feature)) {
