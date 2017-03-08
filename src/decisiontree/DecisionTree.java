@@ -36,8 +36,6 @@ public class DecisionTree extends SupervisedLearner {
 		for (int x = 0; x < features.cols(); x++) {
 			// Go through each column in features
 			double[] column = features.col(x);
-			// System.out.println("splitting on: " +
-			// features.m_attr_name.get(x));
 			infoGains[x] = outerEntropy;
 			Map<Double, Integer> map = calculateSplit(column);
 			// The outer map data structure splits it up like so:
@@ -45,7 +43,7 @@ public class DecisionTree extends SupervisedLearner {
 			double[] individualEntropies = new double[map.keySet().size()];
 			double[] fractions = new double[map.keySet().size()];
 			int iter = 0;
-			// System.out.println(outerEntropy + " ");
+
 			for (double key : map.keySet()) {
 				// find splits in the individual outputs
 				// Now we go ahead and split the things even further.
@@ -74,9 +72,6 @@ public class DecisionTree extends SupervisedLearner {
 
 				iter++;
 			}
-			// System.out.println(" = " + infoGains[x]);
-			// System.out.println();
-			// System.out.println();
 
 		}
 		int bestInfoGainIndex = -1;
@@ -92,10 +87,7 @@ public class DecisionTree extends SupervisedLearner {
 			node.setValue(labels.m_enum_to_str.get(0).get((int) labels.row(0)[0]));
 			return;
 		}
-		// System.out.println("best info gain: " +
-		// infoGains[bestInfoGainIndex]);
-		// System.out.println("splitting on: " +
-		// features.m_attr_name.get(bestInfoGainIndex));
+
 		String value = features.m_attr_name.get(bestInfoGainIndex);
 		node.setValue(value);
 
@@ -113,7 +105,6 @@ public class DecisionTree extends SupervisedLearner {
 		// get new features and labels
 		double[] bestInfoGainColumn = features.col(bestInfoGainIndex);
 		Map<Double, Integer> bestInfoGainMap = this.calculateSplit(bestInfoGainColumn);
-		// Utilities.outputMap(bestInfoGainMap);
 		for (double key : bestInfoGainMap.keySet()) {
 
 			Matrix newFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
@@ -133,8 +124,6 @@ public class DecisionTree extends SupervisedLearner {
 			if (featureName == null) {
 				featureName = "unknown";
 			}
-			// newFeatures.print();
-			// newLabels.print();
 
 			DTNode newNode = node.getNode(featureName);
 			if (newNode != null) {
@@ -156,23 +145,16 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-		// System.out.println("train");
 		decisionTree = new DTNode();
 		myFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
 		myLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
-		// myFeatures.print();
 		myTrain(features, labels, decisionTree);
-		// System.out.println(decisionTree);
 	}
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		DTNode nodeDaddy = decisionTree;
 		String response = response(nodeDaddy, features);
-		// String[] strFeatures = featuresToNames(features);
-		// Utilities.outputArrayWithNoSpaces(strFeatures);
-		// System.out.println("response: " + response);
-
 		labels[0] = myLabels.m_str_to_enum.get(0).get(response);
 
 	}
