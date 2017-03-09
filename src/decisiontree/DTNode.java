@@ -69,7 +69,9 @@ public class DTNode {
 	}
 
 	public void setNodes(Map<String, DTNode> nodes) {
-		this.nodes = nodes;
+		for (String key : nodes.keySet()) {
+			this.nodes.put(key, nodes.get(key));
+		}
 	}
 
 	public DTNode getNode(String key) {
@@ -85,6 +87,10 @@ public class DTNode {
 			mapper = new ObjectMapper();
 		}
 		return mapper;
+	}
+
+	public void deleteNodes() {
+		this.nodes = new HashMap<>();
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package decisiontree;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,29 +156,34 @@ public class DecisionTree extends SupervisedLearner {
 		trainingDecisionTree = new DTNode(myFeatures, myLabels);
 		myTrain(myFeatures, myLabels, trainingDecisionTree);
 
-		double validationAccuracy = testWithValidation(validationFeatures, validationLabels, trainingDecisionTree);
-		double newValidationAccuracy = Double.MAX_VALUE;
-		System.out.println("validationAccuracy: " + validationAccuracy);
-		while (true) {
-			DTNode newNode = prune(trainingDecisionTree);
-			System.out.println(newNode);
-			newValidationAccuracy = testWithValidation(validationFeatures, validationLabels, newNode);
-		}
-
+		traverse(trainingDecisionTree, validationFeatures, validationLabels);
+		findGreatestPrune();
 	}
 
-	private DTNode prune(DTNode node) {
-
-		return null;
+	private void findGreatestPrune() {
+		double greatest = 0;
+		for (int i = 0; i < prunes.size(); i++) {
+			if (prunes.get(i).getAccuracy() > greatest) {
+				greatest = prunes.get(i).getAccuracy();
+			}
+		}
+		System.out.println("greatest prune accuracy: " + greatest);
 	}
 
-	private DTNode traverse(DTNode node) {
+	private List<PruneTracker> prunes = new ArrayList<>();
 
-		Map<String, DTNode> map = node.getNodes();
-		for (String key : map.keySet()) {
-			return map.get(key);
+	private void traverse(DTNode node, Matrix features, Matrix labels) {
+		for (String key : node.getNodes().keySet()) {
+			Map<String, DTNode> map = node.getNodes();
+			node.deleteNodes();
+			// System.out.println(this.trainingDecisionTree);
+			double accuracy = testWithValidation(features, labels, this.trainingDecisionTree);
+			prunes.add(new PruneTracker(this.trainingDecisionTree, accuracy));
+
+			node.setNodes(map);
+			// System.out.println(this.trainingDecisionTree);
+			traverse(node.getNodes().get(key), features, labels);
 		}
-		return null;
 	}
 
 	@Override
@@ -195,9 +201,7 @@ public class DecisionTree extends SupervisedLearner {
 				double[] arr = mDataToArr(labels.m_data);
 				double popElement = getPopularElement(arr);
 				String ret = labelNumberToStringValue((int) popElement);
-				if (ret.equals("'republican'")) {
-					System.out.println(ret);
-				}
+
 				return ret;
 			} else if (node.getValue() != null) {
 				return node.getValue();
