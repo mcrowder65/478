@@ -3,16 +3,23 @@ package decisiontree;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import toolkit.Matrix;
 import toolkit.SupervisedLearner;
 
 public class DecisionTree extends SupervisedLearner {
-	private DTNode decisionTree;
+	private DTNode trainingDecisionTree;
+	private DTNode validationDecisionTree;
 	private Matrix myFeatures;
 	private Matrix myLabels;
 	private Matrix testFeatures;
 	private Matrix testLabels;
+	private Random rand;
+
+	public DecisionTree(Random rand) {
+		this.rand = rand;
+	}
 
 	private double calculateEntropy(Map<Double, Integer> map) {
 		int totalSize = this.calculateValueLength(map);
@@ -145,20 +152,37 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-		decisionTree = new DTNode();
-		myFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
-		myLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
-		myTrain(features, labels, decisionTree);
+		trainingDecisionTree = new DTNode();
+		validationDecisionTree = new DTNode();
+		features.shuffle(rand, labels);
+		final double trainingPercent = 0.8;
+		int amountOfRows = (int) (features.rows() * trainingPercent);
+		Matrix validationFeatures = new Matrix(features, amountOfRows, 0, features.rows() - amountOfRows,
+				features.cols());
+		Matrix validationLabels = new Matrix(labels, amountOfRows, 0, labels.rows() - amountOfRows, labels.cols());
+
+		myFeatures = new Matrix(features, 0, 0, amountOfRows, features.cols());
+		myLabels = new Matrix(labels, 0, 0, amountOfRows, labels.cols());
+		System.out.println("******** TEST FEATURES ********");
+		this.testFeatures.print();
+		System.out.println("******** VALIDATION FEATURES ********");
+		validationFeatures.print();
+		System.out.println("******** MYFEATURES FEATURES ********");
+		myFeatures.print();
+		myTrain(myFeatures, myLabels, trainingDecisionTree);
+
+		myTrain(validationFeatures, validationLabels, validationDecisionTree);
 	}
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		DTNode nodeDaddy = decisionTree;
+		DTNode nodeDaddy = trainingDecisionTree;
 		String response = response(nodeDaddy, features);
 		labels[0] = myLabels.m_str_to_enum.get(0).get(response);
 
 	}
 
+	@SuppressWarnings("unused")
 	private String[] featuresToNames(double[] features) {
 		String[] arr = new String[features.length];
 		for (int i = 0; i < features.length; i++) {
@@ -219,7 +243,6 @@ public class DecisionTree extends SupervisedLearner {
 				feature = "unknown";
 			}
 			if (attribute.equals(node.getValue())) {
-				// if (node.getValue().equals(attribute)) {
 				Map<String, DTNode> nodes = node.getNodes();
 				for (String key : nodes.keySet()) {
 					if (key.equals(feature)) {
@@ -233,7 +256,6 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception {
-		// TODO do i need to do this one?
 		this.testFeatures = testFeatures;
 		this.testLabels = testLabels;
 	}

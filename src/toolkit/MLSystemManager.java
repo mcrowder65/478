@@ -21,7 +21,7 @@ public class MLSystemManager {
 		else if (model.equals("backprop"))
 			return new Backprop(rand);
 		else if (model.equals("decisiontree"))
-			return new DecisionTree();
+			return new DecisionTree(rand);
 		// else if (model.equals("knn")) return new InstanceBasedLearner();
 		else
 			throw new Exception("Unrecognized model: " + model);
@@ -92,7 +92,7 @@ public class MLSystemManager {
 				testData.normalize(); // BUG! This may normalize differently
 										// from the training data. It should use
 										// the same ranges for normalization!
-			
+
 			System.out.println("Calculating accuracy on separate test set...");
 			System.out.println("Test set name: " + evalParameter);
 			System.out.println("Number of test instances: " + testData.rows());
@@ -162,6 +162,7 @@ public class MLSystemManager {
 					Matrix testLabels = new Matrix(data, begin, data.cols() - 1, end - begin, 1);
 					trainFeatures.add(data, end, 0, data.rows() - end);
 					trainLabels.add(data, end, data.cols() - 1, data.rows() - end);
+					learner.setTestSet(testFeatures, testLabels);
 					double startTime = System.currentTimeMillis();
 					learner.train(trainFeatures, trainLabels);
 					elapsedTime += System.currentTimeMillis() - startTime;
