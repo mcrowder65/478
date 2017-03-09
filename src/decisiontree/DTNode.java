@@ -21,9 +21,9 @@ import toolkit.Matrix;
 public class DTNode {
 	private String value;
 	private Map<String, DTNode> nodes;
-	transient private ObjectMapper mapper = new ObjectMapper();
-	transient private Matrix features;
-	transient private Matrix labels;
+	private ObjectMapper mapper = new ObjectMapper();
+	private Matrix features;
+	private Matrix labels;
 
 	public Matrix getFeatures() {
 		return features;
@@ -41,7 +41,9 @@ public class DTNode {
 		this.labels = labels;
 	}
 
-	public DTNode() {
+	public DTNode(Matrix features, Matrix labels) {
+		setLabels(labels);
+		setFeatures(features);
 		nodes = new HashMap<>();
 		this.value = null;
 	}

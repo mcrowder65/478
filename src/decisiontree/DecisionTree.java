@@ -101,13 +101,9 @@ public class DecisionTree extends SupervisedLearner {
 		int attrNameIndex = features.m_attr_name.indexOf(node.getValue());
 		Map<String, Integer> nodes = features.m_str_to_enum.get(attrNameIndex);
 		for (String key : nodes.keySet()) {
-			node.setNode(key, new DTNode());
-			node.getNode(key).setFeatures(features);
-			node.getNode(key).setLabels(labels);
+			node.setNode(key, new DTNode(features, labels));
 		}
-		node.setNode("unknown", new DTNode());
-		node.getNode("unknown").setFeatures(features);
-		node.getNode("unknown").setLabels(labels);
+		node.setNode("unknown", new DTNode(features, labels));
 
 		// get new features and labels
 		double[] bestInfoGainColumn = features.col(bestInfoGainIndex);
@@ -152,9 +148,7 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-		trainingDecisionTree = new DTNode();
-		validationDecisionTree = new DTNode();
-		features.shuffle(rand, labels);
+
 		final double trainingPercent = 0.8;
 		int amountOfRows = (int) (features.rows() * trainingPercent);
 		Matrix validationFeatures = new Matrix(features, amountOfRows, 0, features.rows() - amountOfRows,
@@ -163,15 +157,22 @@ public class DecisionTree extends SupervisedLearner {
 
 		myFeatures = new Matrix(features, 0, 0, amountOfRows, features.cols());
 		myLabels = new Matrix(labels, 0, 0, amountOfRows, labels.cols());
-		System.out.println("******** TEST FEATURES ********");
-		this.testFeatures.print();
-		System.out.println("******** VALIDATION FEATURES ********");
-		validationFeatures.print();
-		System.out.println("******** MYFEATURES FEATURES ********");
-		myFeatures.print();
+		trainingDecisionTree = new DTNode(myFeatures, myLabels);
+		validationDecisionTree = new DTNode(validationFeatures, validationLabels);
 		myTrain(myFeatures, myLabels, trainingDecisionTree);
-
 		myTrain(validationFeatures, validationLabels, validationDecisionTree);
+		prune(trainingDecisionTree);
+		prune(validationDecisionTree);
+	}
+
+	private DTNode prune(DTNode node) {
+		// DTNode temp = node.getNode("'physician-fee-freeze'");
+		//
+		// temp.setNodes(new HashMap<String, DTNode>());
+		System.out.println(node);
+		// deleting all will just only output democrat D:
+		node.setNodes(new HashMap<String, DTNode>());
+		return node;
 	}
 
 	@Override
@@ -182,57 +183,19 @@ public class DecisionTree extends SupervisedLearner {
 
 	}
 
-	@SuppressWarnings("unused")
-	private String[] featuresToNames(double[] features) {
-		String[] arr = new String[features.length];
-		for (int i = 0; i < features.length; i++) {
-			arr[i] = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
-		}
-		return arr;
-	}
-
-	private double getPopularElement(double[] a) {
-		int count = 1, tempCount;
-		int popular = (int) a[0];
-		int temp = 0;
-		for (int i = 0; i < (a.length - 1); i++) {
-			temp = (int) a[i];
-			tempCount = 0;
-			for (int j = 1; j < a.length; j++) {
-				if (temp == a[j])
-					tempCount++;
-			}
-			if (tempCount > count) {
-				popular = temp;
-				count = tempCount;
-			}
-		}
-		return popular;
-	}
-
-	private double[] mDataToArr(List<double[]> m_data) {
-		double[] arr = new double[m_data.size()];
-		for (int i = 0; i < m_data.size(); i++) {
-			arr[i] = m_data.get(i)[0];
-		}
-		return arr;
-	}
-
-	private String labelNumberToStringValue(int i) {
-		return myLabels.m_enum_to_str.get(0).get(i);
-	}
-
 	private String response(DTNode node, double[] features) {
 		if (node.getNodes().size() == 0) {
-			if (node.getValue() != null) {
-				return node.getValue();
-			} else {
+			if (node.getValue() == null || myLabels.m_str_to_enum.get(0).get(node.getValue()) == null) {
 				Matrix labels = node.getLabels();
 				double[] arr = mDataToArr(labels.m_data);
 				double popElement = getPopularElement(arr);
 				String ret = labelNumberToStringValue((int) popElement);
-
+				if (ret.equals("'republican'")) {
+					System.out.println(ret);
+				}
 				return ret;
+			} else if (node.getValue() != null) {
+				return node.getValue();
 			}
 
 		}
@@ -252,6 +215,27 @@ public class DecisionTree extends SupervisedLearner {
 			}
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unused")
+	private String[] featuresToNames(double[] features) {
+		String[] arr = new String[features.length];
+		for (int i = 0; i < features.length; i++) {
+			arr[i] = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
+		}
+		return arr;
+	}
+
+	private double[] mDataToArr(List<double[]> m_data) {
+		double[] arr = new double[m_data.size()];
+		for (int i = 0; i < m_data.size(); i++) {
+			arr[i] = m_data.get(i)[0];
+		}
+		return arr;
+	}
+
+	private String labelNumberToStringValue(int i) {
+		return myLabels.m_enum_to_str.get(0).get(i);
 	}
 
 	@Override
@@ -288,5 +272,24 @@ public class DecisionTree extends SupervisedLearner {
 
 	private double log(double x) {
 		return Math.log(x);
+	}
+
+	private double getPopularElement(double[] a) {
+		int count = 1, tempCount;
+		int popular = (int) a[0];
+		int temp = 0;
+		for (int i = 0; i < (a.length - 1); i++) {
+			temp = (int) a[i];
+			tempCount = 0;
+			for (int j = 1; j < a.length; j++) {
+				if (temp == a[j])
+					tempCount++;
+			}
+			if (tempCount > count) {
+				popular = temp;
+				count = tempCount;
+			}
+		}
+		return popular;
 	}
 }
