@@ -22,7 +22,7 @@ import toolkit.Matrix;
 public class DTNode {
 	private String value;
 	private Map<String, DTNode> nodes;
-	private ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper;
 	private Matrix features;
 	private Matrix labels;
 
@@ -50,27 +50,10 @@ public class DTNode {
 	}
 
 	public DTNode(DTNode node) {
-
 		this.value = node.getValue();
 		this.nodes = node.getNodes();
 		this.features = node.getFeatures();
 		this.labels = node.getLabels();
-	}
-
-	/**
-	 * Sets this.value to value
-	 * 
-	 * @param value
-	 *            String
-	 */
-	public DTNode(String value) {
-		nodes = new HashMap<>();
-		this.value = value;
-	}
-
-	public DTNode(String value, boolean isLeafNode) {
-		nodes = new HashMap<>();
-		this.value = value;
 	}
 
 	public String getValue() {
@@ -97,11 +80,18 @@ public class DTNode {
 		nodes.put(key, value);
 	}
 
+	private ObjectMapper getMapper() {
+		if (mapper == null) {
+			mapper = new ObjectMapper();
+		}
+		return mapper;
+	}
+
 	@Override
 	public String toString() {
 
 		try {
-			return mapper.writeValueAsString(this);
+			return getMapper().writeValueAsString(this);
 		} catch (JsonGenerationException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {

@@ -158,39 +158,26 @@ public class DecisionTree extends SupervisedLearner {
 		double validationAccuracy = testWithValidation(validationFeatures, validationLabels, trainingDecisionTree);
 		double newValidationAccuracy = Double.MAX_VALUE;
 		System.out.println("validationAccuracy: " + validationAccuracy);
-		while (newValidationAccuracy > validationAccuracy) {
+		while (true) {
 			DTNode newNode = prune(trainingDecisionTree);
+			System.out.println(newNode);
 			newValidationAccuracy = testWithValidation(validationFeatures, validationLabels, newNode);
 		}
 
 	}
 
-	private double testWithValidation(Matrix features, Matrix labels, DTNode nodeDaddy) {
-		double numCorrect = 0;
-		for (int i = 0; i < features.rows(); i++) {
-			double[] feature = features.row(i);
-			String response = response(nodeDaddy, feature, features, labels);
-			double num = labels.m_str_to_enum.get(0).get(response);
-			if (num == labels.row(i)[0]) {
-				// System.out.println("correct!");
-				++numCorrect;
-			} else {
-				// System.out.println("incorrect...");
-			}
-		}
-		double accuracy = numCorrect / labels.rows();
-		return accuracy;
+	private DTNode prune(DTNode node) {
+
+		return null;
 	}
 
-	private DTNode prune(DTNode node) {
-		// DTNode temp = node.getNode("'physician-fee-freeze'");
-		//
-		// temp.setNodes(new HashMap<String, DTNode>());
-		// System.out.println(node);
-		// deleting all will just only output democrat D:
-		DTNode ret = new DTNode(node);
-		ret.setNodes(new HashMap<String, DTNode>());
-		return ret;
+	private DTNode traverse(DTNode node) {
+
+		Map<String, DTNode> map = node.getNodes();
+		for (String key : map.keySet()) {
+			return map.get(key);
+		}
+		return null;
 	}
 
 	@Override
@@ -233,6 +220,23 @@ public class DecisionTree extends SupervisedLearner {
 			}
 		}
 		return null;
+	}
+
+	private double testWithValidation(Matrix features, Matrix labels, DTNode nodeDaddy) {
+		double numCorrect = 0;
+		for (int i = 0; i < features.rows(); i++) {
+			double[] feature = features.row(i);
+			String response = response(nodeDaddy, feature, features, labels);
+			double num = labels.m_str_to_enum.get(0).get(response);
+			if (num == labels.row(i)[0]) {
+				// System.out.println("correct!");
+				++numCorrect;
+			} else {
+				// System.out.println("incorrect...");
+			}
+		}
+		double accuracy = numCorrect / labels.rows();
+		return accuracy;
 	}
 
 	@SuppressWarnings("unused")
