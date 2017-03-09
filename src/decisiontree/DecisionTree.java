@@ -10,15 +10,10 @@ import toolkit.SupervisedLearner;
 
 public class DecisionTree extends SupervisedLearner {
 	private DTNode trainingDecisionTree;
-	private DTNode validationDecisionTree;
 	private Matrix myFeatures;
 	private Matrix myLabels;
-	private Matrix testFeatures;
-	private Matrix testLabels;
-	private Random rand;
 
 	public DecisionTree(Random rand) {
-		this.rand = rand;
 	}
 
 	private double calculateEntropy(Map<Double, Integer> map) {
@@ -158,34 +153,57 @@ public class DecisionTree extends SupervisedLearner {
 		myFeatures = new Matrix(features, 0, 0, amountOfRows, features.cols());
 		myLabels = new Matrix(labels, 0, 0, amountOfRows, labels.cols());
 		trainingDecisionTree = new DTNode(myFeatures, myLabels);
-		validationDecisionTree = new DTNode(validationFeatures, validationLabels);
 		myTrain(myFeatures, myLabels, trainingDecisionTree);
-		myTrain(validationFeatures, validationLabels, validationDecisionTree);
-		prune(trainingDecisionTree);
-		prune(validationDecisionTree);
+
+		double validationAccuracy = testWithValidation(validationFeatures, validationLabels, trainingDecisionTree);
+		double newValidationAccuracy = Double.MAX_VALUE;
+		System.out.println("validationAccuracy: " + validationAccuracy);
+		while (newValidationAccuracy > validationAccuracy) {
+			DTNode newNode = prune(trainingDecisionTree);
+			newValidationAccuracy = testWithValidation(validationFeatures, validationLabels, newNode);
+		}
+
+	}
+
+	private double testWithValidation(Matrix features, Matrix labels, DTNode nodeDaddy) {
+		double numCorrect = 0;
+		for (int i = 0; i < features.rows(); i++) {
+			double[] feature = features.row(i);
+			String response = response(nodeDaddy, feature, features, labels);
+			double num = labels.m_str_to_enum.get(0).get(response);
+			if (num == labels.row(i)[0]) {
+				// System.out.println("correct!");
+				++numCorrect;
+			} else {
+				// System.out.println("incorrect...");
+			}
+		}
+		double accuracy = numCorrect / labels.rows();
+		return accuracy;
 	}
 
 	private DTNode prune(DTNode node) {
 		// DTNode temp = node.getNode("'physician-fee-freeze'");
 		//
 		// temp.setNodes(new HashMap<String, DTNode>());
-		System.out.println(node);
+		// System.out.println(node);
 		// deleting all will just only output democrat D:
-		node.setNodes(new HashMap<String, DTNode>());
-		return node;
+		DTNode ret = new DTNode(node);
+		ret.setNodes(new HashMap<String, DTNode>());
+		return ret;
 	}
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
 		DTNode nodeDaddy = trainingDecisionTree;
-		String response = response(nodeDaddy, features);
+		String response = response(nodeDaddy, features, myFeatures, myLabels);
 		labels[0] = myLabels.m_str_to_enum.get(0).get(response);
 
 	}
 
-	private String response(DTNode node, double[] features) {
+	private String response(DTNode node, double[] features, Matrix matrixFeatures, Matrix matrixLabels) {
 		if (node.getNodes().size() == 0) {
-			if (node.getValue() == null || myLabels.m_str_to_enum.get(0).get(node.getValue()) == null) {
+			if (node.getValue() == null || matrixLabels.m_str_to_enum.get(0).get(node.getValue()) == null) {
 				Matrix labels = node.getLabels();
 				double[] arr = mDataToArr(labels.m_data);
 				double popElement = getPopularElement(arr);
@@ -200,8 +218,8 @@ public class DecisionTree extends SupervisedLearner {
 
 		}
 		for (int i = 0; i < features.length; i++) {
-			String attribute = myFeatures.m_attr_name.get(i);
-			String feature = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
+			String attribute = matrixFeatures.m_attr_name.get(i);
+			String feature = matrixFeatures.m_enum_to_str.get(i).get((int) features[i]);
 			if (feature == null) {
 				feature = "unknown";
 			}
@@ -209,7 +227,7 @@ public class DecisionTree extends SupervisedLearner {
 				Map<String, DTNode> nodes = node.getNodes();
 				for (String key : nodes.keySet()) {
 					if (key.equals(feature)) {
-						return response(nodes.get(key), features);
+						return response(nodes.get(key), features, matrixFeatures, matrixLabels);
 					}
 				}
 			}
@@ -240,8 +258,6 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception {
-		this.testFeatures = testFeatures;
-		this.testLabels = testLabels;
 	}
 
 	private Map<Double, Integer> calculateSplit(double[] column) {

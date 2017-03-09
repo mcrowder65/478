@@ -11,9 +11,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import toolkit.Matrix;
 
 /**
- * String value;<br>
- * boolean isLeafNode;<br>
- * Map of String, DTNode nodes;
+ * String value<br>
+ * Map of String, DTNode nodes<br>
+ * Matrix features<br>
+ * Matrix labels<br>
  * 
  * @author mcrowder65
  *
@@ -48,8 +49,16 @@ public class DTNode {
 		this.value = null;
 	}
 
+	public DTNode(DTNode node) {
+
+		this.value = node.getValue();
+		this.nodes = node.getNodes();
+		this.features = node.getFeatures();
+		this.labels = node.getLabels();
+	}
+
 	/**
-	 * Sets this.value to value, and isLeafNode to false
+	 * Sets this.value to value
 	 * 
 	 * @param value
 	 *            String
