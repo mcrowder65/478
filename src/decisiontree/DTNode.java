@@ -1,7 +1,9 @@
 package decisiontree;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -91,6 +93,34 @@ public class DTNode {
 
 	public void deleteNodes() {
 		this.nodes = new HashMap<>();
+	}
+
+	public int getNumberOfNodes(DTNode node) {
+		Map<String, DTNode> map = node.getNodes();
+		int c = 1;
+		if (map.size() == 0) {
+			return 1;
+		}
+		for (String key : map.keySet()) {
+			c += getNumberOfNodes(map.get(key));
+		}
+		return c;
+
+	}
+
+	public int getNumberOfLayers(DTNode node, List<String> keys, int num, DTNode originalNode, List<Integer> depths) {
+		Map<String, DTNode> map = node.getNodes();
+		if (map.size() == 0) {
+			return num + 1;
+		}
+		for (String key : map.keySet()) {
+			depths.add(getNumberOfLayers(map.get(key), keys, num + 1, originalNode, depths));
+
+		}
+		int greatest = Collections.max(depths);
+
+		return greatest;
+
 	}
 
 	@Override

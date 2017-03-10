@@ -168,7 +168,7 @@ public class MLSystemManager {
 					elapsedTime += System.currentTimeMillis() - startTime;
 					double accuracy = learner.measureAccuracy(testFeatures, testLabels, null);
 					sumAccuracy += accuracy;
-					System.out.println("Rep=" + j + ", Fold=" + i + ", Accuracy=" + accuracy + "\n");
+					System.out.println(accuracy);
 				}
 			}
 			elapsedTime /= (reps * folds);

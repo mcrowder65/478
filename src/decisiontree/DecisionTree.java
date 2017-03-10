@@ -13,8 +13,13 @@ public class DecisionTree extends SupervisedLearner {
 	private DTNode trainingDecisionTree;
 	private Matrix myFeatures;
 	private Matrix myLabels;
+	private Random rand;
+	private List<PruneTracker> prunes;
+	private boolean MAX = true;
 
 	public DecisionTree(Random rand) {
+		this.rand = rand;
+		prunes = new ArrayList<>();
 	}
 
 	private double calculateEntropy(Map<Double, Integer> map) {
@@ -78,13 +83,25 @@ public class DecisionTree extends SupervisedLearner {
 
 		}
 		int bestInfoGainIndex = -1;
+
 		double MAX_INFO_GAIN = 0;
-		for (int i = 0; i < infoGains.length; i++) {
-			if (infoGains[i] > MAX_INFO_GAIN) {
-				MAX_INFO_GAIN = infoGains[i];
-				bestInfoGainIndex = i;
+		double MIN_INFO_GAIN = Double.MAX_VALUE;
+		if (MAX) {
+			for (int i = 0; i < infoGains.length; i++) {
+				if (infoGains[i] > MAX_INFO_GAIN) {
+					MAX_INFO_GAIN = infoGains[i];
+					bestInfoGainIndex = i;
+				}
+			}
+		} else {
+			for (int i = 0; i < infoGains.length; i++) {
+				if (infoGains[i] < MIN_INFO_GAIN && infoGains[i] != 0) {
+					MIN_INFO_GAIN = infoGains[i];
+					bestInfoGainIndex = i;
+				}
 			}
 		}
+
 		if (bestInfoGainIndex == -1) {
 
 			node.setValue(labels.m_enum_to_str.get(0).get((int) labels.row(0)[0]));
@@ -144,44 +161,61 @@ public class DecisionTree extends SupervisedLearner {
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-
+		features.shuffle(rand, labels);
 		final double trainingPercent = 0.8;
 		int amountOfRows = (int) (features.rows() * trainingPercent);
-		Matrix validationFeatures = new Matrix(features, amountOfRows, 0, features.rows() - amountOfRows,
-				features.cols());
-		Matrix validationLabels = new Matrix(labels, amountOfRows, 0, labels.rows() - amountOfRows, labels.cols());
+		// Matrix validationFeatures = new Matrix(features, amountOfRows, 0,
+		// features.rows() - amountOfRows,
+		// features.cols());
+		// Matrix validationLabels = new Matrix(labels, amountOfRows, 0,
+		// labels.rows() - amountOfRows, labels.cols());
 
-		myFeatures = new Matrix(features, 0, 0, amountOfRows, features.cols());
-		myLabels = new Matrix(labels, 0, 0, amountOfRows, labels.cols());
+		myFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
+		myLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
 		trainingDecisionTree = new DTNode(myFeatures, myLabels);
 		myTrain(myFeatures, myLabels, trainingDecisionTree);
+		// traverse(trainingDecisionTree, validationFeatures, validationLabels);
+		// findGreatestPrune();
+		// findAmtOfNodesAndLayers();
+	}
 
-		traverse(trainingDecisionTree, validationFeatures, validationLabels);
-		findGreatestPrune();
+	private void findAmtOfNodesAndLayers() {
+		int numberOfNodes = this.trainingDecisionTree.getNumberOfNodes(this.trainingDecisionTree);
+		List<String> layers = new ArrayList<>();
+		int numberOfLayers = this.trainingDecisionTree.getNumberOfLayers(this.trainingDecisionTree, layers, 0,
+				this.trainingDecisionTree, new ArrayList<>());
+		System.out.println(numberOfNodes);
+		System.out.println(numberOfLayers);
 	}
 
 	private void findGreatestPrune() {
 		double greatest = 0;
+		int greatestNumberOfNodes = 0;
+		int greatestNumberOfLayers = 0;
+
 		for (int i = 0; i < prunes.size(); i++) {
 			if (prunes.get(i).getAccuracy() > greatest) {
 				greatest = prunes.get(i).getAccuracy();
+				DTNode temp = prunes.get(i).getNode();
+				int num = temp.getNumberOfNodes(temp);
+				greatestNumberOfNodes = num;
+				List<String> layers = new ArrayList<>();
+				greatestNumberOfLayers = temp.getNumberOfLayers(temp, layers, 0, temp, new ArrayList<>());
+
 			}
 		}
-		System.out.println("greatest prune accuracy: " + greatest);
+		System.out.println(greatest);
+		System.out.println(greatestNumberOfNodes);
+		System.out.println(greatestNumberOfLayers);
 	}
-
-	private List<PruneTracker> prunes = new ArrayList<>();
 
 	private void traverse(DTNode node, Matrix features, Matrix labels) {
 		for (String key : node.getNodes().keySet()) {
 			Map<String, DTNode> map = node.getNodes();
 			node.deleteNodes();
-			// System.out.println(this.trainingDecisionTree);
-			double accuracy = testWithValidation(features, labels, this.trainingDecisionTree);
+			double accuracy = testAccuracy(features, labels, this.trainingDecisionTree);
 			prunes.add(new PruneTracker(this.trainingDecisionTree, accuracy));
-
 			node.setNodes(map);
-			// System.out.println(this.trainingDecisionTree);
 			traverse(node.getNodes().get(key), features, labels);
 		}
 	}
@@ -226,7 +260,7 @@ public class DecisionTree extends SupervisedLearner {
 		return null;
 	}
 
-	private double testWithValidation(Matrix features, Matrix labels, DTNode nodeDaddy) {
+	private double testAccuracy(Matrix features, Matrix labels, DTNode nodeDaddy) {
 		double numCorrect = 0;
 		for (int i = 0; i < features.rows(); i++) {
 			double[] feature = features.row(i);
