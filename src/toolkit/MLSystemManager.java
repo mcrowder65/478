@@ -5,6 +5,7 @@ import java.util.Random;
 
 import backprop.Backprop;
 import decisiontree.DecisionTree;
+import nearestneighbor.NearestNeighbor;
 import perceptron.SinglePerceptron;
 
 public class MLSystemManager {
@@ -22,7 +23,8 @@ public class MLSystemManager {
 			return new Backprop(rand);
 		else if (model.equals("decisiontree"))
 			return new DecisionTree(rand);
-		// else if (model.equals("knn")) return new InstanceBasedLearner();
+		else if (model.equals("knn"))
+			return new NearestNeighbor(rand);
 		else
 			throw new Exception("Unrecognized model: " + model);
 	}
