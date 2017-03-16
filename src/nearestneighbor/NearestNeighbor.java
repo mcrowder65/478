@@ -15,20 +15,13 @@ public class NearestNeighbor extends SupervisedLearner {
 	private Random rand;
 	private Matrix myFeatures;
 	private Matrix myLabels;
-	final private int k = 15;
+	final private int k = 3;
 
 	public NearestNeighbor(Random rand) {
 		this.rand = rand;
 	}
 
-	@SuppressWarnings("unused")
-	private double nonWeightedClassificationTraining(Matrix features, Matrix labels, double[] feature) {
-
-		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
-		double[] originalResults = this.copyArray(manhattanDistances);
-		Arrays.sort(manhattanDistances);
-		Map<Double, List<Double>> outputs = this.calculateOutputs(originalResults, manhattanDistances, labels);
-
+	private double mostKeys(Map<Double, List<Double>> outputs) {
 		double result = -1;
 		int greatest = Integer.MIN_VALUE;
 		for (Double key : outputs.keySet()) {
@@ -42,12 +35,17 @@ public class NearestNeighbor extends SupervisedLearner {
 	}
 
 	@SuppressWarnings("unused")
-	private double weightedClassificationTraining(Matrix features, Matrix labels, double[] feature) {
+	private double nonWeightedClassificationTraining(Matrix features, Matrix labels, double[] feature) {
 
 		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
 		double[] originalResults = this.copyArray(manhattanDistances);
 		Arrays.sort(manhattanDistances);
 		Map<Double, List<Double>> outputs = this.calculateOutputs(originalResults, manhattanDistances, labels);
+
+		return mostKeys(outputs);
+	}
+
+	private double weighted(Map<Double, List<Double>> outputs) {
 		double result = -1;
 		double greatest = Double.MIN_VALUE;
 		for (Double key : outputs.keySet()) {
@@ -71,6 +69,18 @@ public class NearestNeighbor extends SupervisedLearner {
 
 	}
 
+	@SuppressWarnings("unused")
+	private double weightedClassificationTraining(Matrix features, Matrix labels, double[] feature) {
+
+		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
+		double[] originalResults = this.copyArray(manhattanDistances);
+		Arrays.sort(manhattanDistances);
+		Map<Double, List<Double>> outputs = this.calculateOutputs(originalResults, manhattanDistances, labels);
+		return weighted(outputs);
+
+	}
+
+	@SuppressWarnings("unused")
 	private double nonWeightedRegressionTraining(Matrix features, Matrix labels, double[] feature) {
 		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
 		double[] originalResults = this.copyArray(manhattanDistances);
@@ -86,6 +96,14 @@ public class NearestNeighbor extends SupervisedLearner {
 		return result / (double) k;
 	}
 
+	private double continuousAndClassification(Matrix features, Matrix labels, double[] feature) {
+		double[] heomDistances = this.calculateHEOM(features, feature);
+		double[] originalResults = this.copyArray(heomDistances);
+		Arrays.sort(heomDistances);
+		Map<Double, List<Double>> outputs = this.calculateOutputs(originalResults, heomDistances, labels);
+		return weighted(outputs);
+	}
+
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		myFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
@@ -94,15 +112,14 @@ public class NearestNeighbor extends SupervisedLearner {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		double output = this.nonWeightedRegressionTraining(myFeatures, myLabels, features);
-		System.out.println(output);
+		double output = this.weightedClassificationTraining(myFeatures, myLabels, features);
+
 		labels[0] = output;
 	}
 
 	@Override
 	public void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception {
 		// i may or may not need this.
-
 	}
 
 	private double[] copyArray(double[] manhattanDistances) {
@@ -122,6 +139,30 @@ public class NearestNeighbor extends SupervisedLearner {
 				num += Math.abs(row[x] - feature[x]);
 			}
 			results[i] = num;
+		}
+		return results;
+	}
+
+	private double[] calculateHEOM(Matrix features, double[] feature) {
+		double[] results = new double[features.rows()];
+		for (int i = 0; i < features.rows(); i++) {
+			double[] row = features.row(i);
+			// Utilities.outputArray(row);
+			double num = 0;
+			for (int x = 0; x < row.length; x++) {
+				if (row[x] == Double.MAX_VALUE) {
+					// unknown
+					num += 1;
+				} else if (features.m_enum_to_str.get(x).size() == 0) {
+					// categorical/nominal
+					num += (feature[x] == row[x]) ? 0 : 1;
+				} else {
+					// continuous
+					num += Math.pow(Math.abs(feature[x] - row[x]), 2);
+				}
+			}
+			// square root this
+			results[i] = Math.sqrt(num);
 		}
 		return results;
 	}
