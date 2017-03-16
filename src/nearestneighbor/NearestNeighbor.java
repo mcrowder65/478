@@ -4,6 +4,7 @@ import java.util.Random;
 
 import toolkit.Matrix;
 import toolkit.SupervisedLearner;
+import utilities.Utilities;
 
 public class NearestNeighbor extends SupervisedLearner {
 	private Random rand;
@@ -12,10 +13,16 @@ public class NearestNeighbor extends SupervisedLearner {
 		this.rand = rand;
 	}
 
+	private void myTrain(Matrix features, Matrix labels) {
+		for (int i = 0; i < features.rows(); i++) {
+			Utilities.outputArray(features.row(i));
+		}
+	}
+
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
 		// TODO Auto-generated method stub
-
+		this.myTrain(features, labels);
 	}
 
 	@Override
@@ -27,6 +34,7 @@ public class NearestNeighbor extends SupervisedLearner {
 	@Override
 	public void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception {
 		// TODO Auto-generated method stub
+		// i may or may not need this.
 
 	}
 }
