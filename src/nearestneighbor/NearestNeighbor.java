@@ -13,6 +13,8 @@ import toolkit.SupervisedLearner;
 public class NearestNeighbor extends SupervisedLearner {
 	@SuppressWarnings("unused")
 	private Random rand;
+	private Matrix myFeatures;
+	private Matrix myLabels;
 	final private int k = 15;
 
 	public NearestNeighbor(Random rand) {
@@ -55,7 +57,8 @@ public class NearestNeighbor extends SupervisedLearner {
 				if (list.get(i) == 0) {
 					double temp = 1 / list.get(i);
 					// maybe do small distance or just return label
-					System.out.println(temp);
+					// TODO decide on this
+					// System.out.println(temp);
 				}
 				num += (1 / Math.pow(list.get(i), 2));
 			}
@@ -68,11 +71,19 @@ public class NearestNeighbor extends SupervisedLearner {
 
 	}
 
-	@SuppressWarnings("unused")
 	private double nonWeightedRegressionTraining(Matrix features, Matrix labels, double[] feature) {
 		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
 		double[] originalResults = this.copyArray(manhattanDistances);
-		return 0.0;
+		Arrays.sort(manhattanDistances);
+
+		Map<Double, List<Double>> outputs = this.calculateOutputs(originalResults, manhattanDistances, labels);
+		double result = 0;
+
+		for (double key : outputs.keySet()) {
+			result += key;
+		}
+
+		return result / (double) k;
 	}
 
 	@Override
@@ -81,12 +92,10 @@ public class NearestNeighbor extends SupervisedLearner {
 		myLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
 	}
 
-	private Matrix myFeatures;
-	private Matrix myLabels;
-
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		double output = this.weightedClassificationTraining(myFeatures, myLabels, features);
+		double output = this.nonWeightedRegressionTraining(myFeatures, myLabels, features);
+		System.out.println(output);
 		labels[0] = output;
 	}
 
