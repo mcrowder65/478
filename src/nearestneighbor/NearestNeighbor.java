@@ -13,7 +13,7 @@ import toolkit.SupervisedLearner;
 public class NearestNeighbor extends SupervisedLearner {
 	@SuppressWarnings("unused")
 	private Random rand;
-	final private int k = 3;
+	final private int k = 15;
 
 	public NearestNeighbor(Random rand) {
 		this.rand = rand;
@@ -52,6 +52,11 @@ public class NearestNeighbor extends SupervisedLearner {
 			List<Double> list = outputs.get(key);
 			double num = 0;
 			for (int i = 0; i < list.size(); i++) {
+				if (list.get(i) == 0) {
+					double temp = 1 / list.get(i);
+					// maybe do small distance or just return label
+					System.out.println(temp);
+				}
 				num += (1 / Math.pow(list.get(i), 2));
 			}
 			if (num > greatest) {
@@ -65,9 +70,8 @@ public class NearestNeighbor extends SupervisedLearner {
 
 	@SuppressWarnings("unused")
 	private double nonWeightedRegressionTraining(Matrix features, Matrix labels, double[] feature) {
-		for (int i = 0; i < features.rows(); i++) {
-
-		}
+		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
+		double[] originalResults = this.copyArray(manhattanDistances);
 		return 0.0;
 	}
 
@@ -92,10 +96,10 @@ public class NearestNeighbor extends SupervisedLearner {
 
 	}
 
-	private double[] copyArray(double[] arr) {
-		double[] retArray = new double[arr.length];
+	private double[] copyArray(double[] manhattanDistances) {
+		double[] retArray = new double[manhattanDistances.length];
 		for (int i = 0; i < retArray.length; i++) {
-			retArray[i] = arr[i];
+			retArray[i] = manhattanDistances[i];
 		}
 		return retArray;
 	}
