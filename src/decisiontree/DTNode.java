@@ -1,6 +1,7 @@
 package decisiontree;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +20,7 @@ import toolkit.Matrix;
  * Matrix labels<br>
  * 
  * @author mcrowder65
- *
+ * 
  */
 public class DTNode {
 	private String value;
@@ -108,13 +109,15 @@ public class DTNode {
 
 	}
 
-	public int getNumberOfLayers(DTNode node, List<String> keys, int num, DTNode originalNode, List<Integer> depths) {
+	public int getNumberOfLayers(DTNode node, List<String> keys, int num,
+			DTNode originalNode, ArrayList<Integer> depths) {
 		Map<String, DTNode> map = node.getNodes();
 		if (map.size() == 0) {
 			return num + 1;
 		}
 		for (String key : map.keySet()) {
-			depths.add(getNumberOfLayers(map.get(key), keys, num + 1, originalNode, depths));
+			depths.add(getNumberOfLayers(map.get(key), keys, num + 1,
+					originalNode, depths));
 
 		}
 		int greatest = Collections.max(depths);

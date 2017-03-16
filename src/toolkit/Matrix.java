@@ -1,4 +1,5 @@
 package toolkit;
+
 // ----------------------------------------------------------------
 
 // The contents of this file are distributed under the CC0 license.
@@ -206,8 +207,8 @@ public class Matrix {
 								else {
 									doubleValue = m_str_to_enum.get(curPos).get(textValue);
 									if (doubleValue == -1) {
-										throw new Exception(
-												"Error parsing the value '" + textValue + "' on line: " + line);
+										throw new Exception("Error parsing the value '" + textValue + "' on line: "
+												+ line);
 									}
 								}
 
