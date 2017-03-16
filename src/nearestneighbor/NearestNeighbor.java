@@ -16,39 +16,17 @@ public class NearestNeighbor extends SupervisedLearner {
 	final private int k = 3;
 
 	public NearestNeighbor(Random rand) {
+		this.rand = rand;
 	}
 
 	@SuppressWarnings("unused")
 	private double nonWeightedClassificationTraining(Matrix features, Matrix labels, double[] feature) {
 
-		double[] results = new double[features.rows()];
-		for (int i = 0; i < features.rows(); i++) {
-			double[] row = features.row(i);
-			double num = 0;
-			for (int x = 0; x < row.length; x++) {
-				num += Math.abs(row[x] - feature[x]);
-			}
-			results[i] = num;
-		}
-		double[] originalResults = new double[results.length];
-		for (int i = 0; i < originalResults.length; i++) {
-			originalResults[i] = results[i];
-		}
-		Arrays.sort(results);
-		Map<Double, List<Double>> outputs = new HashMap<>();
-		for (int i = 0; i < k; i++) {
-			int index = indexOf(originalResults, results[i]);
-			double label = labels.row(index)[0];
-			if (outputs.get(label) == null) {
-				List<Double> list = new ArrayList<>();
-				list.add(results[i]);
-				outputs.put(label, list);
-			} else {
-				List<Double> list = outputs.get(label);
-				list.add(results[i]);
-				outputs.put(label, list);
-			}
-		}
+		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
+		double[] originalResults = this.copyArray(manhattanDistances);
+		Arrays.sort(manhattanDistances);
+		Map<Double, List<Double>> outputs = this.calculateOutputs(originalResults, manhattanDistances, labels);
+
 		double result = -1;
 		int greatest = Integer.MIN_VALUE;
 		for (Double key : outputs.keySet()) {
@@ -61,44 +39,13 @@ public class NearestNeighbor extends SupervisedLearner {
 		return result;
 	}
 
-	private int indexOf(double[] arr, double in) {
-		for (int i = 0; i < arr.length; i++) {
-			if (arr[i] == in) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
+	@SuppressWarnings("unused")
 	private double weightedClassificationTraining(Matrix features, Matrix labels, double[] feature) {
-		double[] results = new double[features.rows()];
-		for (int i = 0; i < features.rows(); i++) {
-			double[] row = features.row(i);
-			double num = 0;
-			for (int x = 0; x < row.length; x++) {
-				num += Math.abs(row[x] - feature[x]);
-			}
-			results[i] = num;
-		}
-		double[] originalResults = new double[results.length];
-		for (int i = 0; i < originalResults.length; i++) {
-			originalResults[i] = results[i];
-		}
-		Arrays.sort(results);
-		Map<Double, List<Double>> outputs = new HashMap<>();
-		for (int i = 0; i < k; i++) {
-			int index = indexOf(originalResults, results[i]);
-			double label = labels.row(index)[0];
-			if (outputs.get(label) == null) {
-				List<Double> list = new ArrayList<>();
-				list.add(results[i]);
-				outputs.put(label, list);
-			} else {
-				List<Double> list = outputs.get(label);
-				list.add(results[i]);
-				outputs.put(label, list);
-			}
-		}
+
+		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
+		double[] originalResults = this.copyArray(manhattanDistances);
+		Arrays.sort(manhattanDistances);
+		Map<Double, List<Double>> outputs = this.calculateOutputs(originalResults, manhattanDistances, labels);
 		double result = -1;
 		double greatest = Double.MIN_VALUE;
 		for (Double key : outputs.keySet()) {
@@ -114,6 +61,14 @@ public class NearestNeighbor extends SupervisedLearner {
 		}
 		return result;
 
+	}
+
+	@SuppressWarnings("unused")
+	private double nonWeightedRegressionTraining(Matrix features, Matrix labels, double[] feature) {
+		for (int i = 0; i < features.rows(); i++) {
+
+		}
+		return 0.0;
 	}
 
 	@Override
@@ -136,4 +91,54 @@ public class NearestNeighbor extends SupervisedLearner {
 		// i may or may not need this.
 
 	}
+
+	private double[] copyArray(double[] arr) {
+		double[] retArray = new double[arr.length];
+		for (int i = 0; i < retArray.length; i++) {
+			retArray[i] = arr[i];
+		}
+		return retArray;
+	}
+
+	private double[] calculateManhattanDistances(Matrix features, double[] feature) {
+		double[] results = new double[features.rows()];
+		for (int i = 0; i < features.rows(); i++) {
+			double[] row = features.row(i);
+			double num = 0;
+			for (int x = 0; x < row.length; x++) {
+				num += Math.abs(row[x] - feature[x]);
+			}
+			results[i] = num;
+		}
+		return results;
+	}
+
+	private Map<Double, List<Double>> calculateOutputs(double[] originalResults, double[] manhattanDistances,
+			Matrix labels) {
+		Map<Double, List<Double>> outputs = new HashMap<>();
+		for (int i = 0; i < k; i++) {
+			int index = indexOf(originalResults, manhattanDistances[i]);
+			double label = labels.row(index)[0];
+			if (outputs.get(label) == null) {
+				List<Double> list = new ArrayList<>();
+				list.add(manhattanDistances[i]);
+				outputs.put(label, list);
+			} else {
+				List<Double> list = outputs.get(label);
+				list.add(manhattanDistances[i]);
+				outputs.put(label, list);
+			}
+		}
+		return outputs;
+	}
+
+	private int indexOf(double[] arr, double in) {
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i] == in) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 }

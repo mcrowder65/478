@@ -1,0 +1,1 @@
+-L knn -A datasets/nearestneighbor/3/HTrain.arff -E static  datasets/nearestneighbor/3/HTest.arff -N

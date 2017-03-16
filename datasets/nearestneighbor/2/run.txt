@@ -1,0 +1,1 @@
+-L knn -A datasets/nearestneighbor/2/MTTrain.arff -E static  datasets/nearestneighbor/2/MTTest.arff -N
