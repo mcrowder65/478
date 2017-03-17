@@ -15,7 +15,7 @@ public class NearestNeighbor extends SupervisedLearner {
 	private Random rand;
 	private Matrix myFeatures;
 	private Matrix myLabels;
-	final private int k = 3;
+	final private int k = 15;
 
 	public NearestNeighbor(Random rand) {
 		this.rand = rand;
@@ -52,12 +52,7 @@ public class NearestNeighbor extends SupervisedLearner {
 			List<Double> list = outputs.get(key);
 			double num = 0;
 			for (int i = 0; i < list.size(); i++) {
-				if (list.get(i) == 0) {
-					double temp = 1 / list.get(i);
-					// maybe do small distance or just return label
-					// TODO decide on this
-					// System.out.println(temp);
-				}
+
 				num += (1 / Math.pow(list.get(i), 2));
 			}
 			if (num > greatest) {
@@ -96,6 +91,15 @@ public class NearestNeighbor extends SupervisedLearner {
 		return result / (double) k;
 	}
 
+	private double weightedRegressionTraining(Matrix features, Matrix labels, double[] feature) {
+		double[] manhattanDistances = this.calculateManhattanDistances(features, feature);
+		double[] originalResults = this.copyArray(manhattanDistances);
+		Arrays.sort(manhattanDistances);
+
+		Map<Double, List<Double>> outputs = this.calculateOutputs(originalResults, manhattanDistances, labels);
+		return weighted(outputs);
+	}
+
 	private double continuousAndClassification(Matrix features, Matrix labels, double[] feature) {
 		double[] heomDistances = this.calculateHEOM(features, feature);
 		double[] originalResults = this.copyArray(heomDistances);
@@ -112,7 +116,7 @@ public class NearestNeighbor extends SupervisedLearner {
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		double output = this.weightedClassificationTraining(myFeatures, myLabels, features);
+		double output = this.continuousAndClassification(myFeatures, myLabels, features);
 
 		labels[0] = output;
 	}
@@ -122,10 +126,10 @@ public class NearestNeighbor extends SupervisedLearner {
 		// i may or may not need this.
 	}
 
-	private double[] copyArray(double[] manhattanDistances) {
-		double[] retArray = new double[manhattanDistances.length];
+	private double[] copyArray(double[] arr) {
+		double[] retArray = new double[arr.length];
 		for (int i = 0; i < retArray.length; i++) {
-			retArray[i] = manhattanDistances[i];
+			retArray[i] = arr[i];
 		}
 		return retArray;
 	}
@@ -147,7 +151,6 @@ public class NearestNeighbor extends SupervisedLearner {
 		double[] results = new double[features.rows()];
 		for (int i = 0; i < features.rows(); i++) {
 			double[] row = features.row(i);
-			// Utilities.outputArray(row);
 			double num = 0;
 			for (int x = 0; x < row.length; x++) {
 				if (row[x] == Double.MAX_VALUE) {
@@ -161,7 +164,6 @@ public class NearestNeighbor extends SupervisedLearner {
 					num += Math.pow(Math.abs(feature[x] - row[x]), 2);
 				}
 			}
-			// square root this
 			results[i] = Math.sqrt(num);
 		}
 		return results;

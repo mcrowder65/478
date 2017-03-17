@@ -1,0 +1,1 @@
+-L knn -A datasets/nearestneighbor/5/credit.arff -E random .75 -N
