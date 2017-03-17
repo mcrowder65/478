@@ -15,7 +15,7 @@ public class NearestNeighbor extends SupervisedLearner {
 	private Random rand;
 	private Matrix myFeatures;
 	private Matrix myLabels;
-	final private int k = 15;
+	final private int k = 9;
 
 	public NearestNeighbor(Random rand) {
 		this.rand = rand;
@@ -110,13 +110,18 @@ public class NearestNeighbor extends SupervisedLearner {
 
 	@Override
 	public void train(Matrix features, Matrix labels) throws Exception {
-		myFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
-		myLabels = new Matrix(labels, 0, 0, labels.rows(), labels.cols());
+		double removePercent = 1;
+		int featureRows = (int) (features.rows() * removePercent);
+		int featureCols = (int) (features.cols() * removePercent);
+		myFeatures = new Matrix(features, 0, 0, featureRows, featureCols);
+
+		int labelRows = (int) (labels.rows() * removePercent);
+		myLabels = new Matrix(labels, 0, 0, labelRows, labels.cols());
 	}
 
 	@Override
 	public void predict(double[] features, double[] labels) throws Exception {
-		double output = this.continuousAndClassification(myFeatures, myLabels, features);
+		double output = this.weightedClassificationTraining(myFeatures, myLabels, features);
 
 		labels[0] = output;
 	}
@@ -132,6 +137,19 @@ public class NearestNeighbor extends SupervisedLearner {
 			retArray[i] = arr[i];
 		}
 		return retArray;
+	}
+
+	private double[] calculateEuclideanDistnces(Matrix features, double[] feature) {
+		double[] results = new double[features.rows()];
+		for (int i = 0; i < features.rows(); i++) {
+			double[] row = features.row(i);
+			double num = 0;
+			for (int x = 0; x < row.length; x++) {
+				num += Math.sqrt(Math.pow(feature[x] - row[x], 2));
+			}
+			results[i] = num;
+		}
+		return results;
 	}
 
 	private double[] calculateManhattanDistances(Matrix features, double[] feature) {
