@@ -4,20 +4,21 @@ import java.util.List;
 
 public class Cluster {
 	private Point centroid;
-	private List<Point> points;
+	private List<Point> instances;
 
 	public Point getCentroid() {
 		if (centroid == null) {
-			double x = 0;
-			double y = 0;
-			for (int i = 0; i < points.size(); i++) {
-				Point point = points.get(i);
-				x += point.getX();
-				y += point.getY();
+			centroid = new Point();
+			double[] vals = new double[instances.size()];
+
+			for (int i = 0; i < instances.size(); i++) {
+				Point dimension = instances.get(i);
+				vals[i] += dimension.getDimension(i);
 			}
-			x /= points.size();
-			y /= points.size();
-			centroid = new Point(x, y);
+			for (int i = 0; i < vals.length; i++) {
+				vals[i] /= vals.length;
+				centroid.addDimension(vals[i]);
+			}
 		}
 		return centroid;
 	}
@@ -25,22 +26,25 @@ public class Cluster {
 	public Cluster(Point centroid, List<Point> points) {
 		super();
 		this.centroid = centroid;
-		this.points = points;
+		this.instances = points;
 	}
 
-	public List<Point> getPoints() {
-		return points;
+	public Cluster() {
 	}
 
-	public Point getPoint(int x) {
-		if (points == null || x > points.size()) {
+	public List<Point> getDimensions() {
+		return instances;
+	}
+
+	public Point getDimension(int x) {
+		if (instances == null || x > instances.size()) {
 			System.err.println("Points is not initialized or this index is about of bounds");
 			return null;
 		}
-		return points.get(x);
+		return instances.get(x);
 	}
 
 	public void setPoints(List<Point> points) {
-		this.points = points;
+		this.instances = points;
 	}
 }

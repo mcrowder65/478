@@ -1,27 +1,23 @@
 package clustering;
 
 import toolkit.Matrix;
-import toolkit.SupervisedLearner;
 
-public class Clustering extends SupervisedLearner {
+public class Clustering {
+	private final int k = 2;
 
-	@Override
-	public void train(Matrix features, Matrix labels) throws Exception {
-		// TODO Auto-generated method stub
+	public void clusterTrain(Matrix features) {
+		int firstFeature = 0;
 
-	}
-
-	@Override
-	public void predict(double[] features, double[] labels) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setTestSet(Matrix testFeatures, Matrix testLabels) throws Exception {
-		// TODO Auto-generated method stub
-		// I may or may not need this
-
+		// don't ever include the id!
+		if (features.m_attr_name.get(0).equals("'id'")) {
+			firstFeature = 1;
+		}
+		for (int r = 0; r < features.rows(); r++) {
+			double[] feature = features.row(r);
+			for (int x = firstFeature; x < feature.length; x++) {
+				double val = feature[x];
+			}
+		}
 	}
 
 }

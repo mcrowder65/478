@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import toolkit.Matrix;
+
 public class Utilities {
 	/**
 	 * outputs new line
@@ -12,6 +14,10 @@ public class Utilities {
 	 * @param arr
 	 */
 	static public void outputArray(double[] arr) {
+		outputArray(arr, true);
+	}
+
+	static public void outputArray(String[] arr) {
 		outputArray(arr, true);
 	}
 
@@ -128,5 +134,13 @@ public class Utilities {
 			}
 		}
 		System.out.println();
+	}
+
+	static public String[] featuresToNames(double[] features, Matrix myFeatures) {
+		String[] arr = new String[features.length];
+		for (int i = 0; i < features.length; i++) {
+			arr[i] = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
+		}
+		return arr;
 	}
 }

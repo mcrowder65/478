@@ -4,6 +4,7 @@ package toolkit;
 import java.util.Random;
 
 import backprop.Backprop;
+import clustering.Clustering;
 import decisiontree.DecisionTree;
 import nearestneighbor.NearestNeighbor;
 import perceptron.SinglePerceptron;
@@ -25,6 +26,8 @@ public class MLSystemManager {
 			return new DecisionTree(rand);
 		else if (model.equals("knn"))
 			return new NearestNeighbor(rand);
+		else if (model.equals("cluster"))
+			return null;
 		else
 			throw new Exception("Unrecognized model: " + model);
 	}
@@ -52,9 +55,6 @@ public class MLSystemManager {
 		boolean normalize = parser.getNormalize();
 
 		// Load the model
-		SupervisedLearner learner = getLearner(learnerName, rand);
-
-		// Load the ARFF file
 		Matrix data = new Matrix();
 		data.loadArff(fileName);
 		if (normalize) {
@@ -70,113 +70,126 @@ public class MLSystemManager {
 		System.out.println("Learning algorithm: " + learnerName);
 		System.out.println("Evaluation method: " + evalMethod);
 		System.out.println();
+		SupervisedLearner learner = getLearner(learnerName, rand);
+		if (learner == null) {
+			Clustering cluster = new Clustering();
+			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols());
+			double startTime = System.currentTimeMillis();
+			cluster.clusterTrain(features);
+			double elapsedTime = System.currentTimeMillis() - startTime;
+			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
+		} else {
 
-		if (evalMethod.equals("training")) {
-			System.out.println("Calculating accuracy on training set...");
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
-			Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
-			Matrix confusion = new Matrix();
-			double startTime = System.currentTimeMillis();
-			learner.train(features, labels);
-			double elapsedTime = System.currentTimeMillis() - startTime;
-			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
-			double accuracy = learner.measureAccuracy(features, labels, confusion);
-			System.out.println("Training set accuracy: " + accuracy);
-			if (printConfusionMatrix) {
-				System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");
-				confusion.print();
-				System.out.println("\n");
-			}
-		} else if (evalMethod.equals("static")) {
-			Matrix testData = new Matrix();
-			testData.loadArff(evalParameter);
-			if (normalize)
-				testData.normalize(); // BUG! This may normalize differently
-										// from the training data. It should use
-										// the same ranges for normalization!
-
-			System.out.println("Calculating accuracy on separate test set...");
-			System.out.println("Test set name: " + evalParameter);
-			System.out.println("Number of test instances: " + testData.rows());
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
-			Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
-			double startTime = System.currentTimeMillis();
-			learner.train(features, labels);
-			double elapsedTime = System.currentTimeMillis() - startTime;
-			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
-			double trainAccuracy = learner.measureAccuracy(features, labels, null);
-			System.out.println("Training set accuracy: " + trainAccuracy);
-			Matrix testFeatures = new Matrix(testData, 0, 0, testData.rows(), testData.cols() - 1);
-			Matrix testLabels = new Matrix(testData, 0, testData.cols() - 1, testData.rows(), 1);
-			Matrix confusion = new Matrix();
-			double testAccuracy = learner.measureAccuracy(testFeatures, testLabels, confusion);
-			System.out.println("Test set accuracy: " + testAccuracy);
-			if (printConfusionMatrix) {
-				System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");
-				confusion.print();
-				System.out.println("\n");
-			}
-		} else if (evalMethod.equals("random")) {
-			System.out.println("Calculating accuracy on a random hold-out set...");
-			double trainPercent = Double.parseDouble(evalParameter);
-			if (trainPercent < 0 || trainPercent > 1)
-				throw new Exception("Percentage for random evaluation must be between 0 and 1");
-			System.out.println("Percentage used for training: " + trainPercent);
-			System.out.println("Percentage used for testing: " + (1 - trainPercent));
-			data.shuffle(rand);
-			int trainSize = (int) (trainPercent * data.rows());
-			Matrix trainFeatures = new Matrix(data, 0, 0, trainSize, data.cols() - 1);
-			Matrix trainLabels = new Matrix(data, 0, data.cols() - 1, trainSize, 1);
-			Matrix testFeatures = new Matrix(data, trainSize, 0, data.rows() - trainSize, data.cols() - 1);
-			Matrix testLabels = new Matrix(data, trainSize, data.cols() - 1, data.rows() - trainSize, 1);
-			learner.setTestSet(testFeatures, testLabels);
-			double startTime = System.currentTimeMillis();
-			learner.train(trainFeatures, trainLabels);
-			double elapsedTime = System.currentTimeMillis() - startTime;
-			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
-			double trainAccuracy = learner.measureAccuracy(trainFeatures, trainLabels, null);
-			System.out.println("Training set accuracy: " + trainAccuracy);
-			Matrix confusion = new Matrix();
-			double testAccuracy = learner.measureAccuracy(testFeatures, testLabels, confusion);
-			System.out.println("Test set accuracy: " + testAccuracy);
-			if (printConfusionMatrix) {
-				System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");
-				confusion.print();
-				System.out.println("\n");
-			}
-		} else if (evalMethod.equals("cross")) {
-			System.out.println("Calculating accuracy using cross-validation...");
-			int folds = Integer.parseInt(evalParameter);
-			if (folds <= 0)
-				throw new Exception("Number of folds must be greater than 0");
-			System.out.println("Number of folds: " + folds);
-			int reps = 1;
-			double sumAccuracy = 0.0;
-			double elapsedTime = 0.0;
-			for (int j = 0; j < reps; j++) {
-				data.shuffle(rand);
-				for (int i = 0; i < folds; i++) {
-					int begin = i * data.rows() / folds;
-					int end = (i + 1) * data.rows() / folds;
-					Matrix trainFeatures = new Matrix(data, 0, 0, begin, data.cols() - 1);
-					Matrix trainLabels = new Matrix(data, 0, data.cols() - 1, begin, 1);
-					Matrix testFeatures = new Matrix(data, begin, 0, end - begin, data.cols() - 1);
-					Matrix testLabels = new Matrix(data, begin, data.cols() - 1, end - begin, 1);
-					trainFeatures.add(data, end, 0, data.rows() - end);
-					trainLabels.add(data, end, data.cols() - 1, data.rows() - end);
-					learner.setTestSet(testFeatures, testLabels);
-					double startTime = System.currentTimeMillis();
-					learner.train(trainFeatures, trainLabels);
-					elapsedTime += System.currentTimeMillis() - startTime;
-					double accuracy = learner.measureAccuracy(testFeatures, testLabels, null);
-					sumAccuracy += accuracy;
-					System.out.println(accuracy);
+			if (evalMethod.equals("training")) {
+				System.out.println("Calculating accuracy on training set...");
+				Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
+				Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
+				Matrix confusion = new Matrix();
+				double startTime = System.currentTimeMillis();
+				learner.train(features, labels);
+				double elapsedTime = System.currentTimeMillis() - startTime;
+				System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
+				double accuracy = learner.measureAccuracy(features, labels, confusion);
+				System.out.println("Training set accuracy: " + accuracy);
+				if (printConfusionMatrix) {
+					System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");
+					confusion.print();
+					System.out.println("\n");
 				}
+			} else if (evalMethod.equals("static")) {
+				Matrix testData = new Matrix();
+				testData.loadArff(evalParameter);
+				if (normalize)
+					testData.normalize(); // BUG! This may normalize differently
+											// from the training data. It should
+											// use
+											// the same ranges for
+											// normalization!
+
+				System.out.println("Calculating accuracy on separate test set...");
+				System.out.println("Test set name: " + evalParameter);
+				System.out.println("Number of test instances: " + testData.rows());
+				Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
+				Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
+				double startTime = System.currentTimeMillis();
+				learner.train(features, labels);
+				double elapsedTime = System.currentTimeMillis() - startTime;
+				System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
+				double trainAccuracy = learner.measureAccuracy(features, labels, null);
+				System.out.println("Training set accuracy: " + trainAccuracy);
+				Matrix testFeatures = new Matrix(testData, 0, 0, testData.rows(), testData.cols() - 1);
+				Matrix testLabels = new Matrix(testData, 0, testData.cols() - 1, testData.rows(), 1);
+				Matrix confusion = new Matrix();
+				double testAccuracy = learner.measureAccuracy(testFeatures, testLabels, confusion);
+				System.out.println("Test set accuracy: " + testAccuracy);
+				if (printConfusionMatrix) {
+					System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");
+					confusion.print();
+					System.out.println("\n");
+				}
+			} else if (evalMethod.equals("random")) {
+				System.out.println("Calculating accuracy on a random hold-out set...");
+				double trainPercent = Double.parseDouble(evalParameter);
+				if (trainPercent < 0 || trainPercent > 1)
+					throw new Exception("Percentage for random evaluation must be between 0 and 1");
+				System.out.println("Percentage used for training: " + trainPercent);
+				System.out.println("Percentage used for testing: " + (1 - trainPercent));
+				data.shuffle(rand);
+				int trainSize = (int) (trainPercent * data.rows());
+				Matrix trainFeatures = new Matrix(data, 0, 0, trainSize, data.cols() - 1);
+				Matrix trainLabels = new Matrix(data, 0, data.cols() - 1, trainSize, 1);
+				Matrix testFeatures = new Matrix(data, trainSize, 0, data.rows() - trainSize, data.cols() - 1);
+				Matrix testLabels = new Matrix(data, trainSize, data.cols() - 1, data.rows() - trainSize, 1);
+				learner.setTestSet(testFeatures, testLabels);
+				double startTime = System.currentTimeMillis();
+				learner.train(trainFeatures, trainLabels);
+				double elapsedTime = System.currentTimeMillis() - startTime;
+				System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
+				double trainAccuracy = learner.measureAccuracy(trainFeatures, trainLabels, null);
+				System.out.println("Training set accuracy: " + trainAccuracy);
+				Matrix confusion = new Matrix();
+				double testAccuracy = learner.measureAccuracy(testFeatures, testLabels, confusion);
+				System.out.println("Test set accuracy: " + testAccuracy);
+				if (printConfusionMatrix) {
+					System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");
+					confusion.print();
+					System.out.println("\n");
+				}
+			} else if (evalMethod.equals("cross")) {
+				System.out.println("Calculating accuracy using cross-validation...");
+				int folds = Integer.parseInt(evalParameter);
+				if (folds <= 0)
+					throw new Exception("Number of folds must be greater than 0");
+				System.out.println("Number of folds: " + folds);
+				int reps = 1;
+				double sumAccuracy = 0.0;
+				double elapsedTime = 0.0;
+				for (int j = 0; j < reps; j++) {
+					data.shuffle(rand);
+					for (int i = 0; i < folds; i++) {
+						int begin = i * data.rows() / folds;
+						int end = (i + 1) * data.rows() / folds;
+						Matrix trainFeatures = new Matrix(data, 0, 0, begin, data.cols() - 1);
+						Matrix trainLabels = new Matrix(data, 0, data.cols() - 1, begin, 1);
+						Matrix testFeatures = new Matrix(data, begin, 0, end - begin, data.cols() - 1);
+						Matrix testLabels = new Matrix(data, begin, data.cols() - 1, end - begin, 1);
+						trainFeatures.add(data, end, 0, data.rows() - end);
+						trainLabels.add(data, end, data.cols() - 1, data.rows() - end);
+						learner.setTestSet(testFeatures, testLabels);
+						double startTime = System.currentTimeMillis();
+						learner.train(trainFeatures, trainLabels);
+						elapsedTime += System.currentTimeMillis() - startTime;
+						double accuracy = learner.measureAccuracy(testFeatures, testLabels, null);
+						sumAccuracy += accuracy;
+						System.out.println(accuracy);
+					}
+				}
+				elapsedTime /= (reps * folds);
+				System.out.println("Average time to train (in seconds): " + elapsedTime / 1000.0);
+				System.out.println("Mean accuracy=" + (sumAccuracy / (reps * folds)));
 			}
-			elapsedTime /= (reps * folds);
-			System.out.println("Average time to train (in seconds): " + elapsedTime / 1000.0);
-			System.out.println("Mean accuracy=" + (sumAccuracy / (reps * folds)));
 		}
+
 	}
 
 	/**
