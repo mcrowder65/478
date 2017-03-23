@@ -84,4 +84,31 @@ public class Cluster {
 		}
 		return sse;
 	}
+
+	public void prepareForNextIteration() {
+		if (centroid == null) {
+			System.err.println("why is your centroid null while preparing for the next iteration?");
+		}
+		this.instances = null;
+		this.distances = null;
+
+	}
+
+	public void calculateNewCentroid(Matrix features) {
+		List<Point> newCentroid = new ArrayList<>();
+		double[] arr = new double[features.cols()];
+		if (instances.get(0).getDimensions().size() != arr.length) {
+			System.err.println("dimensions size and features cols should be equal");
+		}
+		for (int i = 0; i < features.cols(); i++) {
+			for (int x = 0; x < instances.size(); x++) {
+				double num = instances.get(x).getDimension(i);
+				System.out.println(num);
+				arr[i] += instances.get(x).getDimension(i);
+			}
+			System.out.println("***");
+			arr[i] /= features.rows();
+		}
+		Utilities.outputArray(arr);
+	}
 }
