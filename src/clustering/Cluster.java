@@ -95,19 +95,48 @@ public class Cluster {
 	}
 
 	public void calculateNewCentroid(Matrix features) {
-		List<Point> newCentroid = new ArrayList<>();
 		double[] arr = new double[features.cols()];
 		if (instances.get(0).getDimensions().size() != arr.length) {
 			System.err.println("dimensions size and features cols should be equal");
 		}
 		for (int i = 0; i < features.cols(); i++) {
-			for (int x = 0; x < instances.size(); x++) {
-				double num = instances.get(x).getDimension(i);
-				System.out.println(num);
-				arr[i] += instances.get(x).getDimension(i);
+			if (features.m_enum_to_str.get(i).size() == 0) {
+				// real/continuous
+				int ignoreLength = 0;
+				for (int x = 0; x < instances.size(); x++) {
+					double num = instances.get(x).getDimension(i);
+
+					// System.out.println(num);
+					if (num == Double.MAX_VALUE) {
+						num = 0;
+						++ignoreLength;
+					}
+					arr[i] += num;
+				}
+				arr[i] /= (instances.size() - ignoreLength);
+
 			}
-			System.out.println("***");
-			arr[i] /= features.rows();
+			// int ignoreLength = 0;
+			// for (int x = 0; x < instances.size(); x++) {
+			// double num = instances.get(x).getDimension(i);
+			//
+			// // System.out.println(num);
+			// if (num == Double.MAX_VALUE) {
+			// num = 0;
+			// ++ignoreLength;
+			// } else if (features.m_enum_to_str.get(i).size() > 0) {
+			// // nominal/categorical
+			// }
+			// arr[i] += num;
+			// }
+			// if (features.m_enum_to_str.get(i).size() == 0) {
+			// // real/continuous
+			//
+			// } else if (features.m_enum_to_str.get(i).size() > 0) {
+			// // nominal/categorical
+			// }
+			// System.out.println("***");
+			// arr[i] /= (arr.length - ignoreLength);
 		}
 		Utilities.outputArray(arr);
 	}
