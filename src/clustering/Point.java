@@ -39,4 +39,19 @@ public class Point {
 		getDimensions().add(d);
 	}
 
+	public double calculateDistance(Point two) {
+		if (two.dimensions.size() != dimensions.size()) {
+			System.err.println("Why are the dimensions lengths different?");
+		}
+		double result = 0;
+		for (int i = 0; i < dimensions.size(); i++) {
+			double thisDimension = getDimension(i) == Double.MAX_VALUE ? 1 : getDimension(i);
+			double thatDimension = two.getDimension(i) == Double.MAX_VALUE ? 1 : two.getDimension(i);
+			// TODO ask here..
+			result += Math.pow(thisDimension - thatDimension, 2);
+		}
+
+		return Math.sqrt(result);
+	}
+
 }

@@ -44,9 +44,7 @@ public class Clustering {
 						answer = 1;
 					} else if (features.m_enum_to_str.get(dimensionIndex).size() == 0) {
 						// real
-
 						answer = Math.pow(val - centroidVal, 2);
-						System.out.println("here!!");
 
 					} else {
 						// nominal
@@ -82,8 +80,14 @@ public class Clustering {
 				}
 
 			}
+			System.out.println(x + "=" + clusterIndex);
 			clust.addInstance(new Point(features.row(x)));
 		}
+		double totalSSE = 0;
+		for (int i = 0; i < clusters.size(); i++) {
+			totalSSE += clusters.get(i).getSSE();
+		}
+		System.out.println("SSE: " + totalSSE);
 		// TODO keep going!
 		// TODO calculate SSE
 	}

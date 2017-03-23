@@ -8,13 +8,13 @@ import utilities.Utilities;
 public class Cluster {
 	private Point centroid;
 
+	private List<Point> instances;
+	private List<Double> distances;
+
 	@Override
 	public String toString() {
 		return "Cluster [centroid=" + centroid + ", instances=" + instances + ", distances=" + distances + "]";
 	}
-
-	private List<Point> instances;
-	private List<Double> distances;
 
 	public List<Double> getDistances() {
 		return distances;
@@ -74,5 +74,13 @@ public class Cluster {
 			instances = new ArrayList<>();
 		}
 		this.instances.add(instance);
+	}
+
+	public double getSSE() {
+		double sse = 0;
+		for (int i = 0; i < instances.size(); i++) {
+			sse += instances.get(i).calculateDistance(centroid);
+		}
+		return sse;
 	}
 }
