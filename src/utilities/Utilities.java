@@ -1,6 +1,7 @@
 package utilities;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -8,6 +9,14 @@ import java.util.TreeMap;
 import toolkit.Matrix;
 
 public class Utilities {
+	static public List<Double> arrayToList(double[] arr) {
+		List<Double> list = new ArrayList<>();
+		for (int i = 0; i < arr.length; i++) {
+			list.add(arr[i]);
+		}
+		return list;
+	}
+
 	/**
 	 * outputs new line
 	 * 
@@ -136,10 +145,10 @@ public class Utilities {
 		System.out.println();
 	}
 
-	static public String[] featuresToNames(double[] features, Matrix myFeatures) {
-		String[] arr = new String[features.length];
-		for (int i = 0; i < features.length; i++) {
-			arr[i] = myFeatures.m_enum_to_str.get(i).get((int) features[i]);
+	static public String[] featuresToNames(double[] feature, Matrix features) {
+		String[] arr = new String[feature.length];
+		for (int i = 0; i < feature.length; i++) {
+			arr[i] = features.m_enum_to_str.get(i).get((int) feature[i]);
 		}
 		return arr;
 	}

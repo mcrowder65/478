@@ -1,13 +1,34 @@
 package clustering;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import utilities.Utilities;
 
 public class Cluster {
 	private Point centroid;
+
+	@Override
+	public String toString() {
+		return "Cluster [centroid=" + centroid + ", instances=" + instances + ", distances=" + distances + "]";
+	}
+
 	private List<Point> instances;
+	private List<Double> distances;
+
+	public List<Double> getDistances() {
+		return distances;
+	}
+
+	public void setDistances(List<Double> distances) {
+		this.distances = distances;
+	}
 
 	public Point getCentroid() {
 		if (centroid == null) {
+			if (instances == null) {
+				System.err.println("instances has not been initialized yet!");
+			}
 			centroid = new Point();
 			double[] vals = new double[instances.size()];
 
@@ -32,6 +53,10 @@ public class Cluster {
 	public Cluster() {
 	}
 
+	public Cluster(double[] row) {
+		centroid = new Point(Utilities.arrayToList(row));
+	}
+
 	public List<Point> getDimensions() {
 		return instances;
 	}
@@ -44,7 +69,10 @@ public class Cluster {
 		return instances.get(x);
 	}
 
-	public void setPoints(List<Point> points) {
-		this.instances = points;
+	public void addInstance(Point instance) {
+		if (instances == null) {
+			instances = new ArrayList<>();
+		}
+		this.instances.add(instance);
 	}
 }

@@ -73,7 +73,8 @@ public class MLSystemManager {
 		SupervisedLearner learner = getLearner(learnerName, rand);
 		if (learner == null) {
 			Clustering cluster = new Clustering();
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols());
+			// TODO change to data.cols() if you wanna include the output
+			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
 			double startTime = System.currentTimeMillis();
 			cluster.clusterTrain(features);
 			double elapsedTime = System.currentTimeMillis() - startTime;
