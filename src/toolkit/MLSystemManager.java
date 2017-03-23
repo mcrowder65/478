@@ -66,15 +66,17 @@ public class MLSystemManager {
 		System.out.println();
 		System.out.println("Dataset name: " + fileName);
 		System.out.println("Number of instances: " + data.rows());
-		System.out.println("Number of attributes: " + data.cols());
+
 		System.out.println("Learning algorithm: " + learnerName);
 		System.out.println("Evaluation method: " + evalMethod);
-		System.out.println();
+
 		SupervisedLearner learner = getLearner(learnerName, rand);
 		if (learner == null) {
 			Clustering cluster = new Clustering();
 			// TODO change to data.cols() if you wanna include the output
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
+			Matrix features = new Matrix(data, 0, 1, data.rows(), data.cols() - 2);
+			System.out.println("Number of attributes: " + features.cols());
+			System.out.println();
 			double startTime = System.currentTimeMillis();
 			cluster.clusterTrain(features);
 			double elapsedTime = System.currentTimeMillis() - startTime;

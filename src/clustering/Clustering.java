@@ -36,21 +36,21 @@ public class Clustering {
 				double distance = 0;
 				for (int dimensionIndex = firstAttrIndex; dimensionIndex < feature.length; dimensionIndex++) {
 					double val = feature[dimensionIndex];
+
 					double centroidVal = cluster.getCentroid().getDimension(dimensionIndex);
-					double answer = 0;
-					if (features.m_enum_to_str.size() == 0) {
+					double answer = Double.MIN_VALUE;
+					if (val == Double.MAX_VALUE || centroidVal == Double.MAX_VALUE) {
+						// unknown
+						answer = 1;
+					} else if (features.m_enum_to_str.get(dimensionIndex).size() == 0) {
 						// real
-						if (val == Double.MAX_VALUE || centroidVal == Double.MAX_VALUE) {
-							answer = 1;
-						} else {
-							// TODO idk if i need this here?
-							answer = Math.pow(val - centroidVal, 2);
-						}
+
+						answer = Math.pow(val - centroidVal, 2);
+						System.out.println("here!!");
+
 					} else {
 						// nominal
-						if (val == Double.MAX_VALUE || centroidVal == Double.MAX_VALUE) {
-							answer = 1;
-						} else if (val == centroidVal) {
+						if (val == centroidVal) {
 							answer = 0;
 						} else {
 							answer = 1;
@@ -66,30 +66,24 @@ public class Clustering {
 			clusters.add(cluster);
 		}
 
-		for (int x = 0; x < features.cols(); x++) {
+		for (int x = 0; x < features.rows(); x++) {
 			Cluster clust = null;
-			int minIndex = -1;
 			int clusterIndex = -1;
 			double min = Double.MAX_VALUE;
 			for (int c = 0; c < clusters.size(); c++) {
-				min = Double.MAX_VALUE;
-				minIndex = -1;
-				clusterIndex = -1;
 				Cluster cluster = clusters.get(c);
+
 				List<Double> distances = cluster.getDistances();
 				// go vertically not horizontally
-				for (int i = 0; i < distances.size(); i++) {
-					if (distances.get(i) < min) {
-						min = distances.get(i);
-						minIndex = i;
-						clust = cluster;
-						clusterIndex = c;
-					}
+				if (distances.get(x) < min) {
+					min = distances.get(x);
+					clust = cluster;
+					clusterIndex = c;
 				}
 
 			}
-			clust.addInstance(new Point(features.row(minIndex)));
-			System.out.println("hello");
+			clust.addInstance(new Point(features.row(x)));
+			System.out.println();
 		}
 
 	}
