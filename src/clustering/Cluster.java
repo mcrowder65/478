@@ -115,29 +115,51 @@ public class Cluster {
 				}
 				arr[i] /= (instances.size() - ignoreLength);
 
+			} else {
+				// nominal/categorical
+				int[] occurences = new int[features.m_enum_to_str.get(i).size()];
+				for (int x = 0; x < instances.size(); x++) {
+					double num = instances.get(x).getDimension(i);
+
+					if (num != Double.MAX_VALUE) {
+						++occurences[(int) num];
+					}
+
+				}
+				int most = Integer.MIN_VALUE;
+				int desiredIndex = -1;
+				for (int x = 0; x < occurences.length; x++) {
+					if (occurences[x] > most) {
+						most = occurences[x];
+						desiredIndex = x;
+					}
+				}
+				if (most == Integer.MIN_VALUE || desiredIndex == -1) {
+					System.err.println("something went wrong while looking through occurences");
+				}
+				arr[i] = desiredIndex;
 			}
-			// int ignoreLength = 0;
-			// for (int x = 0; x < instances.size(); x++) {
-			// double num = instances.get(x).getDimension(i);
-			//
-			// // System.out.println(num);
-			// if (num == Double.MAX_VALUE) {
-			// num = 0;
-			// ++ignoreLength;
-			// } else if (features.m_enum_to_str.get(i).size() > 0) {
-			// // nominal/categorical
-			// }
-			// arr[i] += num;
-			// }
-			// if (features.m_enum_to_str.get(i).size() == 0) {
-			// // real/continuous
-			//
-			// } else if (features.m_enum_to_str.get(i).size() > 0) {
-			// // nominal/categorical
-			// }
-			// System.out.println("***");
-			// arr[i] /= (arr.length - ignoreLength);
+
 		}
-		Utilities.outputArray(arr);
+		this.centroid = new Point(arr);
+		this.outputCentroid(features);
+	}
+
+	public void outputCentroid(Matrix features) {
+		List<Double> dimensions = centroid.getDimensions();
+		for (int i = 0; i < dimensions.size(); i++) {
+			String prepend = i != 0 ? ", " : "";
+			System.out.print(prepend);
+			if (features.m_enum_to_str.get(i).size() > 0) {
+				int index = (int) dimensions.get(i).doubleValue();
+				System.out.print(features.m_enum_to_str.get(i).get(index));
+			} else if (dimensions.get(i) == null) {
+				System.out.print("?");
+			} else {
+
+				System.out.print(Utilities.round(dimensions.get(i), 1000));
+			}
+		}
+		System.out.println();
 	}
 }
