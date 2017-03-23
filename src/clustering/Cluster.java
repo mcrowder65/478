@@ -3,6 +3,7 @@ package clustering;
 import java.util.ArrayList;
 import java.util.List;
 
+import toolkit.Matrix;
 import utilities.Utilities;
 
 public class Cluster {
@@ -76,10 +77,10 @@ public class Cluster {
 		this.instances.add(instance);
 	}
 
-	public double getSSE() {
+	public double getSSE(Matrix features) {
 		double sse = 0;
 		for (int i = 0; i < instances.size(); i++) {
-			sse += instances.get(i).calculateDistance(centroid);
+			sse += Math.pow(instances.get(i).calculateDistance(centroid, features), 2);
 		}
 		return sse;
 	}

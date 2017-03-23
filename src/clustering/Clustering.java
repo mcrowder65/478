@@ -8,16 +8,6 @@ import toolkit.Matrix;
 public class Clustering {
 	private final int k = 5;
 
-	private double[] replaceUnknownWithNum(double[] arr, double num) {
-		// TODO this may need to take into account nominal
-		for (int i = 0; i < arr.length; i++) {
-			if (arr[i] == Double.MAX_VALUE) {
-				arr[i] = num;
-			}
-		}
-		return arr;
-	}
-
 	public void clusterTrain(Matrix features) {
 		int firstAttrIndex = 0;
 
@@ -43,11 +33,11 @@ public class Clustering {
 						// unknown
 						answer = 1;
 					} else if (features.m_enum_to_str.get(dimensionIndex).size() == 0) {
-						// real
+						// real / continuous
 						answer = Math.pow(val - centroidVal, 2);
 
 					} else {
-						// nominal
+						// nominal / categorical
 						if (val == centroidVal) {
 							answer = 0;
 						} else {
@@ -85,7 +75,7 @@ public class Clustering {
 		}
 		double totalSSE = 0;
 		for (int i = 0; i < clusters.size(); i++) {
-			totalSSE += clusters.get(i).getSSE();
+			totalSSE += clusters.get(i).getSSE(features);
 		}
 		System.out.println("SSE: " + totalSSE);
 		// TODO keep going!

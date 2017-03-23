@@ -3,6 +3,7 @@ package clustering;
 import java.util.ArrayList;
 import java.util.List;
 
+import toolkit.Matrix;
 import utilities.Utilities;
 
 public class Point {
@@ -39,16 +40,35 @@ public class Point {
 		getDimensions().add(d);
 	}
 
-	public double calculateDistance(Point two) {
-		if (two.dimensions.size() != dimensions.size()) {
+	public double calculateDistance(Point that, Matrix features) {
+		if (that.dimensions.size() != dimensions.size()) {
 			System.err.println("Why are the dimensions lengths different?");
 		}
 		double result = 0;
 		for (int i = 0; i < dimensions.size(); i++) {
-			double thisDimension = getDimension(i) == Double.MAX_VALUE ? 1 : getDimension(i);
-			double thatDimension = two.getDimension(i) == Double.MAX_VALUE ? 1 : two.getDimension(i);
+			double thisDimension = getDimension(i);
+			double thatDimension = that.getDimension(i);
 			// TODO ask here..
-			result += Math.pow(thisDimension - thatDimension, 2);
+			double answer = Double.MIN_VALUE;
+			if (thisDimension == Double.MAX_VALUE || thatDimension == Double.MAX_VALUE) {
+				// unknown
+				answer = 1;
+			} else if (features.m_enum_to_str.get(i).size() == 0) {
+				// real / continuous
+				answer = Math.pow(thisDimension - thatDimension, 2);
+
+			} else {
+				// nominal / categorical
+				if (thisDimension == thatDimension) {
+					answer = 0;
+				} else {
+					answer = 1;
+				}
+			}
+			if (answer == Double.MIN_VALUE) {
+				System.err.println("something is going wrong while calculating distances");
+			}
+			result += answer;
 		}
 
 		return Math.sqrt(result);
