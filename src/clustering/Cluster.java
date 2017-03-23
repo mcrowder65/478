@@ -128,6 +128,8 @@ public class Cluster {
 				}
 				int most = Integer.MIN_VALUE;
 				int desiredIndex = -1;
+				// TODO you're supposed to pick the first one if there is a
+				// tie....... this may cause issues
 				for (int x = 0; x < occurences.length; x++) {
 					if (occurences[x] > most) {
 						most = occurences[x];
@@ -153,11 +155,14 @@ public class Cluster {
 			if (features.m_enum_to_str.get(i).size() > 0) {
 				int index = (int) dimensions.get(i).doubleValue();
 				System.out.print(features.m_enum_to_str.get(i).get(index));
-			} else if (dimensions.get(i) == null) {
-				System.out.print("?");
-			} else {
 
-				System.out.print(Utilities.round(dimensions.get(i), 1000));
+			} else {
+				if (Double.isNaN(dimensions.get(i))) {
+					System.out.print("?");
+				} else {
+					System.out.print(Utilities.round(dimensions.get(i), 1000));
+				}
+
 			}
 		}
 		System.out.println();
