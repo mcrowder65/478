@@ -83,9 +83,9 @@ public class Clustering {
 
 			}
 			clust.addInstance(new Point(features.row(x)));
-			System.out.println();
 		}
-
+		// TODO keep going!
+		// TODO calculate SSE
 	}
 
 }
