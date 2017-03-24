@@ -21,34 +21,28 @@ public class Cluster {
 		return distances;
 	}
 
-	public void setDistances(List<Double> distances) {
-		this.distances = distances;
+	public void setDistances(List<Double> temp) {
+		if (temp != null) {
+			this.distances = new ArrayList<>();
+			for (int i = 0; i < temp.size(); i++) {
+				this.distances.add(temp.get(i));
+			}
+		}
+
 	}
 
 	public Point getCentroid() {
-		if (centroid == null) {
-			if (instances == null) {
-				System.err.println("instances has not been initialized yet!");
-			}
-			centroid = new Point();
-			double[] vals = new double[instances.size()];
 
-			for (int i = 0; i < instances.size(); i++) {
-				Point dimension = instances.get(i);
-				vals[i] += dimension.getDimension(i);
-			}
-			for (int i = 0; i < vals.length; i++) {
-				vals[i] /= vals.length;
-				centroid.addDimension(vals[i]);
-			}
-		}
 		return centroid;
 	}
 
 	public Cluster(Point centroid, List<Point> points) {
 		super();
-		this.centroid = centroid;
-		this.instances = points;
+		this.centroid = new Point(centroid);
+		instances = new ArrayList<>();
+		for (int i = 0; i < points.size(); i++) {
+			instances.add(new Point(points.get(i)));
+		}
 	}
 
 	public Cluster() {
@@ -64,7 +58,7 @@ public class Cluster {
 
 	public Point getDimension(int x) {
 		if (instances == null || x > instances.size()) {
-			System.err.println("Points is not initialized or this index is about of bounds");
+			System.err.println("Points is not initialized or this index is out of bounds");
 			return null;
 		}
 		return instances.get(x);
@@ -89,10 +83,7 @@ public class Cluster {
 		if (centroid == null) {
 			System.err.println("why is your centroid null while preparing for the next iteration?");
 		}
-		for (int i = 0; i < centroid.getDimensions().size(); i++) {
-			double roundedDimension = Utilities.round(centroid.getDimension(i), 1000);
-			centroid.setDimension(i, roundedDimension);
-		}
+
 		this.instances = null;
 		this.distances = null;
 
@@ -118,7 +109,6 @@ public class Cluster {
 					arr[i] += num;
 				}
 				arr[i] /= (instances.size() - ignoreLength);
-				arr[i] = Utilities.round(arr[i], 1000);
 			} else {
 				// nominal/categorical
 				int[] occurences = new int[features.m_enum_to_str.get(i).size()];
@@ -147,7 +137,6 @@ public class Cluster {
 
 		}
 		this.centroid = new Point(arr);
-		this.outputCentroid(features);
 	}
 
 	public void outputCentroid(Matrix features) {

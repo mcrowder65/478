@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import toolkit.Matrix;
-import utilities.Utilities;
 
 public class Point {
 	@Override
@@ -14,12 +13,26 @@ public class Point {
 
 	private List<Double> dimensions;
 
+	public Point(Point old) {
+		dimensions = new ArrayList<>();
+		for (int i = 0; i < old.getDimensions().size(); i++) {
+			dimensions.add(old.getDimension(i));
+		}
+
+	}
+
 	public Point(double[] arr) {
-		this.dimensions = Utilities.arrayToList(arr);
+		dimensions = new ArrayList<>();
+		for (int i = 0; i < arr.length; i++) {
+			dimensions.add(arr[i]);
+		}
 	}
 
 	public Point(List<Double> list) {
-		this.dimensions = list;
+		dimensions = new ArrayList<>();
+		for (int i = 0; i < list.size(); i++) {
+			dimensions.add(list.get(i));
+		}
 	}
 
 	public Point() {
@@ -53,7 +66,9 @@ public class Point {
 			double thisDimension = getDimension(i);
 			double thatDimension = that.getDimension(i);
 			double answer = Double.MIN_VALUE;
-			if (thisDimension == Double.MAX_VALUE || thatDimension == Double.MAX_VALUE) {
+			if (Double.isNaN(thisDimension) || thisDimension == Double.MAX_VALUE || Double.isNaN(thatDimension)
+					|| thatDimension == Double.MAX_VALUE) {
+
 				// unknown
 				answer = 1;
 			} else if (features.m_enum_to_str.get(i).size() == 0) {

@@ -19,6 +19,58 @@ public class Matrix {
 	// Data
 	public ArrayList<double[]> m_data;
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((m_attr_name == null) ? 0 : m_attr_name.hashCode());
+		result = prime * result + ((m_data == null) ? 0 : m_data.hashCode());
+		result = prime * result + ((m_enum_to_str == null) ? 0 : m_enum_to_str.hashCode());
+		result = prime * result + ((m_str_to_enum == null) ? 0 : m_str_to_enum.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Matrix other = (Matrix) obj;
+		if (m_attr_name == null) {
+			if (other.m_attr_name != null)
+				return false;
+		} else if (!m_attr_name.equals(other.m_attr_name))
+			return false;
+		if (m_data == null) {
+			if (other.m_data != null)
+				return false;
+		}
+
+		if (m_enum_to_str == null) {
+			if (other.m_enum_to_str != null)
+				return false;
+		} else if (!m_enum_to_str.equals(other.m_enum_to_str))
+			return false;
+		if (m_str_to_enum == null) {
+			if (other.m_str_to_enum != null)
+				return false;
+		} else if (!m_str_to_enum.equals(other.m_str_to_enum))
+			return false;
+		for (int i = 0; i < rows(); i++) {
+			double[] myRow = row(i);
+			double[] thatRow = other.row(i);
+			for (int x = 0; x < myRow.length; x++) {
+				if (myRow[x] != thatRow[x]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	// Meta-data
 	public ArrayList<String> m_attr_name;
 	public ArrayList<TreeMap<String, Integer>> m_str_to_enum;
@@ -207,8 +259,8 @@ public class Matrix {
 								else {
 									doubleValue = m_str_to_enum.get(curPos).get(textValue);
 									if (doubleValue == -1) {
-										throw new Exception("Error parsing the value '" + textValue + "' on line: "
-												+ line);
+										throw new Exception(
+												"Error parsing the value '" + textValue + "' on line: " + line);
 									}
 								}
 

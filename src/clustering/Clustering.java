@@ -10,6 +10,7 @@ public class Clustering {
 	private final int k = 5;
 
 	public void clusterTrain(Matrix features) {
+		Matrix originalFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
 		int firstAttrIndex = 0;
 
 		// don't ever include the id!
@@ -22,11 +23,18 @@ public class Clustering {
 		double previousSSE = Double.MAX_VALUE;
 		int rounds = 0;
 		while (imAwesome) {
+			if (!originalFeatures.equals(features)) {
+				System.err.println("features changed....");
+				return;
+			}
 			for (int clusterIterator = 0; clusterIterator < k; clusterIterator++) {
 				double[] rowArr = features.row(clusterIterator);
 				Cluster cluster = clusters.size() != k ? new Cluster(rowArr) : clusters.get(clusterIterator);
+
 				if (clusters.size() == k) {
+
 					cluster.prepareForNextIteration();
+					cluster.outputCentroid(features);
 				}
 				List<Double> distances = new ArrayList<>();
 				for (int row = 0; row < features.rows(); row++) {
@@ -38,7 +46,8 @@ public class Clustering {
 
 						double centroidVal = cluster.getCentroid().getDimension(dimensionIndex);
 						double answer = Double.MIN_VALUE;
-						if (val == Double.MAX_VALUE || centroidVal == Double.MAX_VALUE) {
+						if (Double.isNaN(val) || val == Double.MAX_VALUE || Double.isNaN(centroidVal)
+								|| centroidVal == Double.MAX_VALUE) {
 							// unknown
 							answer = 1;
 						} else if (features.m_enum_to_str.get(dimensionIndex).size() == 0) {
@@ -53,7 +62,10 @@ public class Clustering {
 								answer = 1;
 							}
 						}
-
+						if (answer == Double.MIN_VALUE) {
+							System.err.println("something is going wrong with calculating distances");
+							return;
+						}
 						distance += answer;
 
 					}
@@ -71,6 +83,9 @@ public class Clustering {
 				Cluster clust = null;
 				int clusterIndex = -1;
 				double min = Double.MAX_VALUE;
+				// FIXME i have 19=2 and it's supposed to be 19=1
+				// FIXME i have 48=2 and it's supposed to be 48=4
+				// FIXME i have 54=2 and it's supposed to be 54=4
 				for (int c = 0; c < clusters.size(); c++) {
 					Cluster cluster = clusters.get(c);
 

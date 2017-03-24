@@ -116,6 +116,9 @@ public class Utilities {
 	}
 
 	static public double round(double dub, double place) {
+		if (dub == Double.MAX_VALUE) {
+			return dub;
+		}
 		return Math.round(dub * place) / place;
 	}
 
