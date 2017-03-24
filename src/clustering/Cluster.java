@@ -122,6 +122,7 @@ public class Cluster {
 			} else {
 				// nominal/categorical
 				int[] occurences = new int[features.m_enum_to_str.get(i).size()];
+
 				for (int x = 0; x < instances.size(); x++) {
 					double num = instances.get(x).getDimension(i);
 
@@ -132,8 +133,6 @@ public class Cluster {
 				}
 				int most = Integer.MIN_VALUE;
 				int desiredIndex = -1;
-				// TODO you're supposed to pick the first one if there is a
-				// tie....... this may cause issues
 				for (int x = 0; x < occurences.length; x++) {
 					if (occurences[x] > most) {
 						most = occurences[x];
@@ -160,11 +159,20 @@ public class Cluster {
 				int index = (int) dimensions.get(i).doubleValue();
 				System.out.print(features.m_enum_to_str.get(i).get(index));
 
+			} else if (dimensions.get(i) == 0) {
+				System.out.print("?");
 			} else {
 				if (Double.isNaN(dimensions.get(i))) {
 					System.out.print("?");
 				} else {
+					String valRounded = String.valueOf(Utilities.round(dimensions.get(i), 1000));
+
 					System.out.print(Utilities.round(dimensions.get(i), 1000));
+					if (valRounded.substring(valRounded.indexOf(".") + 1).length() != 3) {
+						for (int z = valRounded.substring(valRounded.indexOf(".") + 1).length(); z < 3; z++) {
+							System.out.print("0");
+						}
+					}
 				}
 
 			}
