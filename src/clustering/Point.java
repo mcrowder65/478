@@ -36,6 +36,10 @@ public class Point {
 		return getDimensions().get(i);
 	}
 
+	public void setDimension(int i, double d) {
+		dimensions.set(i, d);
+	}
+
 	public void addDimension(double d) {
 		getDimensions().add(d);
 	}
@@ -48,7 +52,6 @@ public class Point {
 		for (int i = 0; i < dimensions.size(); i++) {
 			double thisDimension = getDimension(i);
 			double thatDimension = that.getDimension(i);
-			// TODO ask here..
 			double answer = Double.MIN_VALUE;
 			if (thisDimension == Double.MAX_VALUE || thatDimension == Double.MAX_VALUE) {
 				// unknown

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import toolkit.Matrix;
+import utilities.Utilities;
 
 public class Clustering {
 	private final int k = 5;
@@ -18,12 +19,15 @@ public class Clustering {
 
 		List<Cluster> clusters = new ArrayList<>();
 		boolean imAwesome = true;
+		double previousSSE = Double.MAX_VALUE;
+		int rounds = 0;
 		while (imAwesome) {
 			for (int clusterIterator = 0; clusterIterator < k; clusterIterator++) {
 				double[] rowArr = features.row(clusterIterator);
-				Cluster cluster = clusterIterator <= clusters.size() ? new Cluster(rowArr)
-						: clusters.get(clusterIterator);
-
+				Cluster cluster = clusters.size() != k ? new Cluster(rowArr) : clusters.get(clusterIterator);
+				if (clusters.size() == k) {
+					cluster.prepareForNextIteration();
+				}
 				List<Double> distances = new ArrayList<>();
 				for (int row = 0; row < features.rows(); row++) {
 					double[] feature = features.row(row);
@@ -53,10 +57,14 @@ public class Clustering {
 						distance += answer;
 
 					}
-					distances.add(Math.sqrt(distance));
+					double num = Utilities.round(Math.sqrt(distance), 1000);
+					distances.add(num);
 				}
 				cluster.setDistances(distances);
-				clusters.add(cluster);
+				if (clusters.size() != k) {
+					clusters.add(cluster);
+				}
+
 			}
 
 			for (int x = 0; x < features.rows(); x++) {
@@ -80,17 +88,20 @@ public class Clustering {
 			}
 			double totalSSE = 0;
 			for (int i = 0; i < clusters.size(); i++) {
-				totalSSE += clusters.get(i).getSSE(features);
+				totalSSE += Utilities.round(clusters.get(i).getSSE(features), 1000);
 			}
+			if (previousSSE == totalSSE) {
+				imAwesome = false;
+			}
+			previousSSE = totalSSE;
 			System.out.println("SSE: " + totalSSE);
 
 			for (int i = 0; i < clusters.size(); i++) {
 				clusters.get(i).calculateNewCentroid(features);
 			}
+			rounds++;
 		}
-
-		// TODO keep going!
-		// TODO calculate SSE
+		System.out.println("rounds: " + rounds);
 	}
 
 }

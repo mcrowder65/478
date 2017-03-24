@@ -89,6 +89,10 @@ public class Cluster {
 		if (centroid == null) {
 			System.err.println("why is your centroid null while preparing for the next iteration?");
 		}
+		for (int i = 0; i < centroid.getDimensions().size(); i++) {
+			double roundedDimension = Utilities.round(centroid.getDimension(i), 1000);
+			centroid.setDimension(i, roundedDimension);
+		}
 		this.instances = null;
 		this.distances = null;
 
@@ -114,7 +118,7 @@ public class Cluster {
 					arr[i] += num;
 				}
 				arr[i] /= (instances.size() - ignoreLength);
-
+				arr[i] = Utilities.round(arr[i], 1000);
 			} else {
 				// nominal/categorical
 				int[] occurences = new int[features.m_enum_to_str.get(i).size()];
