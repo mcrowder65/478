@@ -141,15 +141,19 @@ public class Cluster {
 
 	public void outputCentroid(Matrix features) {
 		List<Double> dimensions = centroid.getDimensions();
+		double sse = Utilities.round(getSSE(features), 1000);
+		String strSSE = String.valueOf(sse);
+		System.out.print("SSE: " + strSSE + " ");
+		System.out.print("# of intances: " + features.cols() + " ");
 		for (int i = 0; i < dimensions.size(); i++) {
 			String prepend = i != 0 ? ", " : "";
 			System.out.print(prepend);
-			if (features.m_enum_to_str.get(i).size() > 0) {
+			if (Double.isNaN(dimensions.get(i))) {
+				System.out.print("?");
+			} else if (features.m_enum_to_str.get(i).size() > 0) {
 				int index = (int) dimensions.get(i).doubleValue();
 				System.out.print(features.m_enum_to_str.get(i).get(index));
 
-			} else if (dimensions.get(i) == 0) {
-				System.out.print("?");
 			} else {
 				if (Double.isNaN(dimensions.get(i))) {
 					System.out.print("?");
