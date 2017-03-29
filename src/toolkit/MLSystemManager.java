@@ -75,7 +75,7 @@ public class MLSystemManager {
 			Clustering cluster = new Clustering();
 			// change to data.cols() if you wanna include the output
 			// change to data.cols() - 1 if no outputs
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols());
+			Matrix features = new Matrix(data, 0, 1, data.rows(), data.cols() - 2);
 			// features.shuffle(rand);
 			System.out.println("Number of attributes: " + features.cols());
 			System.out.println();

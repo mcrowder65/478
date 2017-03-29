@@ -7,7 +7,7 @@ import toolkit.Matrix;
 import utilities.Utilities;
 
 public class Clustering {
-	private final int k = 6;
+	private final int k = 5;
 
 	public void clusterTrain(Matrix features) {
 		Matrix originalFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
