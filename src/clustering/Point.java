@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import toolkit.Matrix;
+import utilities.DistanceMetric;
 
 public class Point {
 	@Override
@@ -73,7 +74,7 @@ public class Point {
 				answer = 1;
 			} else if (features.m_enum_to_str.get(i).size() == 0) {
 				// real / continuous
-				answer = Math.pow(thisDimension - thatDimension, 2);
+				answer = DistanceMetric.calculate(thisDimension, thatDimension);
 
 			} else {
 				// nominal / categorical

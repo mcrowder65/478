@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import toolkit.Matrix;
+import utilities.DistanceMetric;
 import utilities.Utilities;
 
 public class Clustering {
@@ -57,7 +58,7 @@ public class Clustering {
 							answer = 1;
 						} else if (features.m_enum_to_str.get(dimensionIndex).size() == 0) {
 							// real / continuous
-							answer = Math.pow(val - centroidVal, 2);
+							answer = DistanceMetric.calculate(val, centroidVal);
 
 						} else {
 							// nominal / categorical
