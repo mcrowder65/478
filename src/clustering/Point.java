@@ -22,6 +22,39 @@ public class Point {
 
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((dimensions == null) ? 0 : dimensions.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Point other = (Point) obj;
+		if (dimensions == null) {
+			if (other.dimensions != null)
+				return false;
+		} else if (!dimensions.equals(other.dimensions))
+			return false;
+		if (dimensions.size() != other.dimensions.size()) {
+			return false;
+		}
+		for (int i = 0; i < dimensions.size(); i++) {
+			if (!dimensions.get(i).equals(other.dimensions.get(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public Point(double[] arr) {
 		dimensions = new ArrayList<>();
 		for (int i = 0; i < arr.length; i++) {
@@ -56,6 +89,16 @@ public class Point {
 
 	public void addDimension(double d) {
 		getDimensions().add(d);
+	}
+
+	public double calculateDissimilarity(Cluster cluster, Matrix features) {
+		// TODO who knows if this is correct
+		List<Point> dimensions = cluster.getDimensions();
+		double dissimilarity = 0;
+		for (int i = 0; i < dimensions.size(); i++) {
+			dissimilarity += this.calculateDistance(dimensions.get(i), features);
+		}
+		return dissimilarity;
 	}
 
 	public double calculateDistance(Point that, Matrix features) {

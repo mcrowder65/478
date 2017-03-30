@@ -26,6 +26,22 @@ public class Utilities {
 		outputArray(arr, true);
 	}
 
+	static public void outputArray(List<Double> arr) {
+		outputArray(arr, true);
+	}
+
+	static public void outputArray(List<Double> arr, boolean outputNewLine) {
+		System.out.print("{ ");
+		for (int i = 0; i < arr.size(); i++) {
+			System.out.print(i != arr.size() - 1 ? Utilities.round(arr.get(i), 10000000.0) + ", "
+					: Utilities.round(arr.get(i), 100000.0));
+		}
+		System.out.print(" }");
+		if (outputNewLine) {
+			System.out.println();
+		}
+	}
+
 	static public void outputArray(String[] arr) {
 		outputArray(arr, true);
 	}

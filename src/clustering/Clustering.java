@@ -8,7 +8,7 @@ import utilities.DistanceMetric;
 import utilities.Utilities;
 
 public class Clustering {
-	private final int k = 5;
+	private final int k = 4;
 
 	public void clusterTrain(Matrix features) {
 		Matrix originalFeatures = new Matrix(features, 0, 0, features.rows(), features.cols());
@@ -113,6 +113,9 @@ public class Clustering {
 			}
 			if (previousSSE == totalSSE) {
 				imAwesome = false;
+				for (int i = 0; i < clusters.size(); i++) {
+					Utilities.outputArray(clusters.get(i).getSilhouettes(clusters, features));
+				}
 			}
 			previousSSE = totalSSE;
 			System.out.println("Total SSE: " + Utilities.round(totalSSE, 1000));
