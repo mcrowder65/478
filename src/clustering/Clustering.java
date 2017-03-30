@@ -113,9 +113,20 @@ public class Clustering {
 			}
 			if (previousSSE == totalSSE) {
 				imAwesome = false;
+				double silhouetteScore = 0;
+				double totalNumberOfInstances = 0;
 				for (int i = 0; i < clusters.size(); i++) {
-					Utilities.outputArray(clusters.get(i).getSilhouettes(clusters, features));
+					List<Double> silhouettes = clusters.get(i).getSilhouettes(clusters, features);
+					totalNumberOfInstances += silhouettes.size();
+					for (int x = 0; x < silhouettes.size(); x++) {
+						silhouetteScore += silhouettes.get(x);
+					}
 				}
+				if (totalNumberOfInstances != features.rows()) {
+					System.err.println("something is going wrong with your silhouette calculations");
+				}
+				silhouetteScore /= totalNumberOfInstances;
+				System.out.println("silhouette score: " + silhouetteScore);
 			}
 			previousSSE = totalSSE;
 			System.out.println("Total SSE: " + Utilities.round(totalSSE, 1000));

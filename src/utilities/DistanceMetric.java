@@ -16,4 +16,8 @@ public class DistanceMetric {
 	public static double euclideanDistance(double one, double two) {
 		return Math.pow(one - two, 2);
 	}
+
+	public static double manhattanDistance(double one, double two) {
+		return Math.abs(one - two);
+	}
 }

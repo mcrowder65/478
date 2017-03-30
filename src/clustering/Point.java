@@ -98,7 +98,7 @@ public class Point {
 		for (int i = 0; i < dimensions.size(); i++) {
 			dissimilarity += this.calculateDistance(dimensions.get(i), features);
 		}
-		return dissimilarity;
+		return dissimilarity /= dimensions.size();
 	}
 
 	public double calculateDistance(Point that, Matrix features) {
